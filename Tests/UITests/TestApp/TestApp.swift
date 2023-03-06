@@ -6,15 +6,23 @@
 // SPDX-License-Identifier: MIT
 //
 
+import CardinalKitQuestionnaire
+import FHIRQuestionnaires
 import SwiftUI
-import TemplatePackage
 
 
 @main
 struct UITestsApp: App {
+    @State var displayQuestionnaire = false
+    
     var body: some Scene {
         WindowGroup {
-            Text(TemplatePackage().stanford)
+            Button("Display Questionnaire") {
+                displayQuestionnaire.toggle()
+            }
+                .sheet(isPresented: $displayQuestionnaire) {
+                    QuestionnaireView(questionnaire: Questionnaire.gcs)
+                }
         }
     }
 }
