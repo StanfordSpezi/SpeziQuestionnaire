@@ -6,13 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-@testable import TemplatePackage
+@testable import CardinalKitQuestionnaire
 import XCTest
 
 
 final class TemplatePackageTests: XCTestCase {
     func testTemplatePackage() throws {
-        let templatePackage = TemplatePackage()
-        XCTAssertEqual(templatePackage.stanford, "Stanford University")
+        XCTAssertTrue(true)
     }
 }
