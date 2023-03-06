@@ -10,7 +10,8 @@ SPDX-License-Identifier: MIT
 
 # CardinalKit Questionnaire
 
-[![Build and Test](https://github.com/StanfordBDHG/Questionnaire/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/StanfordBDHG/Questionnaire/actions/workflows/build-and-test.yml)
+[![Build and Test](https://github.com/StanfordBDHG/CardinalKitQuestionnaire/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/StanfordBDHG/CardinalKitQuestionnaire/actions/workflows/build-and-test.yml)
+[![codecov](https://codecov.io/gh/StanfordBDHG/CardinalKitQuestionnaire/branch/main/graph/badge.svg?token=pJpdcIATps)](https://codecov.io/gh/StanfordBDHG/CardinalKitQuestionnaire)
 
 The Questionnaire module allows users to incorporate questionnaires based on the FHIR Standard in CardinalKit-based applications.
 
