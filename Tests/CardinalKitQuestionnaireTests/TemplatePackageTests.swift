@@ -1,5 +1,5 @@
 //
-// This source file is part of the TemplatePackage open source project
+// This source file is part of the CardinalKit open source project
 //
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
@@ -10,8 +10,8 @@
 import XCTest
 
 
-final class TemplatePackageTests: XCTestCase {
-    func testTemplatePackage() throws {
+final class CardinalKitQuestionnaireTests: XCTestCase {
+    func testCardinalKitQuestionnaire() throws {
         XCTAssertTrue(true)
     }
 }
