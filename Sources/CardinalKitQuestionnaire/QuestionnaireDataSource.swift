@@ -7,7 +7,7 @@
 //
 
 import CardinalKit
-import FHIR
+import CardinalKitFHIR
 import ModelsR4
 import SwiftUI
 
