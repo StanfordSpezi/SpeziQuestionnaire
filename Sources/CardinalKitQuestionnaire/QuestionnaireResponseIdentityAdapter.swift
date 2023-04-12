@@ -7,7 +7,7 @@
 //
 
 import CardinalKit
-import FHIR
+import CardinalKitFHIR
 
 
 actor QuestionnaireResponseIdentityAdapter: SingleValueAdapter {

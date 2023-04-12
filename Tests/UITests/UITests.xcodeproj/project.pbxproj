@@ -7,13 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F2E8EF329E727AF00D439B7 /* CardinalKitQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* CardinalKitQuestionnaire */; };
+		2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */; };
+		2F2E8EF929E727AF00D439B7 /* CardinalKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF829E727AF00D439B7 /* CardinalKit */; };
 		2F6D139A28F5F386007C25D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F6D139928F5F386007C25D6 /* Assets.xcassets */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
-		2F8A46AD29B5D4DF001F848B /* CardinalKitQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F8A46AC29B5D4DF001F848B /* CardinalKitQuestionnaire */; };
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
-		2FF831DA29B5D2760096DFAB /* CardinalKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2FF831D929B5D2760096DFAB /* CardinalKit */; };
-		2FF831DC29B5D2760096DFAB /* FHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 2FF831DB29B5D2760096DFAB /* FHIR */; };
-		2FF831DF29B5D3450096DFAB /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 2FF831DE29B5D3450096DFAB /* FHIRQuestionnaires */; };
 		2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,10 +42,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FF831DF29B5D3450096DFAB /* FHIRQuestionnaires in Frameworks */,
-				2F8A46AD29B5D4DF001F848B /* CardinalKitQuestionnaire in Frameworks */,
-				2FF831DC29B5D2760096DFAB /* FHIR in Frameworks */,
-				2FF831DA29B5D2760096DFAB /* CardinalKit in Frameworks */,
+				2F2E8EF329E727AF00D439B7 /* CardinalKitQuestionnaire in Frameworks */,
+				2F2E8EF929E727AF00D439B7 /* CardinalKit in Frameworks */,
+				2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,10 +121,9 @@
 			);
 			name = TestApp;
 			packageProductDependencies = (
-				2FF831D929B5D2760096DFAB /* CardinalKit */,
-				2FF831DB29B5D2760096DFAB /* FHIR */,
-				2FF831DE29B5D3450096DFAB /* FHIRQuestionnaires */,
-				2F8A46AC29B5D4DF001F848B /* CardinalKitQuestionnaire */,
+				2F2E8EF229E727AF00D439B7 /* CardinalKitQuestionnaire */,
+				2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */,
+				2F2E8EF829E727AF00D439B7 /* CardinalKit */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -179,8 +176,8 @@
 			);
 			mainGroup = 2F6D138928F5F384007C25D6;
 			packageReferences = (
-				2FF831D829B5D2760096DFAB /* XCRemoteSwiftPackageReference "CardinalKit" */,
 				2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
+				2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "CardinalKit" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -599,12 +596,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2FF831D829B5D2760096DFAB /* XCRemoteSwiftPackageReference "CardinalKit" */ = {
+		2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "CardinalKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StanfordBDHG/CardinalKit.git";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 0.3.3;
+				minimumVersion = 0.4.1;
 			};
 		};
 		2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */ = {
@@ -612,30 +609,25 @@
 			repositoryURL = "https://github.com/StanfordBDHG/ResearchKitOnFHIR";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 0.1.6;
+				minimumVersion = 0.2.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2F8A46AC29B5D4DF001F848B /* CardinalKitQuestionnaire */ = {
+		2F2E8EF229E727AF00D439B7 /* CardinalKitQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = CardinalKitQuestionnaire;
 		};
-		2FF831D929B5D2760096DFAB /* CardinalKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2FF831D829B5D2760096DFAB /* XCRemoteSwiftPackageReference "CardinalKit" */;
-			productName = CardinalKit;
-		};
-		2FF831DB29B5D2760096DFAB /* FHIR */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2FF831D829B5D2760096DFAB /* XCRemoteSwiftPackageReference "CardinalKit" */;
-			productName = FHIR;
-		};
-		2FF831DE29B5D3450096DFAB /* FHIRQuestionnaires */ = {
+		2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
 			productName = FHIRQuestionnaires;
+		};
+		2F2E8EF829E727AF00D439B7 /* CardinalKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "CardinalKit" */;
+			productName = CardinalKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -15,6 +15,7 @@ import SwiftUI
 struct UITestsApp: App {
     @State var displayQuestionnaire = false
     
+    
     var body: some Scene {
         WindowGroup {
             Button("Display Questionnaire") {

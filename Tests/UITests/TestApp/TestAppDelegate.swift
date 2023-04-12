@@ -7,8 +7,8 @@
 //
 
 import CardinalKit
+import CardinalKitFHIR
 import CardinalKitQuestionnaire
-import FHIR
 import SwiftUI
 
 
