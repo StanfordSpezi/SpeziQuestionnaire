@@ -601,7 +601,7 @@
 			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
 			requirement = {
 				kind = upToNextMinorVersion;
-				minimumVersion = 0.4.1;
+				minimumVersion = 0.5.0;
 			};
 		};
 		2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */ = {
