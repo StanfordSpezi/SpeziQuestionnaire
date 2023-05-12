@@ -606,7 +606,7 @@
 		};
 		2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StanfordSpezi/ResearchKitOnFHIR";
+			repositoryURL = "https://github.com/StanfordBDHG/ResearchKitOnFHIR";
 			requirement = {
 				kind = upToNextMinorVersion;
 				minimumVersion = 0.2.1;
