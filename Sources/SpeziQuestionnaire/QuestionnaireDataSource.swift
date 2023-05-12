@@ -6,9 +6,9 @@
 // SPDX-License-Identifier: MIT
 //
 
+import ModelsR4
 import Spezi
 import SpeziFHIR
-import ModelsR4
 import SwiftUI
 
 
