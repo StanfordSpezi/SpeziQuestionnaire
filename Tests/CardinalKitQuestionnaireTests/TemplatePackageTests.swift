@@ -1,17 +1,17 @@
 //
-// This source file is part of the CardinalKit open source project
+// This source file is part of the Spezi open source project
 //
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
 // SPDX-License-Identifier: MIT
 //
 
-@testable import CardinalKitQuestionnaire
+@testable import SpeziQuestionnaire
 import XCTest
 
 
-final class CardinalKitQuestionnaireTests: XCTestCase {
-    func testCardinalKitQuestionnaire() throws {
+final class SpeziQuestionnaireTests: XCTestCase {
+    func testSpeziQuestionnaire() throws {
         XCTAssertTrue(true)
     }
 }

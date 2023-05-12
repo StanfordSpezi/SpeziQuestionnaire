@@ -1,7 +1,7 @@
 // swift-tools-version:5.7
 
 //
-// This source file is part of the CardinalKit open source project
+// This source file is part of the Spezi open source project
 // 
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 // 
@@ -12,26 +12,26 @@ import PackageDescription
 
 
 let package = Package(
-    name: "CardinalKitQuestionnaire",
+    name: "SpeziQuestionnaire",
     platforms: [
         .iOS(.v16)
     ],
     products: [
-        .library(name: "CardinalKitQuestionnaire", targets: ["CardinalKitQuestionnaire"])
+        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/CardinalKit", .upToNextMinor(from: "0.4.1")),
-        .package(url: "https://github.com/StanfordBDHG/CardinalKitFHIR", .upToNextMinor(from: "0.2.1")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.9"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", .upToNextMinor(from: "0.2.1"))
+        .package(url: "https://github.com/StanfordSpezi/Spezi", .upToNextMinor(from: "0.4.1")),
+        .package(url: "https://github.com/StanfordSpezi/SpeziFHIR", .upToNextMinor(from: "0.2.1")),
+        .package(url: "https://github.com/StanfordSpezi/ResearchKit", from: "2.2.9"),
+        .package(url: "https://github.com/StanfordSpezi/ResearchKitOnFHIR", .upToNextMinor(from: "0.2.1"))
     ],
     targets: [
         .target(
-            name: "CardinalKitQuestionnaire",
+            name: "SpeziQuestionnaire",
             dependencies: [
-                .product(name: "CardinalKit", package: "CardinalKit"),
-                .product(name: "CardinalKitFHIR", package: "CardinalKitFHIR"),
+                .product(name: "Spezi", package: "Spezi"),
+                .product(name: "SpeziFHIR", package: "SpeziFHIR"),
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR"),
                 .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR"),
@@ -39,9 +39,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "CardinalKitQuestionnaireTests",
+            name: "SpeziQuestionnaireTests",
             dependencies: [
-                .target(name: "CardinalKitQuestionnaire")
+                .target(name: "SpeziQuestionnaire")
             ]
         )
     ]

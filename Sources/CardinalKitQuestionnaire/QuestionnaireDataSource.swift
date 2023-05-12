@@ -1,23 +1,23 @@
 //
-// This source file is part of the CardinalKit open-source project
+// This source file is part of the Stanford Spezi open-source project
 //
 // SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
 // SPDX-License-Identifier: MIT
 //
 
-import CardinalKit
-import CardinalKitFHIR
+import Spezi
+import SpeziFHIR
 import ModelsR4
 import SwiftUI
 
 
-/// Maps `Questionnaires` returned from the ``QuestionnaireView`` to the `Standard` of the CardinalKit application.
+/// Maps `Questionnaires` returned from the ``QuestionnaireView`` to the `Standard` of the Spezi application.
 ///
 /// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
-/// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the FHIR standard in your CardinalKit application:
+/// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the FHIR standard in your Spezi application:
 /// ```swift
-/// class ExampleAppDelegate: CardinalKitAppDelegate {
+/// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {
 ///         Configuration(standard: FHIR()) {
 ///             QuestionnaireDataSource()
