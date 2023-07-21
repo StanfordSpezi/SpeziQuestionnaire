@@ -6,25 +6,25 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Spezi
-import SpeziFHIR
-
-
-actor QuestionnaireResponseIdentityAdapter: SingleValueAdapter {
-    typealias InputElement = QuestionnaireResponse
-    typealias InputRemovalContext = Resource.ID
-    typealias OutputElement = FHIR.BaseType
-    typealias OutputRemovalContext = FHIR.RemovalContext
-    
-    
-    func transform(element: InputElement) throws -> OutputElement {
-        element
-    }
-    
-    func transform(removalContext: InputRemovalContext) throws -> OutputRemovalContext {
-        OutputRemovalContext(
-            id: removalContext,
-            resourceType: QuestionnaireResponse.resourceType
-        )
-    }
-}
+//import Spezi
+//import SpeziFHIR
+//
+//
+//actor QuestionnaireResponseIdentityAdapter: SingleValueAdapter {
+//    typealias InputElement = QuestionnaireResponse
+//    typealias InputRemovalContext = Resource.ID
+//    typealias OutputElement = FHIR.BaseType
+//    typealias OutputRemovalContext = FHIR.RemovalContext
+//
+//
+//    func transform(element: InputElement) throws -> OutputElement {
+//        element
+//    }
+//
+//    func transform(removalContext: InputRemovalContext) throws -> OutputRemovalContext {
+//        OutputRemovalContext(
+//            id: removalContext,
+//            resourceType: QuestionnaireResponse.resourceType
+//        )
+//    }
+//}

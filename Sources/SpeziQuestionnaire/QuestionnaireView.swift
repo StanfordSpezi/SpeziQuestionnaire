@@ -11,10 +11,9 @@ import ModelsR4
 import ResearchKit
 import SwiftUI
 
-
 /// Renders a FHIR `Questionnaire`.
 public struct QuestionnaireView: View {
-    @EnvironmentObject private var questionnaireDataSource: AnyQuestionnaireDataSource
+    @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
     private let questionnaire: Questionnaire
     private let questionnaireResponseClosure: ((QuestionnaireResponse) -> Void)?
     private let completionStepMessage: String?

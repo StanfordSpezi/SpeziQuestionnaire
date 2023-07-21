@@ -7,14 +7,18 @@
 //
 
 import Spezi
-import SpeziFHIR
+//import SpeziFHIR
 import SpeziQuestionnaire
 import SwiftUI
 
+actor ExampleStandard: Standard {
+    // ...
+}
 
 class TestAppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
-        Configuration(standard: FHIR()) {
+//        Configuration(standard: FHIR()) {
+        Configuration(standard: ExampleStandard()) {
             QuestionnaireDataSource()
         }
     }
