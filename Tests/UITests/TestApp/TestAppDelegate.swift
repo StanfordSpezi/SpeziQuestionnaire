@@ -7,7 +7,6 @@
 //
 
 import Spezi
-//import SpeziFHIR
 import SpeziQuestionnaire
 import SwiftUI
 
