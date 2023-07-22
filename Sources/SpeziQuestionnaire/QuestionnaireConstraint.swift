@@ -9,7 +9,7 @@
 import Spezi
 import ModelsR4
 
-/// A Standard which Questionnaires must follow
+/// A Standard which all Spezi Questionnaires must follow
 public protocol QuestionnaireConstraint: Standard {
     
     /// Adds a new `QuestionnaireResponse` to the ``QuestionnaireDataSource``
