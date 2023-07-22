@@ -6,8 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Spezi
 import ModelsR4
+import Spezi
 
 /// A Standard which all Spezi Questionnaires must follow
 public protocol QuestionnaireConstraint: Standard {

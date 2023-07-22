@@ -12,10 +12,8 @@ import XCTest
 class TestAppUITests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
-        
         continueAfterFailure = false
     }
-    
     
     func testSpezi() throws {
         let app = XCUIApplication()
