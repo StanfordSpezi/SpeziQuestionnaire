@@ -26,8 +26,6 @@ import SwiftUI
 /// ```
 ///
 public class QuestionnaireDataSource: Component, LifecycleHandler, ObservableObject {
-    
-    
     @StandardActor var standard: any QuestionnaireConstraint
     
     public init() { }
