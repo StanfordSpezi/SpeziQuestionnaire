@@ -10,13 +10,13 @@ import Spezi
 import SpeziQuestionnaire
 import SwiftUI
 
+/// an example Standard used for the configuration
 actor ExampleStandard: Standard {
     // ...
 }
 
 class TestAppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
-//        Configuration(standard: FHIR()) {
         Configuration(standard: ExampleStandard()) {
             QuestionnaireDataSource()
         }
