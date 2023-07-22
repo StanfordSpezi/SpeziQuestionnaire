@@ -14,7 +14,7 @@ import SwiftUI
 /// Maps `Questionnaires` returned from the ``QuestionnaireView`` to the `Standard` of the Spezi application.
 ///
 /// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
-/// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the FHIR standard in your Spezi application:
+/// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the Questionnaire standard in your Spezi application:
 /// ```swift
 /// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {

@@ -35,7 +35,7 @@ public struct QuestionnaireView: View {
     
     
     /// - Parameters:
-    ///   - questionnaire: The FHIR `Questionnaire` that should be displayed.
+    ///   - questionnaire: The  `Questionnaire` that should be displayed.
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
     ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
     ///                            If no closure is provided, the `QuestionnaireResponse` instance is send to the `QuestionnaireDataSource` found in the SwiftUI environment.
@@ -50,8 +50,8 @@ public struct QuestionnaireView: View {
     }
     
     
-    /// Creates a ResearchKit navigable task from a FHIR questionnaire
-    /// - Parameter questionnaire: a FHIR questionnaire
+    /// Creates a ResearchKit navigable task from a questionnaire
+    /// - Parameter questionnaire: a questionnaire
     /// - Returns: a ResearchKit navigable task
     private func createTask(questionnaire: Questionnaire) -> ORKNavigableOrderedTask? {
         // Create a completion step to add to the end of the Questionnaire (optional)
