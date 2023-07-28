@@ -9,9 +9,10 @@
 import ModelsR4
 import Spezi
 
-/// A Standard which all Spezi Questionnaires must follow
+
+/// A Constraint which all `Standard` instances must conform to when using the Spezi Questionnaire module.
 public protocol QuestionnaireConstraint: Standard {
-    /// Adds a new `QuestionnaireResponse` to the ``QuestionnaireDataSource``
+    /// Adds a new `QuestionnaireResponse` to the `Standard` conforming to `QuestionnaireConstraint`.
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
     func add(_ response: QuestionnaireResponse) async
 }

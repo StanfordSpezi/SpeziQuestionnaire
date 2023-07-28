@@ -11,22 +11,31 @@ import Spezi
 import SwiftUI
 
 
-/// Maps `Questionnaires` returned from the ``QuestionnaireView`` to the `Standard` of the Spezi application.
+/// Configuration for the Spezi Questionnaire module.
+///
+///
+/// ```swift
+/// actor ExampleStandard: Standard, QuestionnaireConstraint {
+///    func add(_ response: ModelsR4.QuestionnaireResponse) async {
+///        ...
+///    }
+/// }
+/// ```
 ///
 /// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
 /// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the Questionnaire standard in your Spezi application:
 /// ```swift
 /// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {
-///         Configuration(standard: FHIR()) {
+///         Configuration(standard: ExampleStandard()) {
 ///             QuestionnaireDataSource()
 ///         }
 ///     }
 /// }
 /// ```
-///
-public class QuestionnaireDataSource: Component, LifecycleHandler, ObservableObject {
+public class QuestionnaireDataSource: Component, ObservableObject {
     @StandardActor var standard: any QuestionnaireConstraint
+    
     
     public init() { }
     
