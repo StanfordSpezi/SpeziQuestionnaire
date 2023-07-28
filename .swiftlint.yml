@@ -376,10 +376,9 @@ deployment_target: # Availability checks or attributes shouldn’t be using olde
   iOS_deployment_target: 16.0
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
-  - **/.build
-  - **/.swiftpm
-  - **/.derivedData
-  - **/.xcodebuild
+  - .build
+  - .swiftpm
+  - Tests/UITests/.derivedData
 
 closure_body_length: # Closure bodies should not span too many lines.
   - 35 # warning - default: 20
