@@ -9,14 +9,19 @@
 import ModelsR4
 import Spezi
 import SpeziQuestionnaire
+import SwiftUI
 
-/// an example Standard used for the configuration.
-actor ExampleStandard: Standard {
-    var surveyResponseCount: Int = 0
+
+/// An example Standard used for the configuration.
+actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
+    @Published @MainActor var surveyResponseCount: Int = 0
 }
+
 
 extension ExampleStandard: QuestionnaireConstraint {
     func add(_ response: ModelsR4.QuestionnaireResponse) async {
-        surveyResponseCount += 1
+        _Concurrency.Task { @MainActor in
+            surveyResponseCount += 1
+        }
     }
 }

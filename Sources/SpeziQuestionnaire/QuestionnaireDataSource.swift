@@ -33,7 +33,7 @@ import SwiftUI
 ///     }
 /// }
 /// ```
-public class QuestionnaireDataSource: Component, ObservableObject {
+public class QuestionnaireDataSource: Component, ObservableObject, ObservableObjectProvider {
     @StandardActor var standard: any QuestionnaireConstraint
     
     

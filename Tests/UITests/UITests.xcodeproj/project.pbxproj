@@ -11,6 +11,7 @@
 		2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */; };
 		2F2E8EF929E727AF00D439B7 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF829E727AF00D439B7 /* Spezi */; };
 		2F6D139A28F5F386007C25D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F6D139928F5F386007C25D6 /* Assets.xcassets */; };
+		2F7CC6062A79B68D00F42D90 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7CC6052A79B68D00F42D90 /* ContentView.swift */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
 		2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */; };
@@ -33,6 +34,7 @@
 		2F6D139228F5F384007C25D6 /* TestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F6D139928F5F386007C25D6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2F6D13AC28F5F386007C25D6 /* TestAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F7CC6052A79B68D00F42D90 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2F8A431229130A8C005D2B8F /* TestAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppUITests.swift; sourceTree = "<group>"; };
 		2FA7382B290ADFAA007ACEB9 /* TestApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestApp.swift; sourceTree = "<group>"; };
 		2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppDelegate.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 				2FA7382B290ADFAA007ACEB9 /* TestApp.swift */,
 				2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */,
 				393B47412A747894004DCB08 /* ExampleStandard.swift */,
+				2F7CC6052A79B68D00F42D90 /* ContentView.swift */,
 				2F6D139928F5F386007C25D6 /* Assets.xcassets */,
 			);
 			path = TestApp;
@@ -239,6 +242,7 @@
 			files = (
 				2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */,
 				393B47422A747894004DCB08 /* ExampleStandard.swift in Sources */,
+				2F7CC6062A79B68D00F42D90 /* ContentView.swift in Sources */,
 				2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
