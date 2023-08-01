@@ -12,8 +12,9 @@ import SwiftUI
 
 
 /// Configuration for the Spezi Questionnaire module.
-///
-///
+/// 
+/// Make sure that your standard in your Spezi Application conforms to the ``QuestionnaireConstraint``
+/// protocol to receive questionnaire responses.
 /// ```swift
 /// actor ExampleStandard: Standard, QuestionnaireConstraint {
 ///    func add(_ response: ModelsR4.QuestionnaireResponse) async {
@@ -23,7 +24,6 @@ import SwiftUI
 /// ```
 ///
 /// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
-/// You can use the ``QuestionnaireDataSource/init()`` initializer of you use the Questionnaire standard in your Spezi application:
 /// ```swift
 /// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {

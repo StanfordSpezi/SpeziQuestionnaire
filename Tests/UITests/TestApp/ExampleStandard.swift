@@ -6,11 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
+import ModelsR4
 import Spezi
 import SpeziQuestionnaire
-import ModelsR4
 
-/// an example Standard used for the configuration
+/// an example Standard used for the configuration.
 actor ExampleStandard: Standard {
     var surveyResponseCount: Int = 0
 }
