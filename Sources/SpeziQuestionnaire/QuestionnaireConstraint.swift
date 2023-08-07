@@ -14,5 +14,5 @@ import Spezi
 public protocol QuestionnaireConstraint: Standard {
     /// Adds a new `QuestionnaireResponse` to the `Standard` conforming to `QuestionnaireConstraint`.
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    func add(_ response: QuestionnaireResponse) async
+    func add(response: QuestionnaireResponse) async
 }
