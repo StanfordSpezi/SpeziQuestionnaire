@@ -13,17 +13,13 @@ import SwiftUI
 
 @main
 struct UITestsApp: App {
-    @State var displayQuestionnaire = false
+    @UIApplicationDelegateAdaptor(TestAppDelegate.self) var appDelegate
     
     
     var body: some Scene {
         WindowGroup {
-            Button("Display Questionnaire") {
-                displayQuestionnaire.toggle()
-            }
-                .sheet(isPresented: $displayQuestionnaire) {
-                    QuestionnaireView(questionnaire: Questionnaire.gcs)
-                }
+            ContentView()
+                .spezi(appDelegate)
         }
     }
 }

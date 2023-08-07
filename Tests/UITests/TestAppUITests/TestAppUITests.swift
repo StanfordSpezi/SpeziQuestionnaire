@@ -12,18 +12,40 @@ import XCTest
 class TestAppUITests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
-        
         continueAfterFailure = false
     }
-    
     
     func testSpezi() throws {
         let app = XCUIApplication()
         app.launch()
         
+        XCTAssert(app.staticTexts["No. of surveys complete: 0"].waitForExistence(timeout: 2))
+        
         XCTAssert(app.buttons["Display Questionnaire"].waitForExistence(timeout: 2))
         app.buttons["Display Questionnaire"].tap()
         
         XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
+        
+        let table = app.tables.element(boundBy: 0)
+        XCTAssertTrue(table.exists)
+        
+        /// Select the "Confused" option on the questionnaire.
+        let cell = table.cells.element(boundBy: 3)
+        XCTAssertTrue(cell.exists)
+        let thirdCellText = cell.staticTexts["Confused"]
+        XCTAssert(thirdCellText.exists)
+        thirdCellText.tap()
+        
+        /// Tap Next to move to the next question
+        app.buttons["Next"].tap()
+        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
+        
+        app.buttons["Skip"].tap()
+        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
+        
+        app.buttons["Skip"].tap()
+        
+        /// Verify that the number of survey responses increases
+        XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
     }
 }
