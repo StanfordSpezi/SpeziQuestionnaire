@@ -18,12 +18,7 @@ struct ContentView: View {
     
     
     var body: some View {
-        Text("No. of surveys complete: \(surveyResponseCount)")
-            .onReceive(standard.objectWillChange) { _ in
-                Task { @MainActor in
-                    surveyResponseCount = await standard.surveyResponseCount
-                }
-            }
+        Text("No. of surveys complete: \(standard.surveyResponseCount)")
         Button("Display Questionnaire") {
             displayQuestionnaire.toggle()
         }
