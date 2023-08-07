@@ -43,7 +43,7 @@ public class QuestionnaireDataSource: Component, ObservableObject, ObservableObj
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
     public func add(_ response: QuestionnaireResponse) {
         _Concurrency.Task {
-            await standard.add(response)
+            await standard.add(response: response)
         }
     }
 }

@@ -19,7 +19,7 @@ actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
 
 
 extension ExampleStandard: QuestionnaireConstraint {
-    func add(_ response: ModelsR4.QuestionnaireResponse) async {
+    func add(response: ModelsR4.QuestionnaireResponse) async {
         _Concurrency.Task { @MainActor in
             surveyResponseCount += 1
         }

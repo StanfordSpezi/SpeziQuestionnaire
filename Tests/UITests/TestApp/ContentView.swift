@@ -13,7 +13,6 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var standard: ExampleStandard
-    @State var surveyResponseCount = 0
     @State var displayQuestionnaire = false
     
     
