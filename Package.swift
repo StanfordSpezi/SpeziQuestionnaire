@@ -23,7 +23,7 @@ let package = Package(
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
         .package(url: "https://github.com/StanfordSpezi/Spezi", .upToNextMinor(from: "0.7.0")),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.9"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", .upToNextMinor(from: "0.2.1"))
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", .upToNextMinor(from: "0.2.2"))
     ],
     targets: [
         .target(
