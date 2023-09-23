@@ -39,7 +39,7 @@ You need to add the Spezi Questionnaire Swift package to
 
 In order to recieve responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your Configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the ``QuestionnaireConstraint`` protocol. 
 
-Below, we create an `ExampleStandard` and extend it to implement an `add` function which receives the result of our questionnaire as a FHIR R4 QuestionnaireResponse. In this simple example, completing a survey increases the surveyResponseCount.
+Below, we create an `ExampleStandard` and extend it to implement an `add` function which receives the result of our questionnaire as a [FHIR QuestionnaireResponse](http://hl7.org/fhir/R4/questionnaireresponse.html). In this simple example, completing a survey increases the surveyResponseCount.
 
 ```swift
 /// An example Standard used for the configuration.
