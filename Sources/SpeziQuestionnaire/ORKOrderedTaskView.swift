@@ -15,10 +15,10 @@ import UIKit
 
 struct ORKOrderedTaskView: UIViewControllerRepresentable {
     class Coordinator: NSObject, ORKTaskViewControllerDelegate, ObservableObject {
-        private let questionnaireResponse: (QuestionnaireResponse) async -> Void
+        private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
         
         
-        init(_ questionnaireResponse: @escaping (QuestionnaireResponse) async -> Void) {
+        init(_ questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void) {
             self.questionnaireResponse = questionnaireResponse
         }
         
@@ -46,7 +46,7 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     
     private let tasks: ORKOrderedTask
     private let tintColor: Color
-    private let questionnaireResponse: (QuestionnaireResponse) async -> Void
+    private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
     
     
     /// - Parameters:
@@ -54,7 +54,7 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     ///   - delegate: An `ORKTaskViewControllerDelegate` that handles delegate calls from the `ORKTaskViewController`. If no  view controller delegate is provided the view uses an instance of `CKUploadFHIRTaskViewControllerDelegate`.
     init(
         tasks: ORKOrderedTask,
-        questionnaireResponse: @escaping (QuestionnaireResponse) async -> Void,
+        questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void,
         tintColor: Color = Color(UIColor(named: "AccentColor") ?? .systemBlue)
     ) {
         self.tasks = tasks

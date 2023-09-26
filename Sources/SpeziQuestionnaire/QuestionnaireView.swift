@@ -17,7 +17,7 @@ import SwiftUI
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
     private let questionnaire: Questionnaire
-    private let questionnaireResponseClosure: ((QuestionnaireResponse) async -> Void)?
+    private let questionnaireResponseClosure: (@MainActor (QuestionnaireResponse) async -> Void)?
     private let completionStepMessage: String?
     
     
@@ -44,7 +44,7 @@ public struct QuestionnaireView: View {
     public init(
         questionnaire: Questionnaire,
         completionStepMessage: String? = nil,
-        questionnaireResponse: ((QuestionnaireResponse) async -> Void)? = nil
+        questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
     ) {
         self.questionnaire = questionnaire
         self.completionStepMessage = completionStepMessage
