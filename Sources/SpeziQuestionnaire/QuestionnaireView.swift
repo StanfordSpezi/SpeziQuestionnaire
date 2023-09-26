@@ -9,6 +9,7 @@
 import FHIRQuestionnaires
 import ModelsR4
 import ResearchKit
+import ResearchKitOnFHIR
 import SwiftUI
 
 
@@ -16,7 +17,7 @@ import SwiftUI
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
     private let questionnaire: Questionnaire
-    private let questionnaireResponseClosure: ((QuestionnaireResponse) -> Void)?
+    private let questionnaireResponseClosure: ((QuestionnaireResponse) async -> Void)?
     private let completionStepMessage: String?
     
     
@@ -24,7 +25,7 @@ public struct QuestionnaireView: View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(
                 tasks: task,
-                delegate: ORKTaskFHIRDelegate(questionnaireResponse),
+                questionnaireResponse: questionnaireResponse,
                 tintColor: .accentColor
             )
                 .ignoresSafeArea(.container, edges: .bottom)
@@ -43,7 +44,7 @@ public struct QuestionnaireView: View {
     public init(
         questionnaire: Questionnaire,
         completionStepMessage: String? = nil,
-        questionnaireResponse: ((QuestionnaireResponse) -> Void)? = nil
+        questionnaireResponse: ((QuestionnaireResponse) async -> Void)? = nil
     ) {
         self.questionnaire = questionnaire
         self.completionStepMessage = completionStepMessage
@@ -71,9 +72,9 @@ public struct QuestionnaireView: View {
         }
     }
     
-    private func questionnaireResponse(_ questionnaireResponse: QuestionnaireResponse) {
+    private func questionnaireResponse(_ questionnaireResponse: QuestionnaireResponse) async {
         if let questionnaireResponseClosure {
-            questionnaireResponseClosure(questionnaireResponse)
+            await questionnaireResponseClosure(questionnaireResponse)
         }
         questionnaireDataSource.add(questionnaireResponse)
     }
