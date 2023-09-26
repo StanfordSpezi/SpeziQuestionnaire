@@ -16,8 +16,10 @@ import SwiftUI
 /// Renders a FHIR `Questionnaire`.
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
+    
+    @Binding private var isPresented: Bool
+    
     private let questionnaire: Questionnaire
-    private let questionnaireResponseClosure: (@MainActor (QuestionnaireResponse) async -> Void)?
     private let completionStepMessage: String?
     
     
@@ -25,7 +27,10 @@ public struct QuestionnaireView: View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(
                 tasks: task,
-                questionnaireResponse: questionnaireResponse,
+                isPresented: $isPresented,
+                questionnaireResponse: { response in
+                    await questionnaireDataSource.add(response)
+                },
                 tintColor: .accentColor
             )
                 .ignoresSafeArea(.container, edges: .bottom)
@@ -38,17 +43,16 @@ public struct QuestionnaireView: View {
     
     /// - Parameters:
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
+    ///   - isPresented: Indication from the questionnaire view if should be presented (not "Done" pressed or cancelled).
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
-    ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
-    ///                            If no closure is provided, the `QuestionnaireResponse` instance is send to the `QuestionnaireDataSource` found in the SwiftUI environment.
     public init(
         questionnaire: Questionnaire,
-        completionStepMessage: String? = nil,
-        questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
+        isPresented: Binding<Bool> = .constant(true),
+        completionStepMessage: String? = nil
     ) {
         self.questionnaire = questionnaire
+        self._isPresented = isPresented
         self.completionStepMessage = completionStepMessage
-        self.questionnaireResponseClosure = questionnaireResponse
     }
     
     
@@ -73,10 +77,7 @@ public struct QuestionnaireView: View {
     }
     
     private func questionnaireResponse(_ questionnaireResponse: QuestionnaireResponse) async {
-        if let questionnaireResponseClosure {
-            await questionnaireResponseClosure(questionnaireResponse)
-        }
-        questionnaireDataSource.add(questionnaireResponse)
+        await questionnaireDataSource.add(questionnaireResponse)
     }
 }
 
@@ -84,7 +85,7 @@ public struct QuestionnaireView: View {
 #if DEBUG
 struct QuestionnaireView_Previews: PreviewProvider {
     static var previews: some View {
-        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample)
+        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample, isPresented: .constant(false))
     }
 }
 #endif
