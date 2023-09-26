@@ -20,6 +20,7 @@ public struct QuestionnaireView: View {
     @Binding private var isPresented: Bool
     
     private let questionnaire: Questionnaire
+    private let questionnaireResponse: ((QuestionnaireResponse) async -> Void)?
     private let completionStepMessage: String?
     
     
@@ -29,6 +30,7 @@ public struct QuestionnaireView: View {
                 tasks: task,
                 isPresented: $isPresented,
                 questionnaireResponse: { response in
+                    await questionnaireResponse?(response)
                     await questionnaireDataSource.add(response)
                 },
                 tintColor: .accentColor
@@ -45,14 +47,17 @@ public struct QuestionnaireView: View {
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
     ///   - isPresented: Indication from the questionnaire view if should be presented (not "Done" pressed or cancelled).
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
+    ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
     public init(
         questionnaire: Questionnaire,
         isPresented: Binding<Bool> = .constant(true),
-        completionStepMessage: String? = nil
+        completionStepMessage: String? = nil,
+        questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
     ) {
         self.questionnaire = questionnaire
         self._isPresented = isPresented
         self.completionStepMessage = completionStepMessage
+        self.questionnaireResponse = questionnaireResponse
     }
     
     
@@ -74,10 +79,6 @@ public struct QuestionnaireView: View {
             print("Error creating task: \(error)")
             return nil
         }
-    }
-    
-    private func questionnaireResponse(_ questionnaireResponse: QuestionnaireResponse) async {
-        await questionnaireDataSource.add(questionnaireResponse)
     }
 }
 

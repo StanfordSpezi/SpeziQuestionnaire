@@ -25,7 +25,11 @@ struct ContentView: View {
                 QuestionnaireView(
                     questionnaire: Questionnaire.gcs,
                     isPresented: $displayQuestionnaire,
-                    completionStepMessage: "Completed"
+                    completionStepMessage: "Completed",
+                    questionnaireResponse: { response in
+                        print(response)
+                        try? await Task.sleep(for: .seconds(0.5))
+                    }
                 )
             }
     }
