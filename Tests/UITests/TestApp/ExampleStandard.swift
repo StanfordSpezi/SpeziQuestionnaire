@@ -19,8 +19,9 @@ actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
 
 extension ExampleStandard: QuestionnaireConstraint {
     func add(response: ModelsR4.QuestionnaireResponse) async {
-        _Concurrency.Task { @MainActor in
+        await MainActor.run {
             surveyResponseCount += 1
         }
+        try? await Task.sleep(for: .seconds(0.5))
     }
 }

@@ -38,12 +38,15 @@ class TestAppUITests: XCTestCase {
         
         /// Tap Next to move to the next question
         app.buttons["Next"].tap()
-        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
         
+        XCTAssert(app.staticTexts["Best motor response"].waitForExistence(timeout: 2))
         app.buttons["Skip"].tap()
-        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
         
+        XCTAssert(app.staticTexts["Best eye response"].waitForExistence(timeout: 2))
         app.buttons["Skip"].tap()
+        
+        XCTAssert(app.staticTexts["Completed"].waitForExistence(timeout: 2))
+        app.buttons["Done"].tap()
         
         /// Verify that the number of survey responses increases
         XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
