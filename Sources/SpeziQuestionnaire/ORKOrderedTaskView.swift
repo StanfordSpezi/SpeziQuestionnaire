@@ -16,12 +16,12 @@ import UIKit
 struct ORKOrderedTaskView: UIViewControllerRepresentable {
     class Coordinator: NSObject, ORKTaskViewControllerDelegate, ObservableObject {
         private let isPresented: Binding<Bool>
-        private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
+        private let timedWalkResponse: @MainActor (ORKTimedWalkResult) async -> Void
         
         
-        init(isPresented: Binding<Bool>, questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void) {
+        init(isPresented: Binding<Bool>, timedWalkResponse: @escaping @MainActor (ORKTimedWalkResult) async -> Void) {
             self.isPresented = isPresented
-            self.questionnaireResponse = questionnaireResponse
+            self.timedWalkResponse = timedWalkResponse
         }
         
         
@@ -35,10 +35,10 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
                 
                 switch reason {
                 case .completed:
-                    let fhirResponse = taskViewController.result.fhirResponse
-                    fhirResponse.subject = Reference(reference: FHIRPrimitive(FHIRString("My Patient")))
+                    let response = taskViewController.result
                     
-                    await questionnaireResponse(fhirResponse)
+                    // what is this doing down here?
+                    await timedWalkResponse(response)
                 default:
                     break
                 }
@@ -49,7 +49,7 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     
     private let tasks: ORKOrderedTask
     private let tintColor: Color
-    private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
+    private let timedWalkResponse: @MainActor (ORKTimedWalkResult) async -> Void
     
     @Binding private var isPresented: Bool
     
@@ -60,18 +60,18 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     init(
         tasks: ORKOrderedTask,
         isPresented: Binding<Bool>,
-        questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void,
+        timedWalkResponse: @escaping @MainActor (ORKTimedWalkResult) async -> Void,
         tintColor: Color = Color(UIColor(named: "AccentColor") ?? .systemBlue)
     ) {
         self.tasks = tasks
         self._isPresented = isPresented
         self.tintColor = tintColor
-        self.questionnaireResponse = questionnaireResponse
+        self.timedWalkResponse = timedWalkResponse
     }
     
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(isPresented: $isPresented, questionnaireResponse: questionnaireResponse)
+        Coordinator(isPresented: $isPresented, timedWalkResponse: timedWalkResponse)
     }
     
     func updateUIViewController(_ uiViewController: ORKTaskViewController, context: Context) {
