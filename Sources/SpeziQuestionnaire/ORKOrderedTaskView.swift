@@ -35,9 +35,11 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
                 
                 switch reason {
                 case .completed:
-                    let response = taskViewController.result
-                    
-                    // what is this doing down here?
+                    // add a for loop to check for the ORKTimedWalkResult
+                    guard let response = taskViewController.result.results?.first as? ORKTimedWalkResult
+                    else {
+                        return
+                    }
                     await timedWalkResponse(response)
                 default:
                     break

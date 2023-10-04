@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+import ResearchKit
 import Spezi
 import SpeziQuestionnaire
 import SwiftUI
@@ -17,8 +18,9 @@ actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
 }
 
 
-extension ExampleStandard: QuestionnaireConstraint {
-    func add(response: ModelsR4.QuestionnaireResponse) async {
+extension ExampleStandard: Constraint {
+    
+    func add(response: ORKTimedWalkResult) async {
         await MainActor.run {
             surveyResponseCount += 1
         }

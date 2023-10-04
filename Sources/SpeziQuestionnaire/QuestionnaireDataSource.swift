@@ -7,6 +7,7 @@
 //
 
 import ModelsR4
+import ResearchKit
 import Spezi
 import SwiftUI
 
@@ -34,7 +35,7 @@ import SwiftUI
 /// }
 /// ```
 public class QuestionnaireDataSource: Component, ObservableObject, ObservableObjectProvider {
-    @StandardActor var standard: any QuestionnaireConstraint
+    @StandardActor var standard: any Constraint
     
     
     public init() { }
@@ -42,7 +43,7 @@ public class QuestionnaireDataSource: Component, ObservableObject, ObservableObj
     
     /// Adds a new `QuestionnaireResponse` to the ``QuestionnaireDataSource``
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    public func add(_ response: QuestionnaireResponse) async {
+    public func add(_ response: ORKTimedWalkResult) async {
         await standard.add(response: response)
     }
 }

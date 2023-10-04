@@ -19,10 +19,10 @@ public struct TimedWalkView: View {
     
     @Binding private var isPresented: Bool
     
-    private let identifier: String?
-    private let distanceInMeters: Double?
-    private let timeLimit: TimeInterval?
-    private let turnAroundTimeLimit: TimeInterval?
+    private let identifier: String
+    private let distanceInMeters: Double
+    private let timeLimit: TimeInterval
+    private let turnAroundTimeLimit: TimeInterval
     private let timedWalkResponse: ((ORKTimedWalkResult) async -> Void)?
 
         
@@ -51,10 +51,10 @@ public struct TimedWalkView: View {
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
     ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
     public init(
-        identifier: String?,
-        distanceInMeters: Double?,
-        timeLimit: TimeInterval?,
-        turnAroundTimeLimit: TimeInterval?,
+        identifier: String,
+        distanceInMeters: Double,
+        timeLimit: TimeInterval = 300,
+        turnAroundTimeLimit: TimeInterval = 100,
         isPresented: Binding<Bool> = .constant(true),
         timedWalkResponse: (@MainActor (ORKTimedWalkResult) async -> Void)? = nil
     ) {
@@ -72,12 +72,15 @@ public struct TimedWalkView: View {
     /// - Returns: a ResearchKit ordered task
     private func createTask() -> ORKOrderedTask? {
         // Create a navigable task from the Questionnaire
-        do {
-            return try timedWalk(withIdentifier: identifier, intendedUseDescription: "", distanceInMeters: distanceInMeters, timeLimit: timeLimit, turnAroundTimeLimit: turnAroundTimeLimit, includeAssistiveDeviceForm: false, options: ORKPredefinedTaskOption(rawValue: 0))
-        } catch {
-            print("Error creating task: \(error)")
-            return nil
-        }
+        return ORKOrderedTask.timedWalk(
+            withIdentifier: identifier,
+            intendedUseDescription: "",
+            distanceInMeters: distanceInMeters,
+            timeLimit: timeLimit,
+            turnAroundTimeLimit: turnAroundTimeLimit,
+            includeAssistiveDeviceForm: false,
+            options: ORKPredefinedTaskOption(rawValue: 0)
+        )
     }
 }
 
@@ -85,7 +88,12 @@ public struct TimedWalkView: View {
 #if DEBUG
 struct TimedWalkView_Previews: PreviewProvider {
     static var previews: some View {
-        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample, isPresented: .constant(false))
+        TimedWalkView(
+            identifier: "",
+            distanceInMeters: 5,
+            timeLimit: 5,
+            turnAroundTimeLimit: 5
+        )
     }
 }
 #endif
