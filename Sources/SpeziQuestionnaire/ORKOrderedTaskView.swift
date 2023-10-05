@@ -15,35 +15,21 @@ import UIKit
 
 struct ORKOrderedTaskView: UIViewControllerRepresentable {
     class Coordinator: NSObject, ORKTaskViewControllerDelegate, ObservableObject {
-        private let isPresented: Binding<Bool>
-        private let timedWalkResponse: @MainActor (ORKTimedWalkResult) async -> Void
-        
-        
-        init(isPresented: Binding<Bool>, timedWalkResponse: @escaping @MainActor (ORKTimedWalkResult) async -> Void) {
-            self.isPresented = isPresented
-            self.timedWalkResponse = timedWalkResponse
+        @Binding private var presentationState: PresentationState<ORKTaskResult>
+        init(presentationState: Binding<PresentationState<ORKTaskResult>>){
+            self._presentationState = presentationState
         }
-        
         
         func taskViewController(
             _ taskViewController: ORKTaskViewController,
             didFinishWith reason: ORKTaskViewControllerFinishReason,
             error: Error?
         ) {
-            _Concurrency.Task { @MainActor in
-                isPresented.wrappedValue = false
-                
-                switch reason {
-                case .completed:
-                    // add a for loop to check for the ORKTimedWalkResult
-                    guard let response = taskViewController.result.results?.first as? ORKTimedWalkResult
-                    else {
-                        return
-                    }
-                    await timedWalkResponse(response)
-                default:
-                    break
-                }
+            switch reason {
+            case .completed:
+                presentationState = .complete(taskViewController.result)
+            default:
+                presentationState = .cancelled
             }
         }
     }
@@ -51,29 +37,24 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     
     private let tasks: ORKOrderedTask
     private let tintColor: Color
-    private let timedWalkResponse: @MainActor (ORKTimedWalkResult) async -> Void
-    
-    @Binding private var isPresented: Bool
-    
+    @Binding private var presentationState: PresentationState<ORKTaskResult>
     
     /// - Parameters:
     ///   - tasks: The `ORKOrderedTask` that should be displayed by the `ORKTaskViewController`
     ///   - delegate: An `ORKTaskViewControllerDelegate` that handles delegate calls from the `ORKTaskViewController`. If no  view controller delegate is provided the view uses an instance of `CKUploadFHIRTaskViewControllerDelegate`.
     init(
         tasks: ORKOrderedTask,
-        isPresented: Binding<Bool>,
-        timedWalkResponse: @escaping @MainActor (ORKTimedWalkResult) async -> Void,
+        presentationState: Binding<PresentationState<ORKTaskResult>>,
         tintColor: Color = Color(UIColor(named: "AccentColor") ?? .systemBlue)
     ) {
         self.tasks = tasks
-        self._isPresented = isPresented
+        self._presentationState = presentationState
         self.tintColor = tintColor
-        self.timedWalkResponse = timedWalkResponse
     }
     
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(isPresented: $isPresented, timedWalkResponse: timedWalkResponse)
+        Coordinator(presentationState: $presentationState)
     }
     
     func updateUIViewController(_ uiViewController: ORKTaskViewController, context: Context) {

@@ -1,0 +1,17 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "QUESTIONNAIRE_LOADING_ERROR_MESSAGE" : {
+      "comment" : "This is a string that is balh",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questionnaire could not be loaded."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

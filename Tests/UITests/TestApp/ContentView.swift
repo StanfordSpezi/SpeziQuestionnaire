@@ -7,26 +7,26 @@
 //
 
 import FHIRQuestionnaires
+import ResearchKit
 import SpeziQuestionnaire
 import SwiftUI
 
 
 struct ContentView: View {
     @EnvironmentObject var standard: ExampleStandard
-    @State var displayQuestionnaire = false
-    
+    @State var presentationState: PresentationState<ORKTaskResult> = .idle
+
     
     var body: some View {
         Text("No. of surveys complete: \(standard.surveyResponseCount)")
         Button("Display Questionnaire") {
-            displayQuestionnaire.toggle()
+            presentationState = .active
         }
-            .sheet(isPresented: $displayQuestionnaire) {
-                TimedWalkView(
-                    identifier: "",
-                    distanceInMeters: 5,
-                    timeLimit: 5,
-                    turnAroundTimeLimit: 5
+            .sheet(isPresented: $presentationState.presented) {
+                QuestionnaireView(
+                    questionnaire: Questionnaire.gcs,
+                    completionStepMessage: "Completed",
+                    presentationState: $presentationState
                 )
             }
     }
