@@ -11,15 +11,16 @@ public enum PresentationState<Result: Equatable>: Equatable{
     case idle
     case active
     case cancelled
+    case failed
     case complete(Result)
     
     
     public var presented: Bool {
         get {
             switch self {
-            case .idle:
+            case .cancelled, .complete, .idle, .failed:
                 false
-            case .active, .cancelled, .complete:
+            case .active:
                 true
             }
         }

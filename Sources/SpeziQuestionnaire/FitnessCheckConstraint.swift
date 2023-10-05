@@ -15,5 +15,5 @@ import Spezi
 public protocol FitnessCheckConstraint: Standard {
     /// Adds a new `QuestionnaireResponse` to the `Standard` conforming to `QuestionnaireConstraint`.
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    func add(response: ORKTaskResult) async
+    func add(response: ORKFileResult) async
 }

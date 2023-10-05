@@ -14,9 +14,11 @@ import SwiftUI
 
 
 /// Renders a FHIR `Questionnaire`.
-public struct TimedWalkView: View {
+public struct FitnessCheckView: View {
     @EnvironmentObject private var fitnessCheckDataSource: FitnessCheckDataSource
-    @Binding private var presentationState: PresentationState<ORKTaskResult>
+    @Binding private var presentationState: PresentationState<ORKFileResult>
+    @State private var internalState: PresentationState<ORKResult>
+
     
     private let identifier: String
     private let intendedUseDescription: String?
@@ -28,7 +30,7 @@ public struct TimedWalkView: View {
         let task = createTask()
         ORKOrderedTaskView(
             tasks: task,
-            presentationState: $presentationState,
+            presentationState: $internalState,
             tintColor: .accentColor
         )
         .ignoresSafeArea(.container, edges: .bottom)
@@ -36,6 +38,7 @@ public struct TimedWalkView: View {
         .onChange(of: presentationState, perform: { newValue in
             _Concurrency.Task { @MainActor in
                 switch newValue {
+                // TODO: EDIT LOGIC HERE AFTER READING DOCUMENTATION
                 case .complete(let result):
                     await fitnessCheckDataSource.add(result)
                 default:
@@ -56,13 +59,15 @@ public struct TimedWalkView: View {
         intendedUseDescription: String?,
         walkDuration: TimeInterval = 360,
         restDuration: TimeInterval = 60,
-        presentationState: Binding<PresentationState<ORKTaskResult>> = .constant(.active)
+        presentationState: Binding<PresentationState<ORKFileResult>> = .constant(.active),
+        internalState: PresentationState<ORKResult> = .active
     ) {
         self.identifier = identifier
         self.intendedUseDescription = intendedUseDescription
         self.walkDuration = walkDuration
         self.restDuration = restDuration
         self._presentationState = presentationState
+        self.internalState = internalState
     }
     
     
@@ -83,9 +88,9 @@ public struct TimedWalkView: View {
 
 
 #if DEBUG
-struct TimedWalkView_Previews: PreviewProvider {
+struct FitnessCheckView_Previews: PreviewProvider {
     static var previews: some View {
-        TimedWalkView(
+        FitnessCheckView(
             identifier: "",
             intendedUseDescription: "",
             walkDuration: 360,

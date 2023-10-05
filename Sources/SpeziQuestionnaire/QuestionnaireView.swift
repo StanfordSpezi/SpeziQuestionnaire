@@ -16,8 +16,9 @@ import SwiftUI
 /// Renders a FHIR `Questionnaire`.
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
-    @Binding private var presentationState: PresentationState<ORKTaskResult>
-
+    @Binding private var presentationState: PresentationState<QuestionnaireResponse>
+    @State private var internalState: PresentationState<ORKResult>
+    
     private let questionnaire: Questionnaire
     private let completionStepMessage: String?
     
@@ -26,20 +27,36 @@ public struct QuestionnaireView: View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(
                 tasks: task,
-                presentationState: $presentationState,
+                presentationState: $internalState,
                 tintColor: .accentColor
             )
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
-                .onChange(of: presentationState, perform: { newValue in
+                .onChange(of: internalState, perform: { newValue in
                     _Concurrency.Task { @MainActor in
                         switch newValue {
                         case .complete(let result):
+                            
+                            // TODO: NEED TO DOUBLE CHECK LOGIC HERE
+                            guard let result = result as? ORKTaskResult else {
+                                presentationState = .failed
+                                return
+                            }
+                            
                             let fhirResponse = result.fhirResponse
                             fhirResponse.subject = Reference(reference: FHIRPrimitive(FHIRString("My Patient")))
+                            
+                            presentationState = .complete(fhirResponse)
                             await questionnaireDataSource.add(fhirResponse)
-                        default:
-                            return
+                            
+                        case .idle:
+                            presentationState = .idle
+                        case .active:
+                            presentationState = .active
+                        case .cancelled:
+                            presentationState = .cancelled
+                        case .failed:
+                            presentationState = .failed
                         }
                     }
                 })
@@ -57,11 +74,13 @@ public struct QuestionnaireView: View {
     public init(
         questionnaire: Questionnaire,
         completionStepMessage: String? = nil,
-        presentationState: Binding<PresentationState<ORKTaskResult>> = .constant(.active)
+        presentationState: Binding<PresentationState<QuestionnaireResponse>> = .constant(.active),
+        internalState: PresentationState<ORKResult> = .active
     ) {
         self.questionnaire = questionnaire
         self.completionStepMessage = completionStepMessage
         self._presentationState = presentationState
+        self.internalState = internalState
     }
     
     

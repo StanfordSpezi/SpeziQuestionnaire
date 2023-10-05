@@ -43,7 +43,7 @@ public class FitnessCheckDataSource: Component, ObservableObject, ObservableObje
     
     /// Adds a new `QuestionnaireResponse` to the ``QuestionnaireDataSource``
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    public func add(_ response: ORKTaskResult) async {
+    public func add(_ response: ORKFileResult) async {
         await standard.add(response: response)
     }
 }

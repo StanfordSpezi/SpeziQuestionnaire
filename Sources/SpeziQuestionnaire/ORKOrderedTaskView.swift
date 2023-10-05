@@ -15,8 +15,8 @@ import UIKit
 
 struct ORKOrderedTaskView: UIViewControllerRepresentable {
     class Coordinator: NSObject, ORKTaskViewControllerDelegate, ObservableObject {
-        @Binding private var presentationState: PresentationState<ORKTaskResult>
-        init(presentationState: Binding<PresentationState<ORKTaskResult>>){
+        @Binding private var presentationState: PresentationState<ORKResult>
+        init(presentationState: Binding<PresentationState<ORKResult>>){
             self._presentationState = presentationState
         }
         
@@ -28,6 +28,8 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
             switch reason {
             case .completed:
                 presentationState = .complete(taskViewController.result)
+            case .failed:
+                presentationState = .failed
             default:
                 presentationState = .cancelled
             }
@@ -37,14 +39,14 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     
     private let tasks: ORKOrderedTask
     private let tintColor: Color
-    @Binding private var presentationState: PresentationState<ORKTaskResult>
+    @Binding private var presentationState: PresentationState<ORKResult>
     
     /// - Parameters:
     ///   - tasks: The `ORKOrderedTask` that should be displayed by the `ORKTaskViewController`
     ///   - delegate: An `ORKTaskViewControllerDelegate` that handles delegate calls from the `ORKTaskViewController`. If no  view controller delegate is provided the view uses an instance of `CKUploadFHIRTaskViewControllerDelegate`.
     init(
         tasks: ORKOrderedTask,
-        presentationState: Binding<PresentationState<ORKTaskResult>>,
+        presentationState: Binding<PresentationState<ORKResult>>,
         tintColor: Color = Color(UIColor(named: "AccentColor") ?? .systemBlue)
     ) {
         self.tasks = tasks
