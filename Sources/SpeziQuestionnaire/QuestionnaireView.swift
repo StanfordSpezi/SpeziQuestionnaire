@@ -36,8 +36,6 @@ public struct QuestionnaireView: View {
                     _Concurrency.Task { @MainActor in
                         switch newValue {
                         case .complete(let result):
-                            
-                            // TODO: NEED TO DOUBLE CHECK LOGIC HERE
                             guard let result = result as? ORKTaskResult else {
                                 presentationState = .failed
                                 return

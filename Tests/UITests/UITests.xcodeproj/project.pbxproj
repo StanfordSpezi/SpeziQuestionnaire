@@ -39,6 +39,7 @@
 		2FA7382B290ADFAA007ACEB9 /* TestApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestApp.swift; sourceTree = "<group>"; };
 		2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppDelegate.swift; sourceTree = "<group>"; };
 		393B47412A747894004DCB08 /* ExampleStandard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleStandard.swift; sourceTree = "<group>"; };
+		4A311B612AD137840096C494 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +87,7 @@
 		2F6D139428F5F384007C25D6 /* TestApp */ = {
 			isa = PBXGroup;
 			children = (
+				4A311B612AD137840096C494 /* Info.plist */,
 				2FA7382B290ADFAA007ACEB9 /* TestApp.swift */,
 				2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */,
 				393B47412A747894004DCB08 /* ExampleStandard.swift */,
@@ -392,8 +394,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to access health data";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to access health data";
+				INFOPLIST_FILE = TestApp/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "App wants to use Location";
+				INFOPLIST_KEY_NSMotionUsageDescription = "App wants to use Motion Data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -425,8 +430,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to access health data";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to access health data";
+				INFOPLIST_FILE = TestApp/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "App wants to use Location";
+				INFOPLIST_KEY_NSMotionUsageDescription = "App wants to use Motion Data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -556,8 +564,11 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to access health data";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to access health data";
+				INFOPLIST_FILE = TestApp/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "App wants to use Health Data";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "App wants to use Location";
+				INFOPLIST_KEY_NSMotionUsageDescription = "App wants to use Motion Data";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

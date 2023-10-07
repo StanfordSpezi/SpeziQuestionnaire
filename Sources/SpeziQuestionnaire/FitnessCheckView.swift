@@ -35,12 +35,13 @@ public struct FitnessCheckView: View {
         )
         .ignoresSafeArea(.container, edges: .bottom)
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .onChange(of: presentationState, perform: { newValue in
+        .onChange(of: internalState, perform: { newValue in
             _Concurrency.Task { @MainActor in
                 switch newValue {
                 // TODO: EDIT LOGIC HERE AFTER READING DOCUMENTATION
                 case .complete(let result):
-                    await fitnessCheckDataSource.add(result)
+                    break
+                    //serialize first from the ORKFileResult
                 default:
                     return
                 }
