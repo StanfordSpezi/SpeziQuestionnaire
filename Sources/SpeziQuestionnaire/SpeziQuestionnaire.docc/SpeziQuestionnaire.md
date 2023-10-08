@@ -87,8 +87,7 @@ import SpeziQuestionnaire
 import SwiftUI
 
 
-struct QuestionnaireView: View {
-    @EnvironmentObject var standard: ExampleStandard
+struct ExampleQuestionnaireView: View {
     @State var displayQuestionnaire = false
     
     
@@ -97,7 +96,10 @@ struct QuestionnaireView: View {
             displayQuestionnaire.toggle()
         }
             .sheet(isPresented: $displayQuestionnaire) {
-                QuestionnaireView(questionnaire: Questionnaire.gcs)
+                QuestionnaireView(
+                    questionnaire: Questionnaire.gcs,
+                    isPresented: $displayQuestionnaire
+                )
             }
     }
 }

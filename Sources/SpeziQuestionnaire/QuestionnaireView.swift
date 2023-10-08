@@ -14,6 +14,26 @@ import SwiftUI
 
 
 /// Renders a FHIR `Questionnaire`.
+/// 
+/// The following example shows how to display a questionnaire:
+/// ```swift
+/// struct ExampleQuestionnaireView: View {
+///     @State var displayQuestionnaire = false
+///     
+///     
+///     var body: some View {
+///         Button("Display Questionnaire") {
+///             displayQuestionnaire.toggle()
+///         }
+///             .sheet(isPresented: $displayQuestionnaire) {
+///                 QuestionnaireView(
+///                     questionnaire: Questionnaire.gcs,
+///                     isPresented: $displayQuestionnaire
+///                 )
+///             }
+///     }
+/// }
+/// ```
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
     
