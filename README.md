@@ -27,7 +27,7 @@ Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/
 
 | ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview.png#gh-light-mode-only) ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview~dark.png#gh-dark-mode-only) |
  |:---:|
- |[`QuestionnaireView`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireview)|
+ |An FHIR Questionnaire is rendered using the [`QuestionnaireView`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireview)|
 
 
 ## Setup
