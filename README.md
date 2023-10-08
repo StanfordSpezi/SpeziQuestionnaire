@@ -16,7 +16,8 @@ SPDX-License-Identifier: MIT
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FStanfordSpezi%2FSpeziQuestionnaire%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/StanfordSpezi/SpeziQuestionnaire)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FStanfordSpezi%2FSpeziQuestionnaire%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/StanfordSpezi/SpeziQuestionnaire)
 
-Module that enables apps to display and collect responses from [FHIR Questionnaires](http://hl7.org/fhir/R4/questionnaire.html).
+Enables apps to display and collect responses from [FHIR questionnaires](http://hl7.org/fhir/R4/questionnaire.html).
+
 
 ## Overview
 
@@ -24,9 +25,10 @@ The Spezi Questionnaire package enables [FHIR Questionnaires](http://hl7.org/fhi
 
 Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/ResearchKit) and the [ResearchKitOnFHIR](https://github.com/StanfordBDHG/ResearchKitOnFHIR) package.
 
-| ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview.png#gh-light-mode-only) ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview-dark.png#gh-dark-mode-only) |
+| ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview.png#gh-light-mode-only) ![Screenshot showing a Questionnaire rendered using the Spezi Questionnaire module.](Sources/SpeziQuestionnaire/SpeziQuestionnaire.docc/Resources/Overview~dark.png#gh-dark-mode-only) |
  |:---:|
  |[`QuestionnaireView`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireview)|
+
 
 ## Setup
 
@@ -41,7 +43,7 @@ You need to add the Spezi Questionnaire Swift package to
 
 ### 2. Ensure that your Standard Conforms to the [`QuestionnaireConstraint`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireconstraint) Protocol
 
-In order to recieve responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your Configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the [`QuestionnaireConstraint`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireconstraint) protocol. 
+In order to receive responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the [`QuestionnaireConstraint`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireconstraint) protocol.
 
 Below, we create an `ExampleStandard` and extend it to implement an `add` function which receives the result of our questionnaire as a [FHIR QuestionnaireResponse](http://hl7.org/fhir/R4/questionnaireresponse.html). In this simple example, completing a survey increases the surveyResponseCount.
 
@@ -55,7 +57,6 @@ actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
 extension ExampleStandard: QuestionnaireConstraint {
     func add(response: ModelsR4.QuestionnaireResponse) async {
         surveyResponseCount += 1
-        }
     }
 }
 ```
@@ -79,6 +80,7 @@ class ExampleAppDelegate: SpeziAppDelegate {
 ```
 
 > Tip: You can learn more about a [`Component` in the Spezi documentation](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/component).
+
 
 ## Example
 

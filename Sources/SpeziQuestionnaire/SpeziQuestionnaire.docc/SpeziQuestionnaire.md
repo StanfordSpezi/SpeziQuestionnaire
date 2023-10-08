@@ -10,7 +10,7 @@
 #       
 -->
 
-Module that enables apps to display and collect responses from [FHIR Questionnaires](http://hl7.org/fhir/R4/questionnaire.html).
+Enables apps to display and collect responses from FHIR questionnaires.
 
 ## Overview
 
@@ -20,8 +20,9 @@ Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/
 
 @Row {
     @Column {
-        @Image(source: "Overview", alt: "Screenshot showing a FHIR Questionnaire rendered using the Questionnaire module."){
-            A FHIR Questionnaire rendered using ``QuestionnaireView``.
+        @Image(source: "Overview", alt: "Screenshot showing an FHIR Questionnaire rendered using the Questionnaire module."){
+            An FHIR Questionnaire is rendered using the ``QuestionnaireView``.
+        }
     }
 }
 
@@ -33,11 +34,11 @@ You need to add the Spezi Questionnaire Swift package to
 [your app in Xcode](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app#) or
 [Swift package](https://developer.apple.com/documentation/xcode/creating-a-standalone-swift-package-with-xcode#Add-a-dependency-on-another-Swift-package).
 
-> Important: If your application is not yet configured to use Spezi, follow the [Spezi setup article](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/setup) setup the core Spezi infrastructure.
+> Important: If your application is not yet configured to use Spezi, follow the [Spezi setup article](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/setup) and set the core Spezi infrastructure.
 
-### 2. Ensure that your Standard Conforms to the ``QuestionnaireConstraint`` Protocol
+### 2. Ensure that your Standard Conforms to the QuestionnaireConstraint Protocol
 
-In order to recieve responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your Configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the ``QuestionnaireConstraint`` protocol. 
+In order to receive responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the [`QuestionnaireConstraint`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireconstraint) protocol. 
 
 Below, we create an `ExampleStandard` and extend it to implement an `add` function which receives the result of our questionnaire as a [FHIR QuestionnaireResponse](http://hl7.org/fhir/R4/questionnaireresponse.html). In this simple example, completing a survey increases the surveyResponseCount.
 
@@ -51,7 +52,6 @@ actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
 extension ExampleStandard: QuestionnaireConstraint {
     func add(response: ModelsR4.QuestionnaireResponse) async {
         surveyResponseCount += 1
-        }
     }
 }
 ```
@@ -75,6 +75,7 @@ class ExampleAppDelegate: SpeziAppDelegate {
 ```
 
 > Tip: You can learn more about a [`Component` in the Spezi documentation](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/component).
+
 
 ## Example
 
@@ -104,6 +105,12 @@ struct QuestionnaireView: View {
 
 ## Topics
 
+### Standard Constraint & Configuration
+
 - ``QuestionnaireConstraint``
 - ``QuestionnaireDataSource``
+
+### Views
+
 - ``QuestionnaireView``
+
