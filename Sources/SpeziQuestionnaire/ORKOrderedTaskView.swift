@@ -28,6 +28,30 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
             switch reason {
             case .completed:
                 presentationState = .complete(taskViewController.result)
+                guard let results = taskViewController.result.results else {
+                    return
+                }
+                print(results)
+                for result in results {
+                    guard let response = result as? ORKStepResult else {
+                        return
+                    }
+                    if let unwrapped = response.results {
+                        for result in unwrapped {
+                            guard let fileResponse = result as? ORKFileResult else {
+                                return
+                            }
+                            do {
+                                if let url = fileResponse.fileURL {
+                                    print(try String(contentsOf: url))
+                                }
+                            } catch {
+                                break
+                            }
+                        }
+                    }
+                    
+                }
             case .failed:
                 presentationState = .failed
             default:
