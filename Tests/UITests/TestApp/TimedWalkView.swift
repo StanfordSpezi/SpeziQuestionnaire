@@ -17,8 +17,6 @@ struct TimedWalkView: View {
     @State var stepCount: Double = 0
     @State var distance: Double = 0
     @State var time: Double = 60
-    let locationDelegate = LocationDelegate()
-
     
     var body: some View {
         
@@ -42,12 +40,6 @@ struct TimedWalkView: View {
     }
     
     func timedWalk() {
-        
-        let locationManager = CLLocationManager()
-        locationManager.delegate = locationDelegate
-        locationManager.requestWhenInUseAuthorization()
-        
-        
         let pedometer = CMPedometer()
         
         // Request access to pedometer data
@@ -66,16 +58,6 @@ struct TimedWalkView: View {
         } else {
             print("Pedometer data is not available on this device.")
         }
-    }
-}
-
-class LocationDelegate: NSObject, CLLocationManagerDelegate {
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        print(manager)
-    }
-
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print(status)
     }
 }
 
