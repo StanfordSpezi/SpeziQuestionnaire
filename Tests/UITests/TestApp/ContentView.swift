@@ -15,27 +15,67 @@ import SwiftUI
 
 
 struct ContentView: View {
-        @EnvironmentObject var standard: ExampleStandard
-    //    @State var questionnairePresentationState: PresentationState<QuestionnaireResponse> = .idle
-    //    @State var fitnessCheckPresentationState: PresentationState<ORKFileResult> = .idle
-    //    let locationDelegate = LocationDelegate()
+//    @EnvironmentObject var standard: ExampleStandard
+//    @State var questionnairePresentationState: PresentationState<QuestionnaireResponse> = .idle
+//    @State var fitnessCheckPresentationState: PresentationState<ORKFileResult> = .idle
+//    let locationDelegate = LocationDelegate()
+// add enum
+    @State var pedometer = CMPedometer()
+    private var time: Double = 0
+    
     
     var body: some View {
-        NavigationView {
+        
+        // Edit navigation architecture
+        NavigationStack {
             VStack{
                 Spacer()
-                
-                Text("Please walk straight for 60 seconds")
-                    .font(.title)
-                
+                Image(systemName: "figure.walk.circle")
+                    .font(.system(size: 100))
                 Spacer()
-                
-                NavigationLink(destination: TimedWalkView()) {
-                    Text("Tap here to start")
+                Text("PLACEHOLDER: Description about walk test")
+                    .font(.title)
+                Spacer()
+                Button("Request pedometer Access") {
+                    requestPedemoterAccess()
+                }
+                NavigationLink {
+                    switch CMMotionActivityManager.authorizationStatus() {
+                    case .notDetermined:
+                        Text("not determined")
+                    case .authorized:
+                        TimedWalkView(time: time)
+                    default:
+                        Text("Please go to settings to authorize")
+                    }
+                } label: {
+                    Text("next")
                 }
                 
                 Spacer()
 
+            }
+            .navigationTitle("Start Walk Test")
+        }
+    }
+    
+    
+    // ASK ABOUT SIMPLER WAY TO REQUEST DATA. also authorizationStatus doesn't update unless screen is refreshed.
+    func requestPedemoterAccess() {
+        guard CMPedometer.isStepCountingAvailable() else {
+            print("Step counting is not available on this device.")
+            return
+        }
+        
+        pedometer.queryPedometerData(from: .now, to: .now) { pedometerData, error in
+            if let data = pedometerData {
+                // Use the step count data here
+                print("Number of steps: \(data.numberOfSteps)")
+            } else {
+                // Handle errors
+                if let error = error {
+                    print("Error: \(error.localizedDescription)")
+                }
             }
         }
     }

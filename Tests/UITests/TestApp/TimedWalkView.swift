@@ -13,51 +13,83 @@ import SwiftUI
 
 
 struct TimedWalkView: View {
-    // @State var isCompleted: Bool = false
+    @State var isActive: Bool = false
+    
+    @State var time: TimeInterval = 10
     @State var stepCount: Double = 0
     @State var distance: Double = 0
-    @State var time: Double = 60
+    @State var pedometer = CMPedometer()
+    let start = Date()
+    let end = Date().addingTimeInterval(60)
     
     var body: some View {
         
         NavigationView {
             VStack {
-                Text("Please walk straight for 60 seconds")
+                Spacer()
+                
+                Text("Please walk straight for \(time) seconds")
                     .font(.title)
                 
-                Button("Start") {
-                    timedWalk()
-                }
-                .font(.title)
+                Spacer()
+                                
+                Image(systemName: "figure.walk.circle")
+                    .symbolEffect(.pulse, isActive: isActive)
+                    .font(.system(size: 100))
                 
-                Text("No. of Steps: \(stepCount) + Distance: \(distance)")
+                // ASK ABOUT PROGRESSVIEW.
+                if isActive {
+                    ProgressView(timerInterval: start...end, countsDown: false) {
+                        Text("Progress")
+                    } currentValueLabel: {
+                        Text(start...end)
+                    }
+                }
+                
+                Button("Start") {
+                    isActive.toggle()
+                    Task{
+                        await timedWalk()
+                    }
+                }
+                
+                Spacer()
+                
+                Text("Steps: \(stepCount)")
+                Text("Distance: \(distance)")
                 
                 NavigationLink(destination: CompletedView()) {
                     Text("Done")
                 }
+                
+                Spacer()
+                
             }
         }
     }
     
-    func timedWalk() {
-        let pedometer = CMPedometer()
-        
-        // Request access to pedometer data
-        if CMPedometer.isStepCountingAvailable() {
-            pedometer.queryPedometerData(from: .now, to: .now.addingTimeInterval(time)) { (data, error) in
-                if let error = error {
-                    print("Error requesting pedometer data: \(error.localizedDescription)")
-                } 
-                else if let data = data {
-                    stepCount = data.numberOfSteps.doubleValue
-                    distance = data.distance!.doubleValue
-                    // Process the pedometer data
-                    print("Number of steps: \(data.numberOfSteps)")
+    
+    // Fix bug
+    func timedWalk() async {
+        Task {
+            // Request access to pedometer data
+            if CMPedometer.isStepCountingAvailable() {
+                pedometer.startUpdates(from: .now) { (data, error) in
+                    if let error = error {
+                        print("Error requesting pedometer data: \(error.localizedDescription)")
+                    }
+                    else if let data = data {
+                        stepCount = data.numberOfSteps.doubleValue
+                        distance = data.distance!.doubleValue
+                        print("Number of steps: \(data.numberOfSteps)")
+                    }
                 }
+            } else {
+                print("Pedometer data is not available on this device.")
             }
-        } else {
-            print("Pedometer data is not available on this device.")
         }
+        try? await Task.sleep(for: .seconds(time))
+        pedometer.stopUpdates()
     }
 }
 
