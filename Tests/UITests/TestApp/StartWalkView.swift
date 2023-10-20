@@ -11,10 +11,11 @@ import CoreMotion
 import SwiftUI
 
 struct StartWalkView: View {
-    
+    @State var isNotAuthorized: Bool = true
     @State var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
     private var time: Double = 10
+    private var description: String = "This is the walk test"
     
     var body: some View {
         VStack{
@@ -25,24 +26,21 @@ struct StartWalkView: View {
             
             Spacer()
             
-            Text("PLACEHOLDER: Description about walk test")
+            Text(description)
                 .font(.title)
             
             Spacer()
             
             NavigationLink {
-                switch self.status {
-                case .notDetermined:
-                    Text("not determined")
-                case .authorized:
-                    TimedWalkView(time: time)
-                default:
-                    Text("Please go to settings to authorize")
-                }
+                TimedWalkView(time: time)
             } label: {
                 Text("Next")
             }
             .buttonStyle(.borderedProminent)
+            .disabled(self.status != .authorized)
+            if self.status != .authorized {
+                Text("Please go to settings to authorize")
+            }
             
             Spacer()
 
@@ -58,17 +56,14 @@ struct StartWalkView: View {
             print("Step counting is not available on this device.")
             return
         }
-        
         pedometer.queryPedometerData(from: .now, to: .now) { pedometerData, error in
-            if let data = pedometerData {
+            if let error = error {
+                print("Error: \(error.localizedDescription)")
+            }
+            else if let data = pedometerData {
                 // Use the step count data here
                 print("Number of steps: \(data.numberOfSteps)")
                 self.status = CMPedometer.authorizationStatus()
-            } else {
-                // Handle errors
-                if let error = error {
-                    print("Error: \(error.localizedDescription)")
-                }
             }
         }
     }

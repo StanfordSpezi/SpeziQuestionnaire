@@ -52,6 +52,7 @@ struct TimedWalkView: View {
             Button("Start") {
                 start = .now
             }
+            .buttonStyle(.borderedProminent)
             
             Spacer()
             
@@ -61,14 +62,14 @@ struct TimedWalkView: View {
             NavigationLink(destination: CompletedView()) {
                 Text("Done")
             }
+            .buttonStyle(.borderedProminent)
             
             Spacer()
             
         }
+        .navigationTitle("Walk Test")
     }
     
-    
-    // Fix bug
     func timedWalk() {
         pedometer.queryPedometerData(from: .now.addingTimeInterval(-time), to: .now) { data, error in
             if let error = error {
