@@ -15,36 +15,41 @@ import SwiftUI
 struct WalkTestView: View {
     @EnvironmentObject private var walkTestDataSource: WalkTestDataSource
     
-    @State private var stepCount: Double = 0
-    @State private var distance: Double = 0
+    @State private var stepCount: Int = 0
+    @State private var distance: Int = 0
     @State private var pedometer = CMPedometer()
     @State private var start: Date?
+    @State private var isCompleted: Bool = true
+    @State private var isStarted: Bool = false
     let time: TimeInterval
     
     var body: some View {
         VStack {
             Spacer()
             
-            Text("Please walk straight for \(time) seconds")
+            Text("Please walk straight for \(Int(time)) seconds")
                 .font(.title)
             
             Spacer()
             
             Image(systemName: "figure.walk.circle")
-                .symbolEffect(.pulse, isActive: start != nil)
+                .symbolEffect(.pulse, isActive: isStarted)
                 .font(.system(size: 100))
             
             if let start {
                 let end = start.addingTimeInterval(time)
-                ProgressView(timerInterval: start...end, countsDown: false) {
-                    Text("Progress")
-                } currentValueLabel: {
-                    Text(start...end)
-                }
+                
+                Text(timerInterval: start...end, countsDown: false)
+//                ProgressView(timerInterval: start...end, countsDown: false) {
+//                    Text("Progress")
+//                } currentValueLabel: {
+//                    Text(start...end)
+//                }
                 .onAppear{
                     let timer = Timer(timeInterval: time, repeats: false) { _ in
                         self.start = nil
                         timedWalk()
+                        isStarted = false
                     }
                     RunLoop.main.add(timer, forMode: .common)
                 }
@@ -52,8 +57,10 @@ struct WalkTestView: View {
             
             Button("Start") {
                 start = .now
+                isStarted = true
             }
             .buttonStyle(.borderedProminent)
+            .disabled(isStarted)
             
             Spacer()
             
@@ -64,6 +71,7 @@ struct WalkTestView: View {
                 Text("Done")
             }
             .buttonStyle(.borderedProminent)
+            .disabled(isCompleted)
             
             Spacer()
             
@@ -78,12 +86,12 @@ struct WalkTestView: View {
             }
             else if let data = data {
                 Task {
-                    var response = WalkTestResponse(stepCount: data.numberOfSteps.intValue, distance: data.distance!.intValue)
+                    var response = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: data.distance!.doubleValue)
                     await walkTestDataSource.add(response)
                 }
-                
-                stepCount = data.numberOfSteps.doubleValue
-                distance = data.distance!.doubleValue
+                isCompleted = false
+                stepCount = data.numberOfSteps.intValue
+                distance = data.distance!.intValue
                 print("Number of steps: \(stepCount)")
                 print("Distance: \(distance)")
             }

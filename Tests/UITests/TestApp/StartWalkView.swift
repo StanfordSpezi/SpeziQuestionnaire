@@ -14,7 +14,7 @@ struct StartWalkView: View {
     @State private var isNotAuthorized: Bool = true
     @State private var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
-    private var time: Double = 10
+    private var time: TimeInterval = 10
     private var description: String = "This is the walk test"
     
     var body: some View {

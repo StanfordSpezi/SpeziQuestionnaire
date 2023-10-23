@@ -10,7 +10,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    private var time: Double = 0
+    private var time: TimeInterval = 0
     
     var body: some View {
         NavigationStack {

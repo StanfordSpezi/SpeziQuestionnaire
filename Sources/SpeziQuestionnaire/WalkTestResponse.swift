@@ -6,10 +6,10 @@
 //
 
 public class WalkTestResponse {
-    public var stepCount: Int?
-    public var distance: Int?
+    public var stepCount: Double?
+    public var distance: Double?
     
-    public init(stepCount: Int? = nil, distance: Int? = nil) {
+    public init(stepCount: Double? = nil, distance: Double? = nil) {
         self.stepCount = stepCount
         self.distance = distance
     }
