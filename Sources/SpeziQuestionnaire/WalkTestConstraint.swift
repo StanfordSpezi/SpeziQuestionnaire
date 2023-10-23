@@ -7,13 +7,12 @@
 //
 
 import ModelsR4
-import ResearchKit
 import Spezi
 
 
 /// A Constraint which all `Standard` instances must conform to when using the Spezi Questionnaire module.
-public protocol FitnessCheckConstraint: Standard {
+public protocol WalkTestConstraint: Standard {
     /// Adds a new `QuestionnaireResponse` to the `Standard` conforming to `QuestionnaireConstraint`.
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    func add(response: ORKFileResult) async
+    func add(response: WalkTestResponse) async
 }

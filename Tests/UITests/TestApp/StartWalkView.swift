@@ -11,8 +11,8 @@ import CoreMotion
 import SwiftUI
 
 struct StartWalkView: View {
-    @State var isNotAuthorized: Bool = true
-    @State var pedometer = CMPedometer()
+    @State private var isNotAuthorized: Bool = true
+    @State private var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
     private var time: Double = 10
     private var description: String = "This is the walk test"
@@ -32,7 +32,7 @@ struct StartWalkView: View {
             Spacer()
             
             NavigationLink {
-                TimedWalkView(time: time)
+                WalkTestView(time: time)
             } label: {
                 Text("Next")
             }

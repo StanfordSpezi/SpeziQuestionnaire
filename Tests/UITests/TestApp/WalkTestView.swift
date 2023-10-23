@@ -7,17 +7,18 @@
 //
 
 import CoreLocation
-import HealthKit
 import ResearchKit
 import SpeziQuestionnaire
 import SwiftUI
 
 
-struct TimedWalkView: View {
-    @State var stepCount: Double = 0
-    @State var distance: Double = 0
-    @State var pedometer = CMPedometer()
-    @State var start: Date?
+struct WalkTestView: View {
+    @EnvironmentObject private var walkTestDataSource: WalkTestDataSource
+    
+    @State private var stepCount: Double = 0
+    @State private var distance: Double = 0
+    @State private var pedometer = CMPedometer()
+    @State private var start: Date?
     let time: TimeInterval
     
     var body: some View {
@@ -76,6 +77,11 @@ struct TimedWalkView: View {
                 print("Error requesting pedometer data: \(error.localizedDescription)")
             }
             else if let data = data {
+                Task {
+                    var response = WalkTestResponse(stepCount: data.numberOfSteps.intValue, distance: data.distance!.intValue)
+                    await walkTestDataSource.add(response)
+                }
+                
                 stepCount = data.numberOfSteps.doubleValue
                 distance = data.distance!.doubleValue
                 print("Number of steps: \(stepCount)")
@@ -86,5 +92,5 @@ struct TimedWalkView: View {
 }
 
 #Preview {
-    TimedWalkView(time: 0)
+    WalkTestView(time: 0)
 }

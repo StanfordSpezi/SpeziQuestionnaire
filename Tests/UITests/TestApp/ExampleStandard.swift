@@ -28,8 +28,8 @@ extension ExampleStandard: QuestionnaireConstraint {
     }
 }
 
-extension ExampleStandard: FitnessCheckConstraint {
-    func add(response: ORKFileResult) async {
+extension ExampleStandard: WalkTestConstraint {
+    func add(response: SpeziQuestionnaire.WalkTestResponse) async {
         await MainActor.run {
             fitnessCheckCount += 1
         }

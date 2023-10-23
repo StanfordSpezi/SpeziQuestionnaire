@@ -15,7 +15,7 @@ class TestAppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
         Configuration(standard: ExampleStandard()) {
             QuestionnaireDataSource()
-            FitnessCheckDataSource()
+            WalkTestDataSource()
         }
     }
 }
