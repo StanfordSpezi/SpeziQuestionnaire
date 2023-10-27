@@ -15,47 +15,33 @@ import UIKit
 
 struct ORKOrderedTaskView: UIViewControllerRepresentable {
     class Coordinator: NSObject, ORKTaskViewControllerDelegate, ObservableObject {
-        @Binding private var presentationState: PresentationState<ORKResult>
-        init(presentationState: Binding<PresentationState<ORKResult>>){
-            self._presentationState = presentationState
+        private let isPresented: Binding<Bool>
+        private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
+        
+        
+        init(isPresented: Binding<Bool>, questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void) {
+            self.isPresented = isPresented
+            self.questionnaireResponse = questionnaireResponse
         }
+        
         
         func taskViewController(
             _ taskViewController: ORKTaskViewController,
             didFinishWith reason: ORKTaskViewControllerFinishReason,
             error: Error?
         ) {
-            switch reason {
-            case .completed:
-                presentationState = .complete(taskViewController.result)
-                guard let results = taskViewController.result.results else {
-                    return
-                }
-                print(results)
-                for result in results {
-                    guard let response = result as? ORKStepResult else {
-                        return
-                    }
-                    if let unwrapped = response.results {
-                        for result in unwrapped {
-                            guard let fileResponse = result as? ORKFileResult else {
-                                return
-                            }
-                            do {
-                                if let url = fileResponse.fileURL {
-                                    print(try String(contentsOf: url))
-                                }
-                            } catch {
-                                break
-                            }
-                        }
-                    }
+            _Concurrency.Task { @MainActor in
+                isPresented.wrappedValue = false
+                
+                switch reason {
+                case .completed:
+                    let fhirResponse = taskViewController.result.fhirResponse
+                    fhirResponse.subject = Reference(reference: FHIRPrimitive(FHIRString("My Patient")))
                     
+                    await questionnaireResponse(fhirResponse)
+                default:
+                    break
                 }
-            case .failed:
-                presentationState = .failed
-            default:
-                presentationState = .cancelled
             }
         }
     }
@@ -63,24 +49,29 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     
     private let tasks: ORKOrderedTask
     private let tintColor: Color
-    @Binding private var presentationState: PresentationState<ORKResult>
+    private let questionnaireResponse: @MainActor (QuestionnaireResponse) async -> Void
+    
+    @Binding private var isPresented: Bool
+    
     
     /// - Parameters:
     ///   - tasks: The `ORKOrderedTask` that should be displayed by the `ORKTaskViewController`
     ///   - delegate: An `ORKTaskViewControllerDelegate` that handles delegate calls from the `ORKTaskViewController`. If no  view controller delegate is provided the view uses an instance of `CKUploadFHIRTaskViewControllerDelegate`.
     init(
         tasks: ORKOrderedTask,
-        presentationState: Binding<PresentationState<ORKResult>>,
+        isPresented: Binding<Bool>,
+        questionnaireResponse: @escaping @MainActor (QuestionnaireResponse) async -> Void,
         tintColor: Color = Color(UIColor(named: "AccentColor") ?? .systemBlue)
     ) {
         self.tasks = tasks
-        self._presentationState = presentationState
+        self._isPresented = isPresented
         self.tintColor = tintColor
+        self.questionnaireResponse = questionnaireResponse
     }
     
     
     func makeCoordinator() -> Coordinator {
-        Coordinator(presentationState: $presentationState)
+        Coordinator(isPresented: $isPresented, questionnaireResponse: questionnaireResponse)
     }
     
     func updateUIViewController(_ uiViewController: ORKTaskViewController, context: Context) {
@@ -91,7 +82,6 @@ struct ORKOrderedTaskView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> ORKTaskViewController {
         // Create a new instance of the view controller and pass in the assigned delegate.
         let viewController = ORKTaskViewController(task: tasks, taskRun: nil)
-        viewController.outputDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         viewController.view.tintColor = UIColor(tintColor)
         viewController.delegate = context.coordinator
         return viewController

@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+import Combine
 import CoreLocation
 import ResearchKit
 import SpeziQuestionnaire
@@ -14,13 +15,12 @@ import SwiftUI
 
 struct WalkTestView: View {
     @EnvironmentObject private var walkTestDataSource: WalkTestDataSource
-    
     @State private var stepCount: Int = 0
     @State private var distance: Int = 0
     @State private var pedometer = CMPedometer()
     @State private var start: Date?
-    @State private var isCompleted: Bool = true
-    @State private var isStarted: Bool = false
+    @State private var isCompleted = false
+    @State private var isStarted = false
     let time: TimeInterval
     
     var body: some View {
@@ -35,65 +35,59 @@ struct WalkTestView: View {
             Image(systemName: "figure.walk.circle")
                 .symbolEffect(.pulse, isActive: isStarted)
                 .font(.system(size: 100))
+                .accessibilityHidden(true)
             
             if let start {
                 let end = start.addingTimeInterval(time)
                 
-                Text(timerInterval: start...end, countsDown: false)
-//                ProgressView(timerInterval: start...end, countsDown: false) {
-//                    Text("Progress")
-//                } currentValueLabel: {
-//                    Text(start...end)
-//                }
-                .onAppear{
-                    let timer = Timer(timeInterval: time, repeats: false) { _ in
-                        self.start = nil
-                        timedWalk()
-                        isStarted = false
-                    }
-                    RunLoop.main.add(timer, forMode: .common)
+                Text(timerInterval: start...end, countsDown: true)
+                ProgressView(timerInterval: start...end) {
+                    Text("Walk Test in Progress")
+                }
+                .padding(30)
+                .task {
+                    try? await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
+                    self.start = nil
+                    timedWalk()
+                    isStarted = false
                 }
             }
             
-            Button("Start") {
-                start = .now
-                isStarted = true
-            }
+            Button(
+                action: {
+                    start = .now
+                    isStarted = true
+                },
+                label: {
+                    Text("Start")
+                        .frame(maxWidth: .infinity, minHeight: 38)
+                }
+            )
             .buttonStyle(.borderedProminent)
             .disabled(isStarted)
             
             Spacer()
-            
-            Text("Steps: \(stepCount)")
-            Text("Distance: \(distance)")
-            
-            NavigationLink(destination: CompletedView()) {
-                Text("Done")
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(isCompleted)
-            
-            Spacer()
-            
         }
         .navigationTitle("Walk Test")
+        .navigationDestination(isPresented: $isCompleted) {
+            CompletedView(stepCount: stepCount, distance: distance)
+        }
     }
     
     func timedWalk() {
         pedometer.queryPedometerData(from: .now.addingTimeInterval(-time), to: .now) { data, error in
             if let error = error {
                 print("Error requesting pedometer data: \(error.localizedDescription)")
-            }
-            else if let data = data {
+            } else if let data = data {
                 Task {
-                    var response = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: data.distance!.doubleValue)
+                    let response = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: data.distance?.doubleValue)
                     await walkTestDataSource.add(response)
                 }
                 isCompleted = false
                 stepCount = data.numberOfSteps.intValue
-                distance = data.distance!.intValue
-                print("Number of steps: \(stepCount)")
-                print("Distance: \(distance)")
+                
+                // STILL NEED TO EDIT THIS BELOW. HOW TO BEST DEAL WITH OPTIONAL?
+                distance = data.distance?.intValue ?? 0
             }
         }
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum PresentationState<Result: Equatable>: Equatable{
+public enum PresentationState<Result: Equatable>: Equatable {
     case idle
     case active
     case cancelled

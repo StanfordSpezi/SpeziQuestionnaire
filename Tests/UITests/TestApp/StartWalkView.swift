@@ -11,18 +11,19 @@ import CoreMotion
 import SwiftUI
 
 struct StartWalkView: View {
-    @State private var isNotAuthorized: Bool = true
+    @State private var isNotAuthorized = true
     @State private var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
     private var time: TimeInterval = 10
     private var description: String = "This is the walk test"
     
     var body: some View {
-        VStack{
+        VStack {
             Spacer()
             
             Image(systemName: "figure.walk.circle")
                 .font(.system(size: 100))
+                .accessibilityHidden(true)
             
             Spacer()
             
@@ -35,6 +36,7 @@ struct StartWalkView: View {
                 WalkTestView(time: time)
             } label: {
                 Text("Next")
+                .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
             .disabled(self.status != .authorized)
@@ -43,7 +45,6 @@ struct StartWalkView: View {
             }
             
             Spacer()
-
         }
         .task {
             requestPedemoterAccess()
@@ -59,8 +60,7 @@ struct StartWalkView: View {
         pedometer.queryPedometerData(from: .now, to: .now) { pedometerData, error in
             if let error = error {
                 print("Error: \(error.localizedDescription)")
-            }
-            else if let data = pedometerData {
+            } else if let data = pedometerData {
                 // Use the step count data here
                 print("Number of steps: \(data.numberOfSteps)")
                 self.status = CMPedometer.authorizationStatus()
