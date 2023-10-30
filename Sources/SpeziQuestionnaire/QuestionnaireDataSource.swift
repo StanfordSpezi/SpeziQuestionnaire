@@ -23,7 +23,7 @@ import SwiftUI
 /// }
 /// ```
 ///
-/// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
+/// Use the ``QuestionnaireDataSource/init()`` initializer to add the data source to your `Configuration`.
 /// ```swift
 /// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {

@@ -14,13 +14,10 @@ import SwiftUI
 
 
 /// Renders a FHIR `Questionnaire`.
-///
 /// The following example shows how to display a questionnaire:
 /// ```swift
 /// struct ExampleQuestionnaireView: View {
 ///     @State var displayQuestionnaire = false
-///
-///
 ///     var body: some View {
 ///         Button("Display Questionnaire") {
 ///             displayQuestionnaire.toggle()
