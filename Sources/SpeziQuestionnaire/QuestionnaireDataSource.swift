@@ -23,7 +23,7 @@ import SwiftUI
 /// }
 /// ```
 ///
-/// Use the ``QuestionnaireDataSource/init(adapter:)`` initializer to add the data source to your `Configuration`.
+/// Use the ``QuestionnaireDataSource/init()`` initializer to add the data source to your `Configuration`.
 /// ```swift
 /// class ExampleAppDelegate: SpeziAppDelegate {
 ///     override var configuration: Configuration {
@@ -39,11 +39,10 @@ public class QuestionnaireDataSource: Component, ObservableObject, ObservableObj
     
     public init() { }
     
+    
     /// Adds a new `QuestionnaireResponse` to the ``QuestionnaireDataSource``
     /// - Parameter response: The `QuestionnaireResponse` that should be added.
-    public func add(_ response: QuestionnaireResponse) {
-        _Concurrency.Task {
-            await standard.add(response: response)
-        }
+    public func add(_ response: QuestionnaireResponse) async {
+        await standard.add(response: response)
     }
 }

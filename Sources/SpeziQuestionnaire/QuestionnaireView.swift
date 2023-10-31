@@ -9,14 +9,38 @@
 import FHIRQuestionnaires
 import ModelsR4
 import ResearchKit
+import ResearchKitOnFHIR
 import SwiftUI
 
 
 /// Renders a FHIR `Questionnaire`.
+/// 
+/// The following example shows how to display a questionnaire:
+/// ```swift
+/// struct ExampleQuestionnaireView: View {
+///     @State var displayQuestionnaire = false
+///     
+///     
+///     var body: some View {
+///         Button("Display Questionnaire") {
+///             displayQuestionnaire.toggle()
+///         }
+///             .sheet(isPresented: $displayQuestionnaire) {
+///                 QuestionnaireView(
+///                     questionnaire: Questionnaire.gcs,
+///                     isPresented: $displayQuestionnaire
+///                 )
+///             }
+///     }
+/// }
+/// ```
 public struct QuestionnaireView: View {
     @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
+    
+    @Binding private var isPresented: Bool
+    
     private let questionnaire: Questionnaire
-    private let questionnaireResponseClosure: ((QuestionnaireResponse) -> Void)?
+    private let questionnaireResponse: ((QuestionnaireResponse) async -> Void)?
     private let completionStepMessage: String?
     
     
@@ -24,7 +48,11 @@ public struct QuestionnaireView: View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(
                 tasks: task,
-                delegate: ORKTaskFHIRDelegate(questionnaireResponse),
+                isPresented: $isPresented,
+                questionnaireResponse: { response in
+                    await questionnaireResponse?(response)
+                    await questionnaireDataSource.add(response)
+                },
                 tintColor: .accentColor
             )
                 .ignoresSafeArea(.container, edges: .bottom)
@@ -37,17 +65,19 @@ public struct QuestionnaireView: View {
     
     /// - Parameters:
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
+    ///   - isPresented: Indication from the questionnaire view if should be presented (not "Done" pressed or cancelled).
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
     ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
-    ///                            If no closure is provided, the `QuestionnaireResponse` instance is send to the `QuestionnaireDataSource` found in the SwiftUI environment.
     public init(
         questionnaire: Questionnaire,
+        isPresented: Binding<Bool> = .constant(true),
         completionStepMessage: String? = nil,
-        questionnaireResponse: ((QuestionnaireResponse) -> Void)? = nil
+        questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
     ) {
         self.questionnaire = questionnaire
+        self._isPresented = isPresented
         self.completionStepMessage = completionStepMessage
-        self.questionnaireResponseClosure = questionnaireResponse
+        self.questionnaireResponse = questionnaireResponse
     }
     
     
@@ -70,20 +100,13 @@ public struct QuestionnaireView: View {
             return nil
         }
     }
-    
-    private func questionnaireResponse(_ questionnaireResponse: QuestionnaireResponse) {
-        if let questionnaireResponseClosure {
-            questionnaireResponseClosure(questionnaireResponse)
-        }
-        questionnaireDataSource.add(questionnaireResponse)
-    }
 }
 
 
 #if DEBUG
 struct QuestionnaireView_Previews: PreviewProvider {
     static var previews: some View {
-        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample)
+        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample, isPresented: .constant(false))
     }
 }
 #endif

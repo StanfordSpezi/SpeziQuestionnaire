@@ -22,7 +22,15 @@ struct ContentView: View {
             displayQuestionnaire.toggle()
         }
             .sheet(isPresented: $displayQuestionnaire) {
-                QuestionnaireView(questionnaire: Questionnaire.gcs)
+                QuestionnaireView(
+                    questionnaire: Questionnaire.gcs,
+                    isPresented: $displayQuestionnaire,
+                    completionStepMessage: "Completed",
+                    questionnaireResponse: { response in
+                        print(response)
+                        try? await Task.sleep(for: .seconds(0.5))
+                    }
+                )
             }
     }
 }
