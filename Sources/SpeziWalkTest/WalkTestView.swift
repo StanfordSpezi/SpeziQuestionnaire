@@ -14,20 +14,24 @@ import SwiftUI
 
 
 struct WalkTestView: View {
-    @EnvironmentObject private var walkTestDataSource: WalkTestDataSource
-    @State private var stepCount: Int = 0
-    @State private var distance: Int = 0
-    @State private var pedometer = CMPedometer()
+    @Binding private var presentationState: PresentationState<WalkTestResponse>
     @State private var start: Date?
+    @State private var pedometer = CMPedometer()
     @State private var isCompleted = false
-    @State private var isStarted = false
-    let time: TimeInterval
-    
+    private var isStarted: Bool {
+        if case .active = presentationState {
+            return true
+        }
+        return false
+    }
+    private let time: TimeInterval
+    private let taskDescription: String
+
     var body: some View {
         VStack {
             Spacer()
             
-            Text("Please walk straight for \(Int(time)) seconds")
+            Text(taskDescription)
                 .font(.title)
             
             Spacer()
@@ -37,9 +41,10 @@ struct WalkTestView: View {
                 .font(.system(size: 100))
                 .accessibilityHidden(true)
             
+            Spacer()
+            
             if let start {
                 let end = start.addingTimeInterval(time)
-                
                 Text(timerInterval: start...end, countsDown: true)
                 ProgressView(timerInterval: start...end) {
                     Text("Walk Test in Progress")
@@ -49,14 +54,13 @@ struct WalkTestView: View {
                     try? await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
                     self.start = nil
                     timedWalk()
-                    isStarted = false
                 }
             }
             
             Button(
                 action: {
                     start = .now
-                    isStarted = true
+                    presentationState = .active
                 },
                 label: {
                     Text("Start")
@@ -70,29 +74,34 @@ struct WalkTestView: View {
         }
         .navigationTitle("Walk Test")
         .navigationDestination(isPresented: $isCompleted) {
-            CompletedView(stepCount: stepCount, distance: distance)
+            WalkTestCompleteView(presentationState: $presentationState)
         }
+    }
+    
+    init(presentationState: Binding<PresentationState<WalkTestResponse>>, time: TimeInterval, taskDescription: String = "Walk Test") {
+        self._presentationState = presentationState
+        self.time = time
+        self.taskDescription = taskDescription
     }
     
     func timedWalk() {
         pedometer.queryPedometerData(from: .now.addingTimeInterval(-time), to: .now) { data, error in
             if let error = error {
                 print("Error requesting pedometer data: \(error.localizedDescription)")
-            } else if let data = data {
-                Task {
-                    let response = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: data.distance?.doubleValue)
-                    await walkTestDataSource.add(response)
+            } else if let data {
+                guard let distance = data.distance?.doubleValue else {
+                    print("Error requesting pedometer data: no distance measurement")
+                    return
                 }
-                isCompleted = false
-                stepCount = data.numberOfSteps.intValue
                 
-                // STILL NEED TO EDIT THIS BELOW. HOW TO BEST DEAL WITH OPTIONAL?
-                distance = data.distance?.intValue ?? 0
+                let walkTestResponse = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: distance)
+                presentationState = .complete(walkTestResponse)
+                isCompleted = true
             }
         }
     }
 }
 
 #Preview {
-    WalkTestView(time: 0)
+    WalkTestView(presentationState: .constant(.idle), time: 10)
 }

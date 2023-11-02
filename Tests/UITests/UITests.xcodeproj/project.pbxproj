@@ -16,9 +16,7 @@
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
 		2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */; };
 		393B47422A747894004DCB08 /* ExampleStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393B47412A747894004DCB08 /* ExampleStandard.swift */; };
-		4A3D04BD2AD6965F001691FB /* CompletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3D04BC2AD6965F001691FB /* CompletedView.swift */; };
-		4A6942722ADF30D4008BC2F1 /* StartWalkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6942712ADF30D4008BC2F1 /* StartWalkView.swift */; };
-		4AC09CDB2AE6495F003E5DC3 /* WalkTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC09CDA2AE6495F003E5DC3 /* WalkTestView.swift */; };
+		4A3D9D752AF1A9F100AE3078 /* SpeziWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,10 +41,7 @@
 		2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAppDelegate.swift; sourceTree = "<group>"; };
 		393B47412A747894004DCB08 /* ExampleStandard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleStandard.swift; sourceTree = "<group>"; };
 		4A311B612AD137840096C494 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		4A3D04BC2AD6965F001691FB /* CompletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompletedView.swift; sourceTree = "<group>"; };
-		4A6942712ADF30D4008BC2F1 /* StartWalkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartWalkView.swift; sourceTree = "<group>"; };
 		4A7A221E2AD4A57B00B15ABB /* TestApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TestApp.entitlements; sourceTree = "<group>"; };
-		4AC09CDA2AE6495F003E5DC3 /* WalkTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalkTestView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +52,7 @@
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 				2F2E8EF929E727AF00D439B7 /* Spezi in Frameworks */,
 				2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */,
+				4A3D9D752AF1A9F100AE3078 /* SpeziWalkTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,10 +95,7 @@
 				2FA7382B290ADFAA007ACEB9 /* TestApp.swift */,
 				2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */,
 				393B47412A747894004DCB08 /* ExampleStandard.swift */,
-				4AC09CDA2AE6495F003E5DC3 /* WalkTestView.swift */,
 				2F7CC6052A79B68D00F42D90 /* ContentView.swift */,
-				4A6942712ADF30D4008BC2F1 /* StartWalkView.swift */,
-				4A3D04BC2AD6965F001691FB /* CompletedView.swift */,
 				2F6D139928F5F386007C25D6 /* Assets.xcassets */,
 			);
 			path = TestApp;
@@ -138,12 +131,14 @@
 			buildRules = (
 			);
 			dependencies = (
+				4A3D9D772AF310FC00AE3078 /* PBXTargetDependency */,
 			);
 			name = TestApp;
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
 				2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */,
 				2F2E8EF829E727AF00D439B7 /* Spezi */,
+				4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -253,10 +248,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A6942722ADF30D4008BC2F1 /* StartWalkView.swift in Sources */,
 				2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */,
-				4A3D04BD2AD6965F001691FB /* CompletedView.swift in Sources */,
-				4AC09CDB2AE6495F003E5DC3 /* WalkTestView.swift in Sources */,
 				393B47422A747894004DCB08 /* ExampleStandard.swift in Sources */,
 				2F7CC6062A79B68D00F42D90 /* ContentView.swift in Sources */,
 				2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */,
@@ -278,6 +270,10 @@
 			isa = PBXTargetDependency;
 			target = 2F6D139128F5F384007C25D6 /* TestApp */;
 			targetProxy = 2F6D13AD28F5F386007C25D6 /* PBXContainerItemProxy */;
+		};
+		4A3D9D772AF310FC00AE3078 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = 4A3D9D762AF310FC00AE3078 /* SpeziWalkTest */;
 		};
 /* End PBXTargetDependency section */
 
@@ -701,6 +697,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "Spezi" */;
 			productName = Spezi;
+		};
+		4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpeziWalkTest;
+		};
+		4A3D9D762AF310FC00AE3078 /* SpeziWalkTest */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpeziWalkTest;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

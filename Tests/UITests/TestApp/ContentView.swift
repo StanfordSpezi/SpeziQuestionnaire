@@ -6,15 +6,15 @@
 // SPDX-License-Identifier: MIT
 //
 
+import SpeziWalkTest
 import SwiftUI
 
 
 struct ContentView: View {
-    private var time: TimeInterval = 0
-    
+    @State var presentationState: PresentationState<WalkTestResponse> = .idle
     var body: some View {
         NavigationStack {
-            StartWalkView()
+            WalkTestStartView(presentationState: $presentationState, time: 10, description: "Walk Test")
         }
     }
 }

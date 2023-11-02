@@ -10,14 +10,16 @@ import CoreLocation
 import CoreMotion
 import SwiftUI
 
-struct StartWalkView: View {
-    @State private var isNotAuthorized = true
+public struct WalkTestStartView: View {
     @State private var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
-    private var time: TimeInterval = 10
-    private var description: String = "This is the walk test"
+    @State private var isNotAuthorized = true
+    @Binding private var presentationState: PresentationState<WalkTestResponse>
     
-    var body: some View {
+    private var time: TimeInterval = 10
+    private let description: String
+    
+    public var body: some View {
         VStack {
             Spacer()
             
@@ -33,13 +35,14 @@ struct StartWalkView: View {
             Spacer()
             
             NavigationLink {
-                WalkTestView(time: time)
+                WalkTestView(presentationState: $presentationState, time: time)
             } label: {
                 Text("Next")
                 .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
             .disabled(self.status != .authorized)
+            
             if self.status != .authorized {
                 Text("Please go to settings to authorize")
             }
@@ -52,17 +55,21 @@ struct StartWalkView: View {
         .navigationTitle("Start Walk Test")
     }
     
+    public init(presentationState: Binding<PresentationState<WalkTestResponse>>, time: TimeInterval, description: String = "This is the walk test") {
+        self._presentationState = presentationState
+        self.time = time
+        self.description = description
+    }
+    
     func requestPedemoterAccess() {
         guard CMPedometer.isStepCountingAvailable() else {
-            print("Step counting is not available on this device.")
+            presentationState = .failed
             return
         }
         pedometer.queryPedometerData(from: .now, to: .now) { pedometerData, error in
-            if let error = error {
-                print("Error: \(error.localizedDescription)")
-            } else if let data = pedometerData {
-                // Use the step count data here
-                print("Number of steps: \(data.numberOfSteps)")
+            if error != nil {
+                presentationState = .failed
+            } else if pedometerData != nil {
                 self.status = CMPedometer.authorizationStatus()
             }
         }
@@ -70,5 +77,5 @@ struct StartWalkView: View {
 }
 
 #Preview {
-    StartWalkView()
+    WalkTestStartView(presentationState: .constant(.idle), time: 10, description: "This is the Walk Test")
 }

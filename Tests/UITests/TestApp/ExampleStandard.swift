@@ -9,6 +9,7 @@
 import ResearchKit
 import Spezi
 import SpeziQuestionnaire
+import SpeziWalkTest
 import SwiftUI
 
 
@@ -29,7 +30,7 @@ extension ExampleStandard: QuestionnaireConstraint {
 }
 
 extension ExampleStandard: WalkTestConstraint {
-    func add(response: SpeziQuestionnaire.WalkTestResponse) async {
+    func add(response: SpeziWalkTest.WalkTestResponse) async {
         await MainActor.run {
             fitnessCheckCount += 1
         }
