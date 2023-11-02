@@ -6,13 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-import ModelsR4
 import Spezi
 
 
-/// A Constraint which all `Standard` instances must conform to when using the Spezi Questionnaire module.
+/// A Constraint which all `Standard` instances must conform to when using the Spezi WalkTest module.
 public protocol WalkTestConstraint: Standard {
-    /// Adds a new `QuestionnaireResponse` to the `Standard` conforming to `QuestionnaireConstraint`.
-    /// - Parameter response: The `QuestionnaireResponse` that should be added.
+    /// Adds a new `WalkTestResponse` to the `Standard` conforming to `WalkTestConstraint`.
+    /// - Parameter response: The `WalkTestResponse` that should be added.
     func add(response: WalkTestResponse) async
 }

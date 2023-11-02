@@ -17,7 +17,7 @@ public enum PresentationState<Result> {
     /// External Presentation State
     case active
     /// External Presentation State
-    case failed
+    case failed(LocalizedError)
     /// External Presentation State
     case complete(Result)
 }

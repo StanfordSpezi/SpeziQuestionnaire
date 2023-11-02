@@ -16,7 +16,7 @@ import SwiftUI
 /// An example Standard used for the configuration.
 actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
     @Published @MainActor var surveyResponseCount: Int = 0
-    @Published @MainActor var fitnessCheckCount: Int = 0
+    @Published @MainActor var walkTestResponseCount: Int = 0
 }
 
 
@@ -32,7 +32,7 @@ extension ExampleStandard: QuestionnaireConstraint {
 extension ExampleStandard: WalkTestConstraint {
     func add(response: SpeziWalkTest.WalkTestResponse) async {
         await MainActor.run {
-            fitnessCheckCount += 1
+            walkTestResponseCount += 1
         }
         try? await Task.sleep(for: .seconds(0.5))
     }

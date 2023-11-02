@@ -6,10 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Combine
-import CoreLocation
-import ResearchKit
-import SpeziQuestionnaire
+import CoreMotion
 import SwiftUI
 
 
@@ -51,9 +48,7 @@ struct WalkTestView: View {
                 }
                 .padding(30)
                 .task {
-                    try? await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
-                    self.start = nil
-                    timedWalk()
+                    await timedWalk()
                 }
             }
             
@@ -84,19 +79,28 @@ struct WalkTestView: View {
         self.taskDescription = taskDescription
     }
     
-    func timedWalk() {
+    func timedWalk() async {
+        do {
+            try await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
+        } catch {
+            return
+        }
+        self.start = nil
         pedometer.queryPedometerData(from: .now.addingTimeInterval(-time), to: .now) { data, error in
-            if let error = error {
-                print("Error requesting pedometer data: \(error.localizedDescription)")
-            } else if let data {
+            if let data {
                 guard let distance = data.distance?.doubleValue else {
-                    print("Error requesting pedometer data: no distance measurement")
+                    presentationState = .failed(WalkTestError.invalidData)
                     return
                 }
-                
                 let walkTestResponse = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: distance)
                 presentationState = .complete(walkTestResponse)
                 isCompleted = true
+            } else {
+                guard let error = error as NSError? else {
+                    presentationState = .failed(WalkTestError.unknown)
+                    return
+                }
+                presentationState = .failed(WalkTestError(errorCode: error.code))
             }
         }
     }

@@ -1,0 +1,48 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Completed" : {
+
+    },
+    "Invalid Data Error" : {
+
+    },
+    "Next" : {
+
+    },
+    "Pedometer access is not authorized" : {
+
+    },
+    "Pedometer data is invalid" : {
+
+    },
+    "Please go to settings to authorize pedometer access" : {
+
+    },
+    "Restart" : {
+
+    },
+    "Start" : {
+
+    },
+    "Start Walk Test" : {
+
+    },
+    "Unauthorized Error" : {
+
+    },
+    "Unknown" : {
+
+    },
+    "Unknown Error" : {
+
+    },
+    "Walk Test" : {
+
+    },
+    "Walk Test in Progress" : {
+
+    }
+  },
+  "version" : "1.0"
+}

@@ -47,7 +47,7 @@ struct WalkTestCompleteView: View {
             .buttonStyle(.borderedProminent)
             
             AsyncButton(action: completeAction) {
-                Text("Completed")
+                Text("Done")
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
@@ -64,7 +64,8 @@ struct WalkTestCompleteView: View {
     
     func completeAction() async {
         guard case let .complete(result) = presentationState else {
-            preconditionFailure("This should never happen!")
+            presentationState = .failed(WalkTestError.unknown)
+            return
         }
         await walkTestDataSource.add(result)
     }

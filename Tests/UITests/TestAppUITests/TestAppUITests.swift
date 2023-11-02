@@ -15,6 +15,7 @@ class TestAppUITests: XCTestCase {
         continueAfterFailure = false
     }
     
+    
     func testSpezi() throws {
         let app = XCUIApplication()
         app.launch()

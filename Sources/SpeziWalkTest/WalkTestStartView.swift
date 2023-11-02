@@ -6,7 +6,6 @@
 // SPDX-License-Identifier: MIT
 //
 
-import CoreLocation
 import CoreMotion
 import SwiftUI
 
@@ -44,7 +43,7 @@ public struct WalkTestStartView: View {
             .disabled(self.status != .authorized)
             
             if self.status != .authorized {
-                Text("Please go to settings to authorize")
+                Text("Please go to settings to authorize pedometer access")
             }
             
             Spacer()
@@ -63,14 +62,18 @@ public struct WalkTestStartView: View {
     
     func requestPedemoterAccess() {
         guard CMPedometer.isStepCountingAvailable() else {
-            presentationState = .failed
+            presentationState = .failed(WalkTestError.unauthorized)
             return
         }
-        pedometer.queryPedometerData(from: .now, to: .now) { pedometerData, error in
-            if error != nil {
-                presentationState = .failed
-            } else if pedometerData != nil {
+        pedometer.queryPedometerData(from: .now, to: .now) { data, error in
+            if data != nil {
                 self.status = CMPedometer.authorizationStatus()
+            } else {
+                guard let error = error as NSError? else {
+                    presentationState = .failed(WalkTestError.unknown)
+                    return
+                }
+                presentationState = .failed(WalkTestError(errorCode: error.code))
             }
         }
     }
