@@ -17,7 +17,28 @@ public enum PresentationState<Result> {
     /// External Presentation State
     case active
     /// External Presentation State
+    case cancelled
+    /// External Presentation State
     case failed(LocalizedError)
     /// External Presentation State
     case complete(Result)
+    
+    /// TO SHOW IF PRESENTED OR NOT
+    public var presented: Bool {
+        get {
+            switch self {
+            case .cancelled, .complete, .idle, .failed:
+                false
+            case .active:
+                true
+            }
+        }
+        set {
+            if newValue {
+                self = .active
+            } else {
+                self = .idle
+            }
+        }
+    }
 }

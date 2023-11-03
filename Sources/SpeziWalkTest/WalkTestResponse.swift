@@ -6,12 +6,22 @@
 // SPDX-License-Identifier: MIT
 //
 
+import Foundation
+
 public struct WalkTestResponse: Sendable, Equatable {
     public let stepCount: Double
     public let distance: Double
+    public let startDate: Date
+    public let endDate: Date
     
-    public init(stepCount: Double, distance: Double) {
+    public var duration: TimeInterval {
+        endDate.timeIntervalSince(startDate)
+    }
+    
+    public init(stepCount: Double, distance: Double, startDate: Date, endDate: Date) {
         self.stepCount = stepCount
         self.distance = distance
+        self.startDate = startDate
+        self.endDate = endDate
     }
 }

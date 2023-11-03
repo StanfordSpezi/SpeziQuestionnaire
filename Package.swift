@@ -52,8 +52,8 @@ let package = Package(
             name: "SpeziWalkTest",
             dependencies: [
                 .product(name: "Spezi", package: "Spezi"),
-                .product(name: "SpeziViews", package: "SpeziViews")
-                //  .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "SpeziViews", package: "SpeziViews"),
+                .product(name: "ModelsR4", package: "FHIRModels")
             ]
         )
     ]

@@ -15,6 +15,7 @@ struct WalkTestView: View {
     @State private var start: Date?
     @State private var pedometer = CMPedometer()
     @State private var isCompleted = false
+    
     private var isStarted: Bool {
         if case .active = presentationState {
             return true
@@ -48,7 +49,7 @@ struct WalkTestView: View {
                 }
                 .padding(30)
                 .task {
-                    await timedWalk()
+                    await timedWalk(start: start, end: end)
                 }
             }
             
@@ -79,20 +80,25 @@ struct WalkTestView: View {
         self.taskDescription = taskDescription
     }
     
-    func timedWalk() async {
+    func timedWalk(start: Date, end: Date) async {
         do {
             try await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
         } catch {
             return
         }
-        self.start = nil
-        pedometer.queryPedometerData(from: .now.addingTimeInterval(-time), to: .now) { data, error in
+        
+        pedometer.queryPedometerData(from: start, to: end) { data, error in
             if let data {
                 guard let distance = data.distance?.doubleValue else {
                     presentationState = .failed(WalkTestError.invalidData)
                     return
                 }
-                let walkTestResponse = WalkTestResponse(stepCount: data.numberOfSteps.doubleValue, distance: distance)
+                let walkTestResponse = WalkTestResponse(
+                    stepCount: data.numberOfSteps.doubleValue,
+                    distance: distance,
+                    startDate: start,
+                    endDate: end
+                )
                 presentationState = .complete(walkTestResponse)
                 isCompleted = true
             } else {
@@ -103,6 +109,7 @@ struct WalkTestView: View {
                 presentationState = .failed(WalkTestError(errorCode: error.code))
             }
         }
+        self.start = nil
     }
 }
 
