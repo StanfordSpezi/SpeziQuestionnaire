@@ -36,6 +36,7 @@ public struct WalkTestStartView: View {
             
             NavigationLink {
                 WalkTestView(time: time)
+                    .environmentObject(walkTestViewModel)
             } label: {
                 Text("Next")
                 .frame(maxWidth: .infinity, minHeight: 38)
@@ -67,16 +68,17 @@ public struct WalkTestStartView: View {
         }
         .environmentObject(walkTestViewModel)
     }
+
     
     public init(
         time: TimeInterval,
-        description: String = "This is the walk test",
         isPresented: Binding<Bool>,
-        completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void
+        completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void,
+        description: String = "This is the walk test"
     ) {
         self.time = time
-        self.description = description
         self._walkTestViewModel = StateObject(wrappedValue: WalkTestViewModel(completion: completion, isPresented: isPresented))
+        self.description = description
     }
     
     func requestPedemoterAccess() {
@@ -104,8 +106,8 @@ public struct WalkTestStartView: View {
 #Preview {
     WalkTestStartView(
         time: 10,
-        description: "This is the Walk Test",
         isPresented: .constant(false),
-        completion: { _ in }
+        completion: { _ in },
+        description: "This is the Walk Test"
     )
 }

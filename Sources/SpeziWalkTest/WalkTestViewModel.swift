@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 class WalkTestViewModel: ObservableObject {
-    let completion: (Result<WalkTestResponse, WalkTestError>) -> ()
+    let completion: (Result<WalkTestResponse, WalkTestError>) -> Void
     @Binding var isPresented: Bool
     
     init(completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void, isPresented: Binding<Bool>) {
@@ -18,4 +18,3 @@ class WalkTestViewModel: ObservableObject {
         self._isPresented = isPresented
     }
 }
-

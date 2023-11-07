@@ -14,7 +14,6 @@ struct WalkTestView: View {
     @EnvironmentObject var walkTestViewModel: WalkTestViewModel
     @State private var start: Date?
     @State private var pedometer = CMPedometer()
-    @State private var isStarted = false
     @State private var isCompleted = false
     @State private var isCancelling = false
     @State private var result: Result<WalkTestResponse, WalkTestError>?
@@ -33,7 +32,7 @@ struct WalkTestView: View {
             Spacer()
             
             Image(systemName: "figure.walk.circle")
-                .symbolEffect(.pulse, isActive: isStarted)
+                .symbolEffect(.pulse, isActive: start != nil)
                 .font(.system(size: 100))
                 .accessibilityHidden(true)
             
@@ -54,7 +53,6 @@ struct WalkTestView: View {
             Button(
                 action: {
                     start = .now
-                    isStarted = true
                 },
                 label: {
                     Text("Start")
@@ -62,13 +60,14 @@ struct WalkTestView: View {
                 }
             )
             .buttonStyle(.borderedProminent)
-            .disabled(isStarted)
+            .disabled(start != nil)
             
             Spacer()
         }
         .navigationTitle("Walk Test")
         .navigationDestination(isPresented: $isCompleted) {
             WalkTestCompleteView(result: result ?? .failure(WalkTestError.unknown))
+                .environmentObject(walkTestViewModel)
         }
         .toolbar {
             Button("Cancel") {

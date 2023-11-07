@@ -33,7 +33,7 @@ struct WalkTestCompleteView: View {
                         
             if case .success(let response) = result {
                 Text("Steps: " + String(Int(response.stepCount)))
-                Text("Distance:" + String(Int(response.distance)))
+                Text("Distance: " + String(Int(response.distance)))
             }
             
             Button(
@@ -70,23 +70,23 @@ struct WalkTestCompleteView: View {
         }
     }
     
-    init(completionMessage: String = "Completed Timed Walk!", result: Result<WalkTestResponse, WalkTestError>) {
-        self.completionMessage = completionMessage
+    init(result: Result<WalkTestResponse, WalkTestError>, completionMessage: String = "Completed Timed Walk!") {
         self.result = result
+        self.completionMessage = completionMessage
     }
     
     func completeAction() async {
         switch result {
         case .success(let response):
             await walkTestDataSource.add(response)
+            walkTestViewModel.isPresented = false
         case .failure(let error):
             walkTestViewModel.completion(.failure(error))
             walkTestViewModel.isPresented = false
-            return
         }
     }
 }
 
 #Preview {
-    WalkTestCompleteView(completionMessage: "", result: .failure(WalkTestError.unknown))
+    WalkTestCompleteView(result: .failure(WalkTestError.unknown), completionMessage: "")
 }

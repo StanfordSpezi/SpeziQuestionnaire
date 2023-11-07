@@ -49,9 +49,9 @@ struct ContentView: View {
                 NavigationStack {
                     WalkTestStartView(
                         time: 10,
-                        description: "Walk Test",
                         isPresented: $displayWalkTest,
-                        completion: completion
+                        completion: completion,
+                        description: "Walk Test"
                     )
                 }
             }
@@ -61,9 +61,9 @@ struct ContentView: View {
     
     func completion(result: Result<WalkTestResponse, WalkTestError>) {
         switch result {
-        case let .success(result):
+        case .success:
             print("Previous walk test was successful")
-        case let .failure(error):
+        case .failure:
             print("Previous walk test was unsuccessful")
         }
     }
