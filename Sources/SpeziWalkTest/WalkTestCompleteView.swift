@@ -10,9 +10,11 @@ import SpeziViews
 import SwiftUI
 
 struct WalkTestCompleteView: View {
+    @EnvironmentObject var walkTestViewModel: WalkTestViewModel
     @EnvironmentObject private var walkTestDataSource: WalkTestDataSource
     @Environment(\.dismiss) private var dismiss
-    @Binding private var presentationState: PresentationState<WalkTestResponse>
+    @State private var isCancelling = false
+    private let result: Result<WalkTestResponse, WalkTestError>
     private let completionMessage: String
     
     var body: some View {
@@ -28,15 +30,14 @@ struct WalkTestCompleteView: View {
             
             Text(completionMessage)
                 .font(.title)
-            
-            if case let .complete(result) = presentationState {
-                Text("Steps: " + String(Int(result.stepCount)))
-                Text("Distance:" + String(Int(result.distance)))
+                        
+            if case .success(let response) = result {
+                Text("Steps: " + String(Int(response.stepCount)))
+                Text("Distance:" + String(Int(response.distance)))
             }
             
             Button(
                 action: {
-                    presentationState = .idle
                     dismiss()
                 },
                 label: {
@@ -55,22 +56,37 @@ struct WalkTestCompleteView: View {
             Spacer()
         }
         .navigationBarBackButtonHidden(true)
+        .toolbar {
+            Button("Cancel") {
+                isCancelling = true
+            }
+        }
+        .confirmationDialog("Are you sure?", isPresented: $isCancelling) {
+            Button("End Task", role: .destructive) {
+                walkTestViewModel.isPresented = false
+            }
+            Button("Cancel", role: .cancel) {
+            }
+        }
     }
     
-    init(presentationState: Binding<PresentationState<WalkTestResponse>>, completionMessage: String = "Completed Timed Walk!") {
-        self._presentationState = presentationState
+    init(completionMessage: String = "Completed Timed Walk!", result: Result<WalkTestResponse, WalkTestError>) {
         self.completionMessage = completionMessage
+        self.result = result
     }
     
     func completeAction() async {
-        guard case let .complete(result) = presentationState else {
-            presentationState = .failed(WalkTestError.unknown)
+        switch result {
+        case .success(let response):
+            await walkTestDataSource.add(response)
+        case .failure(let error):
+            walkTestViewModel.completion(.failure(error))
+            walkTestViewModel.isPresented = false
             return
         }
-        await walkTestDataSource.add(result)
     }
 }
 
 #Preview {
-    WalkTestCompleteView(presentationState: .constant(.idle), completionMessage: "")
+    WalkTestCompleteView(completionMessage: "", result: .failure(WalkTestError.unknown))
 }

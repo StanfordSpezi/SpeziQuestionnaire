@@ -11,17 +11,15 @@ import SwiftUI
 
 
 struct WalkTestView: View {
-    @Binding private var presentationState: PresentationState<WalkTestResponse>
+    @EnvironmentObject var walkTestViewModel: WalkTestViewModel
     @State private var start: Date?
     @State private var pedometer = CMPedometer()
+    @State private var isStarted = false
     @State private var isCompleted = false
+    @State private var isCancelling = false
+    @State private var result: Result<WalkTestResponse, WalkTestError>?
+
     
-    private var isStarted: Bool {
-        if case .active = presentationState {
-            return true
-        }
-        return false
-    }
     private let time: TimeInterval
     private let taskDescription: String
 
@@ -56,7 +54,7 @@ struct WalkTestView: View {
             Button(
                 action: {
                     start = .now
-                    presentationState = .active
+                    isStarted = true
                 },
                 label: {
                     Text("Start")
@@ -70,12 +68,23 @@ struct WalkTestView: View {
         }
         .navigationTitle("Walk Test")
         .navigationDestination(isPresented: $isCompleted) {
-            WalkTestCompleteView(presentationState: $presentationState)
+            WalkTestCompleteView(result: result ?? .failure(WalkTestError.unknown))
+        }
+        .toolbar {
+            Button("Cancel") {
+                isCancelling = true
+            }
+        }
+        .confirmationDialog("Are you sure?", isPresented: $isCancelling) {
+            Button("End Task", role: .destructive) {
+                walkTestViewModel.isPresented = false
+            }
+            Button("Cancel", role: .cancel) {
+            }
         }
     }
     
-    init(presentationState: Binding<PresentationState<WalkTestResponse>>, time: TimeInterval, taskDescription: String = "Walk Test") {
-        self._presentationState = presentationState
+    init(time: TimeInterval, taskDescription: String = "Walk Test") {
         self.time = time
         self.taskDescription = taskDescription
     }
@@ -90,7 +99,9 @@ struct WalkTestView: View {
         pedometer.queryPedometerData(from: start, to: end) { data, error in
             if let data {
                 guard let distance = data.distance?.doubleValue else {
-                    presentationState = .failed(WalkTestError.invalidData)
+                    walkTestViewModel.completion(.failure(WalkTestError.invalidData))
+                    result = .failure(WalkTestError.invalidData)
+                    walkTestViewModel.isPresented = false
                     return
                 }
                 let walkTestResponse = WalkTestResponse(
@@ -99,14 +110,19 @@ struct WalkTestView: View {
                     startDate: start,
                     endDate: end
                 )
-                presentationState = .complete(walkTestResponse)
+                walkTestViewModel.completion(.success(walkTestResponse))
+                result = .success(walkTestResponse)
                 isCompleted = true
             } else {
                 guard let error = error as NSError? else {
-                    presentationState = .failed(WalkTestError.unknown)
+                    walkTestViewModel.completion(.failure(WalkTestError.unknown))
+                    result = .failure(WalkTestError.unknown)
+                    walkTestViewModel.isPresented = false
                     return
                 }
-                presentationState = .failed(WalkTestError(errorCode: error.code))
+                walkTestViewModel.completion(.failure(WalkTestError(errorCode: error.code)))
+                result = .failure(WalkTestError(errorCode: error.code))
+                walkTestViewModel.isPresented = false
             }
         }
         self.start = nil
@@ -114,5 +130,5 @@ struct WalkTestView: View {
 }
 
 #Preview {
-    WalkTestView(presentationState: .constant(.idle), time: 10)
+    WalkTestView(time: 10)
 }

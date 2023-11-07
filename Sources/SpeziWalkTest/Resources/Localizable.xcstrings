@@ -1,7 +1,16 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Are you sure?" : {
+
+    },
+    "Cancel" : {
+
+    },
     "Done" : {
+
+    },
+    "End Task" : {
 
     },
     "Invalid Data Error" : {

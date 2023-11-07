@@ -10,10 +10,11 @@ import CoreMotion
 import SwiftUI
 
 public struct WalkTestStartView: View {
+    @StateObject var walkTestViewModel: WalkTestViewModel
     @State private var pedometer = CMPedometer()
     @State private var status: CMAuthorizationStatus = CMPedometer.authorizationStatus()
     @State private var isNotAuthorized = true
-    @Binding private var presentationState: PresentationState<WalkTestResponse>
+    @State private var isCancelling = false
     
     private var time: TimeInterval = 10
     private let description: String
@@ -34,7 +35,7 @@ public struct WalkTestStartView: View {
             Spacer()
             
             NavigationLink {
-                WalkTestView(presentationState: $presentationState, time: time)
+                WalkTestView(time: time)
             } label: {
                 Text("Next")
                 .frame(maxWidth: .infinity, minHeight: 38)
@@ -52,17 +53,36 @@ public struct WalkTestStartView: View {
             requestPedemoterAccess()
         }
         .navigationTitle("Start Walk Test")
+        .toolbar {
+            Button("Cancel") {
+                isCancelling = true
+            }
+        }
+        .confirmationDialog("Are you sure?", isPresented: $isCancelling) {
+            Button("End Task", role: .destructive) {
+                walkTestViewModel.isPresented = false
+            }
+            Button("Cancel", role: .cancel) {
+            }
+        }
+        .environmentObject(walkTestViewModel)
     }
     
-    public init(presentationState: Binding<PresentationState<WalkTestResponse>>, time: TimeInterval, description: String = "This is the walk test") {
-        self._presentationState = presentationState
+    public init(
+        time: TimeInterval,
+        description: String = "This is the walk test",
+        isPresented: Binding<Bool>,
+        completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void
+    ) {
         self.time = time
         self.description = description
+        self._walkTestViewModel = StateObject(wrappedValue: WalkTestViewModel(completion: completion, isPresented: isPresented))
     }
     
     func requestPedemoterAccess() {
         guard CMPedometer.isStepCountingAvailable() else {
-            presentationState = .failed(WalkTestError.unauthorized)
+            walkTestViewModel.completion(.failure(WalkTestError.unauthorized))
+            walkTestViewModel.isPresented = false
             return
         }
         pedometer.queryPedometerData(from: .now, to: .now) { data, error in
@@ -70,15 +90,22 @@ public struct WalkTestStartView: View {
                 self.status = CMPedometer.authorizationStatus()
             } else {
                 guard let error = error as NSError? else {
-                    presentationState = .failed(WalkTestError.unknown)
+                    walkTestViewModel.completion(.failure(WalkTestError.unknown))
+                    walkTestViewModel.isPresented = false
                     return
                 }
-                presentationState = .failed(WalkTestError(errorCode: error.code))
+                walkTestViewModel.completion(.failure(WalkTestError(errorCode: error.code)))
+                walkTestViewModel.isPresented = false
             }
         }
     }
 }
 
 #Preview {
-    WalkTestStartView(presentationState: .constant(.idle), time: 10, description: "This is the Walk Test")
+    WalkTestStartView(
+        time: 10,
+        description: "This is the Walk Test",
+        isPresented: .constant(false),
+        completion: { _ in }
+    )
 }

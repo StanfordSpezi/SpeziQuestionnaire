@@ -12,10 +12,10 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @State var presentationState: PresentationState<WalkTestResponse> = .idle
     @EnvironmentObject var standard: ExampleStandard
     @State var displayQuestionnaire = false
     @State var displayWalkTest = false
+
     
     var body: some View {
         VStack {
@@ -48,14 +48,23 @@ struct ContentView: View {
             .sheet(isPresented: $displayWalkTest) {
                 NavigationStack {
                     WalkTestStartView(
-                        presentationState: $presentationState,
                         time: 10,
-                        description: "Walk Test"
+                        description: "Walk Test",
+                        isPresented: $displayWalkTest,
+                        completion: completion
                     )
                 }
             }
-            
             Spacer()
+        }
+    }
+    
+    func completion(result: Result<WalkTestResponse, WalkTestError>) {
+        switch result {
+        case let .success(result):
+            print("Previous walk test was successful")
+        case let .failure(error):
+            print("Previous walk test was unsuccessful")
         }
     }
 }

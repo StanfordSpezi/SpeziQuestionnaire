@@ -52,4 +52,8 @@ class TestAppUITests: XCTestCase {
         /// Verify that the number of survey responses increases
         XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
     }
+    
+    func testaSpezi() throws {
+        
+    }
 }

@@ -9,7 +9,7 @@
 import CoreMotion
 import Foundation
 
-enum WalkTestError: LocalizedError {
+public enum WalkTestError: LocalizedError {
     case unauthorized
     case invalidData
     case unknown
@@ -37,11 +37,11 @@ enum WalkTestError: LocalizedError {
     }
 
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         .init(localized: errorDescriptionValue, bundle: .module)
     }
     
-    var failureReason: String? {
+    public var failureReason: String? {
         .init(localized: failureReasonDescriptionValue, bundle: .module)
     }
     
