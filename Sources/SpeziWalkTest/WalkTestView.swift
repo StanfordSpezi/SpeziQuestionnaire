@@ -19,7 +19,7 @@ struct WalkTestView: View {
     @State private var result: Result<WalkTestResponse, WalkTestError>?
 
     
-    private let time: TimeInterval
+    private let walkTime: TimeInterval
     private let taskDescription: String
 
     var body: some View {
@@ -39,7 +39,7 @@ struct WalkTestView: View {
             Spacer()
             
             if let start {
-                let end = start.addingTimeInterval(time)
+                let end = start.addingTimeInterval(walkTime)
                 Text(timerInterval: start...end, countsDown: true)
                 ProgressView(timerInterval: start...end) {
                     Text("Walk Test in Progress")
@@ -83,14 +83,14 @@ struct WalkTestView: View {
         }
     }
     
-    init(time: TimeInterval, taskDescription: String = "Walk Test") {
-        self.time = time
+    init(walkTime: TimeInterval, taskDescription: String = "Walk Test") {
+        self.walkTime = walkTime
         self.taskDescription = taskDescription
     }
     
     func timedWalk(start: Date, end: Date) async {
         do {
-            try await Task.sleep(nanoseconds: UInt64(time * 1000 * 1000 * 1000))
+            try await Task.sleep(nanoseconds: UInt64(walkTime * 1000 * 1000 * 1000))
         } catch {
             return
         }
@@ -129,5 +129,5 @@ struct WalkTestView: View {
 }
 
 #Preview {
-    WalkTestView(time: 10)
+    WalkTestView(walkTime: 10)
 }

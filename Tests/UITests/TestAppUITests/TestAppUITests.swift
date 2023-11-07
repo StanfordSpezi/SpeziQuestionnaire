@@ -62,12 +62,15 @@ class TestAppUITests: XCTestCase {
         XCTAssert(app.buttons["Display Walk Test"].waitForExistence(timeout: 2))
         app.buttons["Display Walk Test"].tap()
         
+        /// Tap Next to move to the next screen
         XCTAssert(app.buttons["Next"].waitForExistence(timeout: 2))
         app.buttons["Next"].tap()
         
+        /// Tap Start to start the walk test
         XCTAssert(app.buttons["Start"].waitForExistence(timeout: 2))
         app.buttons["Start"].tap()
         
+        /// Wait for walk test to complete
         sleep(10)
         
         XCTAssert(app.buttons["Done"].waitForExistence(timeout: 5))

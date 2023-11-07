@@ -48,7 +48,7 @@ struct ContentView: View {
             .sheet(isPresented: $displayWalkTest) {
                 NavigationStack {
                     WalkTestStartView(
-                        time: 10,
+                        walkTime: 10,
                         isPresented: $displayWalkTest,
                         completion: completion,
                         description: "Walk Test"

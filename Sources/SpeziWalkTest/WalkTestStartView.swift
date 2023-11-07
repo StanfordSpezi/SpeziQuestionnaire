@@ -16,7 +16,7 @@ public struct WalkTestStartView: View {
     @State private var isNotAuthorized = true
     @State private var isCancelling = false
     
-    private var time: TimeInterval = 10
+    private var walkTime: TimeInterval = 10
     private let description: String
     
     public var body: some View {
@@ -35,7 +35,7 @@ public struct WalkTestStartView: View {
             Spacer()
             
             NavigationLink {
-                WalkTestView(time: time)
+                WalkTestView(walkTime: walkTime)
                     .environmentObject(walkTestViewModel)
             } label: {
                 Text("Next")
@@ -71,12 +71,12 @@ public struct WalkTestStartView: View {
 
     
     public init(
-        time: TimeInterval,
+        walkTime: TimeInterval,
         isPresented: Binding<Bool>,
         completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void,
         description: String = "This is the walk test"
     ) {
-        self.time = time
+        self.walkTime = walkTime
         self._walkTestViewModel = StateObject(wrappedValue: WalkTestViewModel(completion: completion, isPresented: isPresented))
         self.description = description
     }
@@ -105,7 +105,7 @@ public struct WalkTestStartView: View {
 
 #Preview {
     WalkTestStartView(
-        time: 10,
+        walkTime: 10,
         isPresented: .constant(false),
         completion: { _ in },
         description: "This is the Walk Test"
