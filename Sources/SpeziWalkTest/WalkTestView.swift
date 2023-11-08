@@ -94,7 +94,7 @@ struct WalkTestView: View {
         } catch {
             return
         }
-        
+#if !targetEnvironment(simulator)
         pedometer.queryPedometerData(from: start, to: end) { data, error in
             if let data {
                 guard let distance = data.distance?.doubleValue else {
@@ -125,6 +125,17 @@ struct WalkTestView: View {
             }
         }
         self.start = nil
+#else
+        let walkTestResponse = WalkTestResponse(
+            stepCount: 0,
+            distance: 0,
+            startDate: start,
+            endDate: end
+        )
+        walkTestViewModel.completion(.success(walkTestResponse))
+        result = .success(walkTestResponse)
+        isCompleted = true
+#endif
     }
 }
 

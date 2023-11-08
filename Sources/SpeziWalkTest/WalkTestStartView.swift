@@ -82,6 +82,7 @@ public struct WalkTestStartView: View {
     }
     
     func requestPedemoterAccess() {
+#if !targetEnvironment(simulator)
         guard CMPedometer.isStepCountingAvailable() else {
             walkTestViewModel.completion(.failure(WalkTestError.unauthorized))
             walkTestViewModel.isPresented = false
@@ -100,6 +101,9 @@ public struct WalkTestStartView: View {
                 walkTestViewModel.isPresented = false
             }
         }
+#else
+        self.status = CMAuthorizationStatus.authorized
+#endif
     }
 }
 

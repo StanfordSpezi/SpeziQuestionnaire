@@ -73,6 +73,9 @@ class TestAppUITests: XCTestCase {
         /// Wait for walk test to complete
         sleep(10)
         
+        XCTAssert(app.staticTexts["Steps: 0"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["Distance: 0"].waitForExistence(timeout: 2))
+
         XCTAssert(app.buttons["Done"].waitForExistence(timeout: 5))
         app.buttons["Done"].tap()
         
