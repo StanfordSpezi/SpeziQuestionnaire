@@ -35,8 +35,8 @@ import SwiftUI
 /// }
 /// ```
 public struct QuestionnaireView: View {
-    @EnvironmentObject private var questionnaireDataSource: QuestionnaireDataSource
-    
+    @Environment(QuestionnaireDataSource.self) private var questionnaireDataSource
+
     @Binding private var isPresented: Bool
     
     private let questionnaire: Questionnaire
@@ -51,7 +51,7 @@ public struct QuestionnaireView: View {
                 isPresented: $isPresented,
                 questionnaireResponse: { response in
                     await questionnaireResponse?(response)
-                    await questionnaireDataSource.add(response)
+                    await questionnaireDataSource.add(response) // TODO: remove that thingy
                 },
                 tintColor: .accentColor
             )
@@ -75,7 +75,7 @@ public struct QuestionnaireView: View {
         questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
     ) {
         self.questionnaire = questionnaire
-        self._isPresented = isPresented
+        self._isPresented = isPresented // TODO: this is not optional!
         self.completionStepMessage = completionStepMessage
         self.questionnaireResponse = questionnaireResponse
     }

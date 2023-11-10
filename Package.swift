@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.9
 
 //
 // This source file is part of the Stanford Spezi open source project
@@ -14,15 +14,15 @@ import PackageDescription
 let package = Package(
     name: "SpeziQuestionnaire",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v17)
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordSpezi/Spezi", .upToNextMinor(from: "0.7.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.9"),
+        .package(url: "https://github.com/StanfordSpezi/Spezi", .upToNextMinor(from: "0.8.0")),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.19"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", .upToNextMinor(from: "0.2.1"))
     ],
     targets: [

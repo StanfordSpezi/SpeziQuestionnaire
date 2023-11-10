@@ -12,7 +12,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @EnvironmentObject var standard: ExampleStandard
+    @Environment(ExampleStandard.self) var standard
     @State var displayQuestionnaire = false
     
     

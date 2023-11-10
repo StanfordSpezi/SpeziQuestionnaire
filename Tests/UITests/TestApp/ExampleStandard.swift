@@ -11,9 +11,24 @@ import SpeziQuestionnaire
 import SwiftUI
 
 
+@Observable
+private class ExampleModel {
+    var surveyResponseCount: Int = 0
+    init() {}
+}
+
 /// An example Standard used for the configuration.
-actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
-    @Published @MainActor var surveyResponseCount: Int = 0
+actor ExampleStandard: Module, EnvironmentAccessible {
+    @MainActor private let model = ExampleModel()
+    
+    @MainActor var surveyResponseCount: Int {
+        get {
+            model.surveyResponseCount
+        }
+        set {
+            model.surveyResponseCount = newValue
+        }
+    }
 }
 
 
