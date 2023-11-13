@@ -18,7 +18,7 @@ private class ExampleModel {
 }
 
 /// An example Standard used for the configuration.
-actor ExampleStandard: Module, EnvironmentAccessible {
+actor ExampleStandard: Standard, EnvironmentAccessible {
     @MainActor private let model = ExampleModel()
     
     @MainActor var surveyResponseCount: Int {
@@ -28,15 +28,5 @@ actor ExampleStandard: Module, EnvironmentAccessible {
         set {
             model.surveyResponseCount = newValue
         }
-    }
-}
-
-
-extension ExampleStandard: QuestionnaireConstraint {
-    func add(response: ModelsR4.QuestionnaireResponse) async {
-        await MainActor.run {
-            surveyResponseCount += 1
-        }
-        try? await Task.sleep(for: .seconds(0.5))
     }
 }

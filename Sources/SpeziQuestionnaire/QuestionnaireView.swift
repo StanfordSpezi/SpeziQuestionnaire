@@ -8,6 +8,7 @@
 
 import FHIRQuestionnaires
 import ModelsR4
+import OSLog
 import ResearchKit
 import ResearchKitOnFHIR
 import SwiftUI
@@ -35,12 +36,10 @@ import SwiftUI
 /// }
 /// ```
 public struct QuestionnaireView: View {
-    @Environment(QuestionnaireDataSource.self) private var questionnaireDataSource
+    private static let logger = Logger(subsystem: "edu.stanford.spezi.questionnaire", category: "QuestionnaireView")
 
-    @Binding private var isPresented: Bool
-    
     private let questionnaire: Questionnaire
-    private let questionnaireResponse: ((QuestionnaireResponse) async -> Void)?
+    private let questionnaireResult: (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
     
     
@@ -48,15 +47,12 @@ public struct QuestionnaireView: View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(
                 tasks: task,
-                isPresented: $isPresented,
-                questionnaireResponse: { response in
-                    await questionnaireResponse?(response)
-                    await questionnaireDataSource.add(response) // TODO: remove that thingy
-                },
+                result: questionnaireResult,
                 tintColor: .accentColor
             )
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
+                .interactiveDismissDisabled()
         } else {
             Text("QUESTIONNAIRE_LOADING_ERROR_MESSAGE")
         }
@@ -65,19 +61,16 @@ public struct QuestionnaireView: View {
     
     /// - Parameters:
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
-    ///   - isPresented: Indication from the questionnaire view if should be presented (not "Done" pressed or cancelled).
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
-    ///   - questionnaireResponse: Optional response closure that can be used to manually obtain the `QuestionnaireResponse`.
+    ///   - questionnaireResult: Result closure that processes the ``QuestionnaireResult``.
     public init(
         questionnaire: Questionnaire,
-        isPresented: Binding<Bool> = .constant(true),
         completionStepMessage: String? = nil,
-        questionnaireResponse: (@MainActor (QuestionnaireResponse) async -> Void)? = nil
+        questionnaireResult: @escaping @MainActor (QuestionnaireResult) async -> Void
     ) {
         self.questionnaire = questionnaire
-        self._isPresented = isPresented // TODO: this is not optional!
         self.completionStepMessage = completionStepMessage
-        self.questionnaireResponse = questionnaireResponse
+        self.questionnaireResult = questionnaireResult
     }
     
     
@@ -96,7 +89,7 @@ public struct QuestionnaireView: View {
         do {
             return try ORKNavigableOrderedTask(questionnaire: questionnaire, completionStep: completionStep)
         } catch {
-            print("Error creating task: \(error)")
+            Self.logger.error("Failed to create ORK task: \(error)")
             return nil
         }
     }
@@ -104,9 +97,9 @@ public struct QuestionnaireView: View {
 
 
 #if DEBUG
-struct QuestionnaireView_Previews: PreviewProvider {
-    static var previews: some View {
-        QuestionnaireView(questionnaire: Questionnaire.dateTimeExample, isPresented: .constant(false))
+#Preview {
+    QuestionnaireView(questionnaire: .dateTimeExample) { response in
+        print("Received response \(response)")
     }
 }
 #endif

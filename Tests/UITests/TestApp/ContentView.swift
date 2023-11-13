@@ -24,10 +24,11 @@ struct ContentView: View {
             .sheet(isPresented: $displayQuestionnaire) {
                 QuestionnaireView(
                     questionnaire: Questionnaire.gcs,
-                    isPresented: $displayQuestionnaire,
                     completionStepMessage: "Completed",
-                    questionnaireResponse: { response in
-                        print(response)
+                    questionnaireResult: { _ in
+                        displayQuestionnaire = false
+
+                        standard.surveyResponseCount += 1
                         try? await Task.sleep(for: .seconds(0.5))
                     }
                 )
