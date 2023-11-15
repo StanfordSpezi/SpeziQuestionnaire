@@ -11,17 +11,22 @@ import SpeziQuestionnaire
 import SwiftUI
 
 
-/// An example Standard used for the configuration.
-actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
-    @Published @MainActor var surveyResponseCount: Int = 0
+@Observable
+private class ExampleModel {
+    var surveyResponseCount: Int = 0
+    init() {}
 }
 
-
-extension ExampleStandard: QuestionnaireConstraint {
-    func add(response: ModelsR4.QuestionnaireResponse) async {
-        await MainActor.run {
-            surveyResponseCount += 1
+/// An example Standard used for the configuration.
+actor ExampleStandard: Standard, EnvironmentAccessible {
+    @MainActor private let model = ExampleModel()
+    
+    @MainActor var surveyResponseCount: Int {
+        get {
+            model.surveyResponseCount
         }
-        try? await Task.sleep(for: .seconds(0.5))
+        set {
+            model.surveyResponseCount = newValue
+        }
     }
 }
