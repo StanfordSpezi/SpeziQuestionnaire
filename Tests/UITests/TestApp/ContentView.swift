@@ -15,6 +15,22 @@ struct ContentView: View {
     @EnvironmentObject var standard: ExampleStandard
     @State var displayQuestionnaire = false
     @State var displayWalkTest = false
+    private var walkTime = 10.0
+    private var description: String {
+        if walkTime < 90.0 {
+            """
+            This is the Walk Test.
+            
+            Please find an environment where you can walk straight for \(Int(walkTime)) seconds.
+            """
+        } else {
+            """
+            This is the Walk Test.
+
+            Please find an environment where you can walk straight for \(Int(walkTime) / 60) minutes.
+            """
+        }
+    }
 
     
     var body: some View {
@@ -48,10 +64,11 @@ struct ContentView: View {
             .sheet(isPresented: $displayWalkTest) {
                 NavigationStack {
                     WalkTestStartView(
-                        walkTime: 10,
-                        isPresented: $displayWalkTest,
                         completion: completion,
-                        description: "Walk Test"
+                        taskDescription: description,
+                        walkTime: walkTime,
+                        completionMessage: "Completed Walk Test!",
+                        isPresented: $displayWalkTest
                     )
                 }
             }

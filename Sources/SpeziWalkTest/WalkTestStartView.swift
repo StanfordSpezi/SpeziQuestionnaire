@@ -16,26 +16,21 @@ public struct WalkTestStartView: View {
     @State private var isNotAuthorized = true
     @State private var isCancelling = false
     
-    private var walkTime: TimeInterval = 10
-    private let description: String
-    
     public var body: some View {
         VStack {
             Spacer()
             
             Image(systemName: "figure.walk.circle")
-                .font(.system(size: 100))
+                .font(.system(size: 120))
                 .accessibilityHidden(true)
             
             Spacer()
             
-            Text(description)
-                .font(.title)
-            
+            Text(walkTestViewModel.taskDescription)
             Spacer()
             
             NavigationLink {
-                WalkTestView(walkTime: walkTime)
+                WalkTestView()
                     .environmentObject(walkTestViewModel)
             } label: {
                 Text("Next")
@@ -43,6 +38,7 @@ public struct WalkTestStartView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(self.status != .authorized)
+            .padding()
             
             if self.status != .authorized {
                 Text("Please go to settings to authorize pedometer access")
@@ -71,14 +67,21 @@ public struct WalkTestStartView: View {
 
     
     public init(
-        walkTime: TimeInterval,
-        isPresented: Binding<Bool>,
         completion: @escaping (Result<WalkTestResponse, WalkTestError>) -> Void,
-        description: String = "This is the walk test"
+        taskDescription: String,
+        walkTime: TimeInterval,
+        completionMessage: String,
+        isPresented: Binding<Bool>
     ) {
-        self.walkTime = walkTime
-        self._walkTestViewModel = StateObject(wrappedValue: WalkTestViewModel(completion: completion, isPresented: isPresented))
-        self.description = description
+        self._walkTestViewModel = StateObject(
+            wrappedValue: WalkTestViewModel(
+                completion: completion,
+                taskDescription: taskDescription,
+                walkTime: walkTime,
+                completionMessage: completionMessage,
+                isPresented: isPresented
+            )
+        )
     }
     
     func requestPedemoterAccess() {
@@ -109,9 +112,10 @@ public struct WalkTestStartView: View {
 
 #Preview {
     WalkTestStartView(
-        walkTime: 10,
-        isPresented: .constant(false),
         completion: { _ in },
-        description: "This is the Walk Test"
+        taskDescription: "",
+        walkTime: 10,
+        completionMessage: "",
+        isPresented: .constant(false)
     )
 }

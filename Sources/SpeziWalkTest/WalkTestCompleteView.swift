@@ -15,25 +15,28 @@ struct WalkTestCompleteView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var isCancelling = false
     private let result: Result<WalkTestResponse, WalkTestError>
-    private let completionMessage: String
     
     var body: some View {
         VStack {
             Spacer()
 
             Image(systemName: "checkmark.circle")
-                .font(.system(size: 100))
+                .font(.system(size: 120))
                 .foregroundStyle(.green)
                 .accessibilityHidden(true)
             
             Spacer()
             
-            Text(completionMessage)
-                .font(.title)
+            Text(walkTestViewModel.completionMessage)
+                .font(.title3)
+            
+            Spacer()
                         
             if case .success(let response) = result {
                 Text("Steps: " + String(Int(response.stepCount)))
+                    .font(.title3)
                 Text("Distance: " + String(Int(response.distance)))
+                    .font(.title3)
             }
             
             Button(
@@ -46,12 +49,14 @@ struct WalkTestCompleteView: View {
                 }
             )
             .buttonStyle(.borderedProminent)
+            .padding()
             
             AsyncButton(action: completeAction) {
                 Text("Done")
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
             .buttonStyle(.borderedProminent)
+            .padding()
             
             Spacer()
         }
@@ -70,14 +75,22 @@ struct WalkTestCompleteView: View {
         }
     }
     
-    init(result: Result<WalkTestResponse, WalkTestError>, completionMessage: String = "Completed Timed Walk!") {
+    init(result: Result<WalkTestResponse, WalkTestError>) {
         self.result = result
-        self.completionMessage = completionMessage
     }
     
     func completeAction() async {
         switch result {
         case .success(let response):
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted
+            do {
+                let data = try encoder.encode(response.observation)
+                print(String(data: data, encoding: .utf8)!)
+            } catch {
+                print("failed")
+                return
+            }
             await walkTestDataSource.add(response)
             walkTestViewModel.isPresented = false
         case .failure(let error):
@@ -88,5 +101,5 @@ struct WalkTestCompleteView: View {
 }
 
 #Preview {
-    WalkTestCompleteView(result: .failure(WalkTestError.unknown), completionMessage: "")
+    WalkTestCompleteView(result: .failure(WalkTestError.unknown))
 }

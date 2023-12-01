@@ -18,32 +18,25 @@ struct WalkTestView: View {
     @State private var isCancelling = false
     @State private var result: Result<WalkTestResponse, WalkTestError>?
 
-    
-    private let walkTime: TimeInterval
-    private let taskDescription: String
-
     var body: some View {
         VStack {
             Spacer()
             
-            Text(taskDescription)
-                .font(.title)
-            
-            Spacer()
-            
             Image(systemName: "figure.walk.circle")
                 .symbolEffect(.pulse, isActive: start != nil)
-                .font(.system(size: 100))
+                .font(.system(size: 120))
                 .accessibilityHidden(true)
             
             Spacer()
             
             if let start {
-                let end = start.addingTimeInterval(walkTime)
+                let end = start.addingTimeInterval(walkTestViewModel.walkTime)
                 Text(timerInterval: start...end, countsDown: true)
+                    .font(.largeTitle)
                 ProgressView(timerInterval: start...end) {
-                    Text("Walk Test in Progress")
+                    Text("Walk Test in Progress...")
                 }
+                .font(.title3)
                 .padding(30)
                 .task {
                     await timedWalk(start: start, end: end)
@@ -61,6 +54,7 @@ struct WalkTestView: View {
             )
             .buttonStyle(.borderedProminent)
             .disabled(start != nil)
+            .padding()
             
             Spacer()
         }
@@ -83,14 +77,9 @@ struct WalkTestView: View {
         }
     }
     
-    init(walkTime: TimeInterval, taskDescription: String = "Walk Test") {
-        self.walkTime = walkTime
-        self.taskDescription = taskDescription
-    }
-    
     func timedWalk(start: Date, end: Date) async {
         do {
-            try await Task.sleep(nanoseconds: UInt64(walkTime * 1000 * 1000 * 1000))
+            try await Task.sleep(nanoseconds: UInt64(walkTestViewModel.walkTime * 1000 * 1000 * 1000))
         } catch {
             return
         }
@@ -140,5 +129,5 @@ struct WalkTestView: View {
 }
 
 #Preview {
-    WalkTestView(walkTime: 10)
+    WalkTestView()
 }

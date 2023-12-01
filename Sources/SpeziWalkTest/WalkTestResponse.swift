@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct WalkTestResponse: Sendable, Equatable {
+public struct WalkTestResponse: Sendable, Equatable, Encodable {
     public let stepCount: Double
     public let distance: Double
     public let startDate: Date

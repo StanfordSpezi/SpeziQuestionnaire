@@ -10,18 +10,27 @@ import Foundation
 import ModelsR4
 
 extension WalkTestResponse {
+        
     var observation: Observation {
         let uuid = UUID()
         let observation = Observation(
             code: CodeableConcept(),
             status: FHIRPrimitive(.final)
         )
+        let interval = self.startDate.distance(to: self.endDate)
+        //add logic to test 6 minutes walk test
         
         // Set basic elements applicable to all observations
         observation.id = uuid.uuidString.asFHIRStringPrimitive()
         observation.appendIdentifier(Identifier(id: observation.id))
         observation.setEffective(startDate: self.startDate, endDate: self.endDate)
         observation.setIssued(on: Date())
+        
+        let rootCoding = Coding(
+            code: "55430-3".asFHIRStringPrimitive(),
+            system: "http://loinc.org".asFHIRURIPrimitive()
+        )
+        observation.appendCoding(rootCoding)
         
         let stepsComponent = builObservationComponent(
             code: "55423-8",
