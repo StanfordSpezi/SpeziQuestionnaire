@@ -14,9 +14,9 @@ import ResearchKitOnFHIR
 import SwiftUI
 
 
-/// Renders a FHIR `Questionnaire`.
-/// 
-/// The following example shows how to display a questionnaire:
+/// Present a FHIR `Questionnaire` to the user.
+///
+/// The following example shows how to present a questionnaire:
 /// ```swift
 /// struct ExampleQuestionnaireView: View {
 ///     @State var displayQuestionnaire = false
