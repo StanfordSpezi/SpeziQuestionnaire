@@ -14,7 +14,8 @@ import PackageDescription
 let package = Package(
     name: "SpeziQuestionnaire",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v17),
+        .visionOS(.v1)
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
@@ -22,8 +23,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.21"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "1.0.0")
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.23"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", branch: "visionOS")
     ],
     targets: [
         .target(

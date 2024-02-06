@@ -23,6 +23,15 @@ jobs:
       artifactname: SpeziQuestionnaire.xcresult
       runsonlabels: '["macOS", "self-hosted"]'
       scheme: SpeziQuestionnaire
+  buildandtestvisionos:
+    name: Build and Test Swift Package visionOS
+    uses: StanfordSpezi/.github/.github/workflows/xcodebuild-or-fastlane.yml@v2
+    with:
+      artifactname: SpeziQuestionnaire-visionOS.xcresult
+      resultBundle: SpeziQuestionnaire-visionOS.xcresult
+      runsonlabels: '["macOS", "self-hosted"]'
+      scheme: SpeziQuestionnaire
+      destination: 'platform=visionOS Simulator,name=Apple Vision Pro'
   buildandtestuitests:
     name: Build and Test UI Tests
     uses: StanfordSpezi/.github/.github/workflows/xcodebuild-or-fastlane.yml@v2
@@ -33,7 +42,7 @@ jobs:
       scheme: TestApp
   uploadcoveragereport:
     name: Upload Coverage Report
-    needs: [buildandtest, buildandtestuitests]
+    needs: [buildandtest, buildandtestvisionos, buildandtestuitests]
     uses: StanfordSpezi/.github/.github/workflows/create-and-upload-coverage-report.yml@v2
     with:
-      coveragereports: SpeziQuestionnaire.xcresult TestApp.xcresult
+      coveragereports: SpeziQuestionnaire.xcresult SpeziQuestionnaire-visionOS.xcresult TestApp.xcresult
