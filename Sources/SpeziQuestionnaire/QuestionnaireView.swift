@@ -11,6 +11,7 @@ import ModelsR4
 import OSLog
 import ResearchKit
 import ResearchKitOnFHIR
+import ResearchKitSwiftUI
 import SwiftUI
 
 
@@ -45,11 +46,7 @@ public struct QuestionnaireView: View {
     
     public var body: some View {
         if let task = createTask(questionnaire: questionnaire) {
-            ORKOrderedTaskView(
-                tasks: task,
-                result: questionnaireResult,
-                tintColor: .accentColor
-            )
+            ORKOrderedTaskView(tasks: task, tintColor: .accentColor, result: handleResult)
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .interactiveDismissDisabled()
@@ -72,7 +69,22 @@ public struct QuestionnaireView: View {
         self.completionStepMessage = completionStepMessage
         self.questionnaireResult = questionnaireResult
     }
-    
+
+    private func handleResult(_ result: TaskResult) async {
+        let questionnaireResult: QuestionnaireResult
+        switch result {
+        case let .completed(result):
+            let fhirResponse = result.fhirResponse
+            questionnaireResult = .completed(result.fhirResponse)
+        case .cancelled:
+            questionnaireResult = .cancelled
+        case .failed:
+            questionnaireResult = .failed
+        }
+
+        await self.questionnaireResult(questionnaireResult)
+    }
+
     
     /// Creates a ResearchKit navigable task from a questionnaire
     /// - Parameter questionnaire: a questionnaire
