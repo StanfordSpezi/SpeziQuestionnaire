@@ -22,7 +22,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", branch: "feature/swiftui-support"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", .upToNextMinor(from: "2.2.25")),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", branch: "fix/bump-version")
     ],
     targets: [
