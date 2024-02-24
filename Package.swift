@@ -22,8 +22,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.21"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "1.0.0")
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", branch: "feature/swiftui-support"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", branch: "fix/bump-version")
     ],
     targets: [
         .target(
@@ -33,7 +33,8 @@ let package = Package(
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR"),
                 .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR"),
-                .product(name: "ResearchKit", package: "ResearchKit")
+                .product(name: "ResearchKit", package: "ResearchKit"),
+                .product(name: "ResearchKitSwiftUI", package: "ResearchKit")
             ]
         ),
         .testTarget(
