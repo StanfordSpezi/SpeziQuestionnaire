@@ -75,8 +75,6 @@ public struct QuestionnaireView: View {
         switch result {
         case let .completed(result):
             let fhirResponse = result.fhirResponse
-            fhirResponse.subject = Reference(reference: FHIRPrimitive(FHIRString("My Patient")))
-            
             questionnaireResult = .completed(result.fhirResponse)
         case .cancelled:
             questionnaireResult = .cancelled
