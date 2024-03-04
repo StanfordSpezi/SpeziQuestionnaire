@@ -53,7 +53,7 @@ class TestAppUITests: XCTestCase {
         XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
     }
     
-    func testSpeziWalkTest() throws {
+    func testSpeziTimedWalkTest() throws {
         let app = XCUIApplication()
         app.launch()
         
@@ -71,10 +71,10 @@ class TestAppUITests: XCTestCase {
         app.buttons["Start"].tap()
         
         /// Wait for walk test to complete
-        sleep(10)
+        sleep(15)
         
-        XCTAssert(app.staticTexts["Steps: 0"].waitForExistence(timeout: 2))
-        XCTAssert(app.staticTexts["Distance: 0"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["42"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["12 m"].waitForExistence(timeout: 2))
 
         XCTAssert(app.buttons["Done"].waitForExistence(timeout: 5))
         app.buttons["Done"].tap()

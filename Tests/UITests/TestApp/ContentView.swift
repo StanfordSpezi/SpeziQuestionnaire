@@ -17,17 +17,21 @@ struct ContentView: View {
     @State var displayWalkTest = false
 
     
+    private var timedWalkTest: TimedWalkTest {
+        TimedWalkTest(walkTime: 5)
+    }
+    
     var body: some View {
         VStack {
             Spacer()
-            questionnaire
+            questionnaireView
             Spacer()
-            timedWalkTest
+            timedWalkTestView
             Spacer()
         }
     }
     
-    @ViewBuilder @MainActor private var questionnaire: some View {
+    @ViewBuilder @MainActor private var questionnaireView: some View {
         Text("No. of surveys complete: \(standard.surveyResponseCount)")
         Button("Display Questionnaire") {
             displayQuestionnaire.toggle()
@@ -46,14 +50,14 @@ struct ContentView: View {
             }
     }
     
-    @ViewBuilder @MainActor private var timedWalkTest: some View {
+    @ViewBuilder @MainActor private var timedWalkTestView: some View {
         Text("No. of walk tests complete: \(standard.timedWalkTestResponseCount)")
         Button("Display Walk Test") {
             displayWalkTest.toggle()
         }
             .sheet(isPresented: $displayWalkTest) {
                 NavigationStack {
-                    TimedWalkTestView { result in
+                    TimedWalkTestView(timedWalkTest: timedWalkTest) { result in
                         switch result {
                         case .success:
                             print("Previous walk test was successful")
