@@ -1,19 +1,31 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "Are you sure?" : {
+    "%lld" : {
+
+    },
+    "%lld m" : {
 
     },
     "Cancel" : {
 
     },
+    "Cancel Timed Walk Test?" : {
+
+    },
+    "Cancel Walk Test" : {
+
+    },
+    "Distance:" : {
+
+    },
     "Done" : {
 
     },
-    "End Task" : {
+    "Invalid Data Error" : {
 
     },
-    "Invalid Data Error" : {
+    "Make yourself ready for the %@ minute walk test" : {
 
     },
     "Next" : {
@@ -25,16 +37,35 @@
     "Pedometer data is invalid" : {
 
     },
-    "Please go to settings to authorize pedometer access" : {
+    "Please go to the Settings App to authorize pedometer access for this application." : {
 
     },
     "Restart" : {
 
     },
+    "Return" : {
+
+    },
     "Start" : {
 
     },
-    "Start Walk Test" : {
+    "Steps:" : {
+
+    },
+    "The %@ minute walk test will start in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The %1$@ minute walk test will start in %2$@"
+          }
+        }
+      }
+    },
+    "The user canceled the timed walk test" : {
+
+    },
+    "Timed Walk Test" : {
 
     },
     "Unauthorized Error" : {
@@ -46,11 +77,28 @@
     "Unknown Error" : {
 
     },
-    "Walk Test" : {
+    "User Canceled" : {
 
     },
-    "Walk Test in Progress..." : {
-
+    "WALK_TEST_DEFAULT_COMPLETION_MESSAGE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great job completing the timed walk test. Please review your results and press \"Done\" to save your results."
+          }
+        }
+      }
+    },
+    "WALK_TEST_DEFAULT_TASK_DESCRIPTION %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to the timed minute walk test!\\n\\nPlease be sure that you have an enough space and time to walk for %@."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -25,57 +25,14 @@ Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/
         }
     }
 }
-
+            
 ## Setup
 
-### 1. Add Spezi Questionnaire as a Dependency
-
 You need to add the Spezi Questionnaire Swift package to
-[your app in Xcode](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app#) or
+[your app in Xcode](https://developer.apple.com/documentation/xcode/adding-package-dependencies-to-your-app) or
 [Swift package](https://developer.apple.com/documentation/xcode/creating-a-standalone-swift-package-with-xcode#Add-a-dependency-on-another-Swift-package).
 
-> Important: If your application is not yet configured to use Spezi, follow the [Spezi setup article](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/setup) and set the core Spezi infrastructure.
-
-### 2. Ensure that your Standard Conforms to the QuestionnaireConstraint Protocol
-
-In order to receive responses from Questionnaires, the [`Standard`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard) defined in your configuration within your [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate) should conform to the ``QuestionnaireConstraint`` protocol. 
-
-Below, we create an `ExampleStandard` and extend it to implement an `add` function which receives the result of our questionnaire as a [FHIR QuestionnaireResponse](http://hl7.org/fhir/R4/questionnaireresponse.html). In this simple example, completing a survey increases the surveyResponseCount.
-
-```swift
-/// An example Standard used for the configuration.
-actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
-    @Published @MainActor var surveyResponseCount: Int = 0
-}
-
-
-extension ExampleStandard: QuestionnaireConstraint {
-    func add(response: ModelsR4.QuestionnaireResponse) async {
-        surveyResponseCount += 1
-    }
-}
-```
-
-> Tip: You can learn more about a [`Standard` in the Spezi documentation](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/standard)
-
-### 3. Register the Questionnaire Data Source Component
-
-The ``QuestionnaireDataSource`` component needs to be registered in a Spezi-based application using the [`configuration`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate/configuration) in a
- [`SpeziAppDelegate`](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/speziappdelegate):
-
-```swift
-class ExampleAppDelegate: SpeziAppDelegate {
-    override var configuration: Configuration {
-        Configuration(standard: ExampleStandard()) {
-            QuestionnaireDataSource()
-            // ...
-        }
-    }
-}
-```
-
-> Tip: You can learn more about a [`Component` in the Spezi documentation](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/component).
-
+> Important: If your application is not yet configured to use Spezi, follow the [Spezi setup article](https://swiftpackageindex.com/stanfordspezi/spezi/documentation/spezi/initial-setup) and set up the core Spezi infrastructure.
 
 ## Example
 
@@ -89,17 +46,22 @@ import SwiftUI
 
 struct ExampleQuestionnaireView: View {
     @State var displayQuestionnaire = false
-    
-    
+
+
     var body: some View {
         Button("Display Questionnaire") {
             displayQuestionnaire.toggle()
         }
             .sheet(isPresented: $displayQuestionnaire) {
                 QuestionnaireView(
-                    questionnaire: Questionnaire.gcs,
-                    isPresented: $displayQuestionnaire
-                )
+                    questionnaire: Questionnaire.gcs
+                ) { result in
+                    guard case let .completed(response) = result else {
+                        return // user cancelled
+                    }
+
+                    // ... save the FHIR response to your data store
+                }
             }
     }
 }
@@ -107,12 +69,8 @@ struct ExampleQuestionnaireView: View {
 
 ## Topics
 
-### Standard Constraint & Configuration
-
-- ``QuestionnaireConstraint``
-- ``QuestionnaireDataSource``
-
-### Views
+### Questionnaire
 
 - ``QuestionnaireView``
-
+- ``QuestionnaireResult``
+            

@@ -14,9 +14,6 @@ import SwiftUI
 
 class TestAppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
-        Configuration(standard: ExampleStandard()) {
-            QuestionnaireDataSource()
-            WalkTestDataSource()
-        }
+        Configuration(standard: ExampleStandard()) {}
     }
 }

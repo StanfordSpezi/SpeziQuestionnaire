@@ -1,7 +1,8 @@
 //
-// This source file is part of the HealthKitOnFHIR open source project
+// This source file is part of the Stanford Spezi open-source project
 //
 // SPDX-FileCopyrightText: 2023 Stanford University and the project authors (see CONTRIBUTORS.md)
+// Based on https://github.com/StanfordBDHG/HealthKitOnFHIR/blob/main/Sources/HealthKitOnFHIR/Observation%20Extensions/Observation%2BCollections.swift
 //
 // SPDX-License-Identifier: MIT
 //
@@ -9,6 +10,7 @@
 import Foundation
 import HealthKit
 import ModelsR4
+
 
 extension Observation {
     private func appendElement<T>(_ element: T, to collection: ReferenceWritableKeyPath<Observation, [T]?>) {

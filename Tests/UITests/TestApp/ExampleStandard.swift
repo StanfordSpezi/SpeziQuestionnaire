@@ -13,27 +13,36 @@ import SpeziWalkTest
 import SwiftUI
 
 
+@Observable
+private class ExampleModel {
+    var surveyResponseCount: Int = 0
+    var walkTestResponseCount: Int = 0
+    
+    
+    init() {}
+}
+
+
 /// An example Standard used for the configuration.
-actor ExampleStandard: Standard, ObservableObject, ObservableObjectProvider {
-    @Published @MainActor var surveyResponseCount: Int = 0
-    @Published @MainActor var walkTestResponseCount: Int = 0
-}
-
-
-extension ExampleStandard: QuestionnaireConstraint {
-    func add(response: ModelsR4.QuestionnaireResponse) async {
-        await MainActor.run {
-            surveyResponseCount += 1
+actor ExampleStandard: Standard, EnvironmentAccessible {
+    @MainActor private let model = ExampleModel()
+    
+    
+    @MainActor var surveyResponseCount: Int {
+        get {
+            model.surveyResponseCount
         }
-        try? await Task.sleep(for: .seconds(0.5))
+        set {
+            model.surveyResponseCount = newValue
+        }
     }
-}
-
-extension ExampleStandard: WalkTestConstraint {
-    func add(response: SpeziWalkTest.WalkTestResponse) async {
-        await MainActor.run {
-            walkTestResponseCount += 1
+    
+    @MainActor var walkTestResponseCount: Int {
+        get {
+            model.walkTestResponseCount
         }
-        try? await Task.sleep(for: .seconds(0.5))
+        set {
+            model.walkTestResponseCount = newValue
+        }
     }
 }

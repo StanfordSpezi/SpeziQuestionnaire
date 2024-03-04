@@ -8,15 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
-		2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */; };
-		2F2E8EF929E727AF00D439B7 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF829E727AF00D439B7 /* Spezi */; };
 		2F6D139A28F5F386007C25D6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F6D139928F5F386007C25D6 /* Assets.xcassets */; };
 		2F7CC6062A79B68D00F42D90 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7CC6052A79B68D00F42D90 /* ContentView.swift */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
+		2FB059622B95157B000E6743 /* SpeziWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 2FB059612B95157B000E6743 /* SpeziWalkTest */; };
 		2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */; };
 		393B47422A747894004DCB08 /* ExampleStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393B47412A747894004DCB08 /* ExampleStandard.swift */; };
-		4A3D9D752AF1A9F100AE3078 /* SpeziWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,9 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
-				2F2E8EF929E727AF00D439B7 /* Spezi in Frameworks */,
-				2F2E8EF529E727AF00D439B7 /* FHIRQuestionnaires in Frameworks */,
-				4A3D9D752AF1A9F100AE3078 /* SpeziWalkTest in Frameworks */,
+				2FB059622B95157B000E6743 /* SpeziWalkTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,9 +132,7 @@
 			name = TestApp;
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
-				2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */,
-				2F2E8EF829E727AF00D439B7 /* Spezi */,
-				4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */,
+				2FB059612B95157B000E6743 /* SpeziWalkTest */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -170,7 +164,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1410;
-				LastUpgradeCheck = 1410;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					2F6D139128F5F384007C25D6 = {
 						CreatedOnToolsVersion = 14.1;
@@ -191,8 +185,6 @@
 			);
 			mainGroup = 2F6D138928F5F384007C25D6;
 			packageReferences = (
-				2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
-				2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "Spezi" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -273,7 +265,6 @@
 		};
 		4A3D9D772AF310FC00AE3078 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = 4A3D9D762AF310FC00AE3078 /* SpeziWalkTest */;
 		};
 /* End PBXTargetDependency section */
 
@@ -282,6 +273,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -342,6 +334,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -401,7 +394,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 4DR2J9J8WP;
+				DEVELOPMENT_TEAM = 637867499T;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -438,10 +431,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TestApp/TestApp.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 4DR2J9J8WP;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -465,6 +459,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.spezi.questionnaire.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
@@ -514,6 +509,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -579,7 +575,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 4DR2J9J8WP;
+				DEVELOPMENT_TEAM = 637867499T;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_TESTING_SEARCH_PATHS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -664,45 +660,12 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "Spezi" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.7.0;
-			};
-		};
-		2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StanfordBDHG/ResearchKitOnFHIR";
-			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.2.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
 		2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziQuestionnaire;
 		};
-		2F2E8EF429E727AF00D439B7 /* FHIRQuestionnaires */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2FF831DD29B5D3450096DFAB /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
-			productName = FHIRQuestionnaires;
-		};
-		2F2E8EF829E727AF00D439B7 /* Spezi */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2FD8742429E725A20026A929 /* XCRemoteSwiftPackageReference "Spezi" */;
-			productName = Spezi;
-		};
-		4A3D9D742AF1A9F100AE3078 /* SpeziWalkTest */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SpeziWalkTest;
-		};
-		4A3D9D762AF310FC00AE3078 /* SpeziWalkTest */ = {
+		2FB059612B95157B000E6743 /* SpeziWalkTest */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziWalkTest;
 		};

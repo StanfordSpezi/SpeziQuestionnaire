@@ -12,7 +12,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @EnvironmentObject var standard: ExampleStandard
+    @Environment(ExampleStandard.self) var standard
     @State var displayQuestionnaire = false
     @State var displayWalkTest = false
     private var walkTime = 10.0
@@ -36,47 +36,45 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Spacer()
-            
             Text("No. of surveys complete: \(standard.surveyResponseCount)")
-            
             Button("Display Questionnaire") {
                 displayQuestionnaire.toggle()
             }
-            .sheet(isPresented: $displayQuestionnaire) {
-                QuestionnaireView(
-                    questionnaire: Questionnaire.gcs,
-                    isPresented: $displayQuestionnaire,
-                    completionStepMessage: "Completed",
-                    questionnaireResponse: { response in
-                        print(response)
-                        try? await Task.sleep(for: .seconds(0.5))
-                    }
-                )
-            }
-            
+                .sheet(isPresented: $displayQuestionnaire) {
+                    QuestionnaireView(
+                        questionnaire: Questionnaire.gcs,
+                        completionStepMessage: "Completed",
+                        questionnaireResult: { _ in
+                            displayQuestionnaire = false
+
+                            standard.surveyResponseCount += 1
+                            try? await Task.sleep(for: .seconds(0.5))
+                        }
+                    )
+                }
             Spacer()
-            
             Text("No. of walk tests complete: \(standard.walkTestResponseCount)")
-            
             Button("Display Walk Test") {
                 displayWalkTest.toggle()
             }
-            .sheet(isPresented: $displayWalkTest) {
-                NavigationStack {
-                    WalkTestStartView(
-                        completion: completion,
-                        taskDescription: description,
-                        walkTime: walkTime,
-                        completionMessage: "Completed Walk Test!",
-                        isPresented: $displayWalkTest
-                    )
+                .sheet(isPresented: $displayWalkTest) {
+                    NavigationStack {
+                        TimedWalkTestView { result in
+                            switch result {
+                            case .success:
+                                print("Previous walk test was successful")
+                            case .failure:
+                                print("Previous walk test was unsuccessful")
+                            }
+                        }
+                    }
                 }
-            }
             Spacer()
         }
     }
     
-    func completion(result: Result<WalkTestResponse, WalkTestError>) {
+    
+    func completion(result: Result<TimedWalkTestResult, TimedWalkTestError>) {
         switch result {
         case .success:
             print("Previous walk test was successful")
