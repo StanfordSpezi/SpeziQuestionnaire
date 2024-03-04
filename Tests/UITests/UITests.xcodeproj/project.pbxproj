@@ -12,7 +12,7 @@
 		2F7CC6062A79B68D00F42D90 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7CC6052A79B68D00F42D90 /* ContentView.swift */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
 		2FA7382C290ADFAA007ACEB9 /* TestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA7382B290ADFAA007ACEB9 /* TestApp.swift */; };
-		2FB059622B95157B000E6743 /* SpeziWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 2FB059612B95157B000E6743 /* SpeziWalkTest */; };
+		2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */; };
 		2FF831E129B5D3750096DFAB /* TestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FF831E029B5D3750096DFAB /* TestAppDelegate.swift */; };
 		393B47422A747894004DCB08 /* ExampleStandard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393B47412A747894004DCB08 /* ExampleStandard.swift */; };
 /* End PBXBuildFile section */
@@ -48,7 +48,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
-				2FB059622B95157B000E6743 /* SpeziWalkTest in Frameworks */,
+				2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -132,7 +132,7 @@
 			name = TestApp;
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
-				2FB059612B95157B000E6743 /* SpeziWalkTest */,
+				2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -665,9 +665,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziQuestionnaire;
 		};
-		2FB059612B95157B000E6743 /* SpeziWalkTest */ = {
+		2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = SpeziWalkTest;
+			productName = SpeziTimedWalkTest;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

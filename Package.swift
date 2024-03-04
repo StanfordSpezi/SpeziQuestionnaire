@@ -19,7 +19,7 @@ let package = Package(
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
-        .library(name: "SpeziWalkTest", targets: ["SpeziWalkTest"])
+        .library(name: "SpeziTimedWalkTest", targets: ["SpeziTimedWalkTest"])
     ],
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
@@ -47,7 +47,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "SpeziWalkTest",
+            name: "SpeziTimedWalkTest",
             dependencies: [
                 .product(name: "Spezi", package: "Spezi"),
                 .product(name: "SpeziViews", package: "SpeziViews"),

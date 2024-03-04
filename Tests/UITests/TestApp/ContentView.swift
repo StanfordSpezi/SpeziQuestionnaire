@@ -7,7 +7,7 @@
 //
 
 import SpeziQuestionnaire
-import SpeziWalkTest
+import SpeziTimedWalkTest
 import SwiftUI
 
 
@@ -15,62 +15,56 @@ struct ContentView: View {
     @Environment(ExampleStandard.self) var standard
     @State var displayQuestionnaire = false
     @State var displayWalkTest = false
-    private var walkTime = 10.0
-    private var description: String {
-        if walkTime < 90.0 {
-            """
-            This is the Walk Test.
-            
-            Please find an environment where you can walk straight for \(Int(walkTime)) seconds.
-            """
-        } else {
-            """
-            This is the Walk Test.
-
-            Please find an environment where you can walk straight for \(Int(walkTime) / 60) minutes.
-            """
-        }
-    }
 
     
     var body: some View {
         VStack {
             Spacer()
-            Text("No. of surveys complete: \(standard.surveyResponseCount)")
-            Button("Display Questionnaire") {
-                displayQuestionnaire.toggle()
-            }
-                .sheet(isPresented: $displayQuestionnaire) {
-                    QuestionnaireView(
-                        questionnaire: Questionnaire.gcs,
-                        completionStepMessage: "Completed",
-                        questionnaireResult: { _ in
-                            displayQuestionnaire = false
-
-                            standard.surveyResponseCount += 1
-                            try? await Task.sleep(for: .seconds(0.5))
-                        }
-                    )
-                }
+            questionnaire
             Spacer()
-            Text("No. of walk tests complete: \(standard.walkTestResponseCount)")
-            Button("Display Walk Test") {
-                displayWalkTest.toggle()
-            }
-                .sheet(isPresented: $displayWalkTest) {
-                    NavigationStack {
-                        TimedWalkTestView { result in
-                            switch result {
-                            case .success:
-                                print("Previous walk test was successful")
-                            case .failure:
-                                print("Previous walk test was unsuccessful")
-                            }
-                        }
-                    }
-                }
+            timedWalkTest
             Spacer()
         }
+    }
+    
+    @ViewBuilder @MainActor private var questionnaire: some View {
+        Text("No. of surveys complete: \(standard.surveyResponseCount)")
+        Button("Display Questionnaire") {
+            displayQuestionnaire.toggle()
+        }
+            .sheet(isPresented: $displayQuestionnaire) {
+                QuestionnaireView(
+                    questionnaire: Questionnaire.gcs,
+                    completionStepMessage: "Completed",
+                    questionnaireResult: { _ in
+                        displayQuestionnaire = false
+
+                        standard.surveyResponseCount += 1
+                        try? await Task.sleep(for: .seconds(0.5))
+                    }
+                )
+            }
+    }
+    
+    @ViewBuilder @MainActor private var timedWalkTest: some View {
+        Text("No. of walk tests complete: \(standard.timedWalkTestResponseCount)")
+        Button("Display Walk Test") {
+            displayWalkTest.toggle()
+        }
+            .sheet(isPresented: $displayWalkTest) {
+                NavigationStack {
+                    TimedWalkTestView { result in
+                        switch result {
+                        case .success:
+                            print("Previous walk test was successful")
+                            standard.timedWalkTestResponseCount += 1
+                        case .failure:
+                            print("Previous walk test was unsuccessful")
+                        }
+                        displayWalkTest = false
+                    }
+                }
+            }
     }
     
     

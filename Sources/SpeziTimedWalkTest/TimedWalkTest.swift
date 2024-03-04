@@ -11,8 +11,7 @@ import Foundation
 
 public struct TimedWalkTest: Codable, Equatable, Hashable {
     public enum Defaults {
-        #warning("Fix ...")
-        public static let walkTime: TimeInterval = 5
+        public static let walkTime: TimeInterval = 6 * 60
         public static let completionMessage = String(localized: "WALK_TEST_DEFAULT_COMPLETION_MESSAGE", bundle: .module)
         
         

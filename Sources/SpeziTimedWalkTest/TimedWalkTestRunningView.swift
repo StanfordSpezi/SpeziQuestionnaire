@@ -61,6 +61,7 @@ struct TimedWalkTestRunningView: View {
                 .padding()
         }
             .navigationTitle("Timed Walk Test")
+            .navigationBarBackButtonHidden(walkTestViewModel.walkTestStartDate != nil && prepareCountDown != nil)
             .navigationDestination(item: $walkTestResponse.walkTestResponse) { _ in
                 TimedWalkTestCompletedView()
                     .environment(walkTestViewModel)

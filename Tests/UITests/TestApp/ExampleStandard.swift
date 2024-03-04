@@ -9,14 +9,14 @@
 import ResearchKit
 import Spezi
 import SpeziQuestionnaire
-import SpeziWalkTest
+import SpeziTimedWalkTest
 import SwiftUI
 
 
 @Observable
 private class ExampleModel {
     var surveyResponseCount: Int = 0
-    var walkTestResponseCount: Int = 0
+    var timedWalkTestResponseCount: Int = 0
     
     
     init() {}
@@ -37,12 +37,12 @@ actor ExampleStandard: Standard, EnvironmentAccessible {
         }
     }
     
-    @MainActor var walkTestResponseCount: Int {
+    @MainActor var timedWalkTestResponseCount: Int {
         get {
-            model.walkTestResponseCount
+            model.timedWalkTestResponseCount
         }
         set {
-            model.walkTestResponseCount = newValue
+            model.timedWalkTestResponseCount = newValue
         }
     }
 }
