@@ -7,8 +7,6 @@
 //
 
 import Spezi
-import SpeziQuestionnaire
-import SpeziTimedWalkTest
 import SwiftUI
 
 

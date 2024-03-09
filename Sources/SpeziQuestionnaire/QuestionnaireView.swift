@@ -42,11 +42,12 @@ public struct QuestionnaireView: View {
     private let questionnaire: Questionnaire
     private let questionnaireResult: (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
+    private let cancelBehavior: CancelBehavior
     
     
     public var body: some View {
         if let task = createTask(questionnaire: questionnaire) {
-            ORKOrderedTaskView(tasks: task, tintColor: .accentColor, result: handleResult)
+            ORKOrderedTaskView(tasks: task, tintColor: .accentColor, cancelBehavior: cancelBehavior, result: handleResult)
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .interactiveDismissDisabled()
@@ -63,10 +64,12 @@ public struct QuestionnaireView: View {
     public init(
         questionnaire: Questionnaire,
         completionStepMessage: String? = nil,
+        cancelBehavior: CancelBehavior = .shouldConfirmCancel,
         questionnaireResult: @escaping @MainActor (QuestionnaireResult) async -> Void
     ) {
         self.questionnaire = questionnaire
         self.completionStepMessage = completionStepMessage
+        self.cancelBehavior = cancelBehavior
         self.questionnaireResult = questionnaireResult
     }
     
