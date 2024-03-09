@@ -24,7 +24,7 @@ struct TimedWalkTestCancelModifier: ViewModifier {
             }
             .confirmationDialog("Cancel Timed Walk Test?", isPresented: $cancel) {
                 Button("Cancel Walk Test", role: .destructive) {
-                    walkTestViewModel.completion(.failure(.cancel))
+                    walkTestViewModel.completion(.cancelled)
                 }
                 Button("Return", role: .cancel) {
                     cancel = false

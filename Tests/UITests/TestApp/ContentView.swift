@@ -59,25 +59,17 @@ struct ContentView: View {
                 NavigationStack {
                     TimedWalkTestView(timedWalkTest: timedWalkTest) { result in
                         switch result {
-                        case .success:
+                        case .completed:
                             print("Previous walk test was successful")
                             standard.timedWalkTestResponseCount += 1
-                        case .failure:
+                        case .failed:
                             print("Previous walk test was unsuccessful")
+                        case .cancelled:
+                            print("Previous walk test was cancelled")
                         }
                         displayWalkTest = false
                     }
                 }
             }
-    }
-    
-    
-    func completion(result: Result<TimedWalkTestResult, TimedWalkTestError>) {
-        switch result {
-        case .success:
-            print("Previous walk test was successful")
-        case .failure:
-            print("Previous walk test was unsuccessful")
-        }
     }
 }

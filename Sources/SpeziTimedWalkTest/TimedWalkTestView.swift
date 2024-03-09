@@ -51,7 +51,7 @@ public struct TimedWalkTestView: View {
     
     public init(
         timedWalkTest: TimedWalkTest = TimedWalkTest(),
-        completion: @escaping (Result<TimedWalkTestResult, TimedWalkTestError>) -> Void
+        completion: @escaping (TimedWalkTestViewResult) -> Void
     ) {
         self._walkTestViewModel = State(
             wrappedValue: TimedWalkTestViewModel(

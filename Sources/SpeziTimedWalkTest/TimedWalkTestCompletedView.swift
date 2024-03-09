@@ -26,9 +26,9 @@ struct TimedWalkTestCompletedView: View {
                 .padding(.horizontal)
                 .multilineTextAlignment(.center)
             switch walkTestViewModel.walkTestResponse {
-            case let .success(response):
+            case let .completed(response):
                 resultsGrid(timedWalkTestResult: response)
-            case let .failure(error):
+            case let .failed(error):
                 Text(error.localizedDescription)
                     .padding()
                     .multilineTextAlignment(.center)

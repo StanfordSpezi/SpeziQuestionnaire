@@ -62,9 +62,6 @@
         }
       }
     },
-    "The user canceled the timed walk test" : {
-
-    },
     "Timed Walk Test" : {
 
     },
@@ -75,9 +72,6 @@
 
     },
     "Unknown Error" : {
-
-    },
-    "User Canceled" : {
 
     },
     "WALK_TEST_DEFAULT_COMPLETION_MESSAGE" : {

@@ -16,11 +16,11 @@ class TimedWalkTestViewModel {
     let pedometer = CMPedometer()
     
     let timedWalkTest: TimedWalkTest
-    let completion: (Result<TimedWalkTestResult, TimedWalkTestError>) -> Void
+    let completion: (TimedWalkTestViewResult) -> Void
     
     var authorizationStatus: CMAuthorizationStatus = CMPedometer.authorizationStatus()
     var walkTestStartDate: Date?
-    var walkTestResponse: Result<TimedWalkTestResult, TimedWalkTestError>?
+    var walkTestResponse: TimedWalkTestViewResult?
     
     
     var walkTestEndDate: Date? {
@@ -30,7 +30,7 @@ class TimedWalkTestViewModel {
     
     init(
         timedWalkTest: TimedWalkTest = TimedWalkTest(),
-        completion: @escaping (Result<TimedWalkTestResult, TimedWalkTestError>) -> Void = { _ in }
+        completion: @escaping (TimedWalkTestViewResult) -> Void = { _ in }
     ) {
         self.timedWalkTest = timedWalkTest
         self.completion = completion
@@ -69,12 +69,12 @@ class TimedWalkTestViewModel {
             do {
                 try await Task.sleep(for: .seconds(timedWalkTest.walkTime))
             } catch {
-                walkTestResponse = .failure(.unknown)
+                walkTestResponse = .failed(.unknown)
                 return
             }
             
             guard let walkTestStartDate, let walkTestEndDate else {
-                walkTestResponse = .failure(.invalidData)
+                walkTestResponse = .failed(.invalidData)
                 return
             }
             
@@ -94,7 +94,7 @@ class TimedWalkTestViewModel {
                 }
             }
             #else
-            self.walkTestResponse = .success(
+            self.walkTestResponse = .completed(
                 TimedWalkTestResult(
                     stepCount: 42,
                     distance: 12,

@@ -10,10 +10,9 @@ import CoreMotion
 import Foundation
 
 
-public enum TimedWalkTestError: LocalizedError {
+public enum TimedWalkTestError: LocalizedError, Codable {
     case unauthorized
     case invalidData
-    case cancel
     case unknown
     
     
@@ -23,8 +22,6 @@ public enum TimedWalkTestError: LocalizedError {
             return "Unauthorized Error"
         case .invalidData:
             return "Invalid Data Error"
-        case .cancel:
-            return "User Canceled"
         case .unknown:
             return "Unknown Error"
         }
@@ -37,8 +34,6 @@ public enum TimedWalkTestError: LocalizedError {
             return "Pedometer access is not authorized"
         case .invalidData:
             return "Pedometer data is invalid"
-        case .cancel:
-            return "The user canceled the timed walk test"
         case .unknown:
             return "Unknown"
         }

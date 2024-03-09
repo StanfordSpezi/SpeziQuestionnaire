@@ -10,7 +10,7 @@ import Foundation
 import ModelsR4
 
 
-public struct TimedWalkTestResult: Sendable, Equatable, Hashable, Encodable {
+public struct TimedWalkTestResult: Sendable, Equatable, Hashable, Codable {
     public let stepCount: Double
     public let distance: Double
     public let startDate: Date
