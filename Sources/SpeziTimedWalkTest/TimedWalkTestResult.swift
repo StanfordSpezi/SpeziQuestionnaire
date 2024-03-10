@@ -10,17 +10,28 @@ import Foundation
 import ModelsR4
 
 
+/// Result of a timed walk test
 public struct TimedWalkTestResult: Sendable, Equatable, Hashable, Codable {
+    /// Steps recorded during the test.
     public let stepCount: Double
+    /// Distance recorded during the test.
     public let distance: Double
+    /// Start date of the timed walk test.
     public let startDate: Date
+    /// End date of the timed walk test.
     public let endDate: Date
     
     
+    /// Duration of the timed walk test.
     public var duration: TimeInterval {
         endDate.timeIntervalSince(startDate)
     }
     
+    /// FHIR `Observation` representation of the timed walk test result.
+    ///
+    /// Uses the `62619-2` six minute walk test LOINC code for a test that is six minutes long, `55430-3` for all other walk tests.
+    ///
+    /// Encodes the steps and distance as part of the observation.
     public var observation: Observation {
         let observation = Observation(
             code: CodeableConcept(),
@@ -73,7 +84,7 @@ public struct TimedWalkTestResult: Sendable, Equatable, Hashable, Codable {
     }
     
     
-    public init(stepCount: Double, distance: Double, startDate: Date, endDate: Date) {
+    init(stepCount: Double, distance: Double, startDate: Date, endDate: Date) {
         self.stepCount = stepCount
         self.distance = distance
         self.startDate = startDate

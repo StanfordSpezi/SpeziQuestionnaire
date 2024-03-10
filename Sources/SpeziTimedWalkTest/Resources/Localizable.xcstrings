@@ -89,7 +89,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome to the timed minute walk test!\\n\\nPlease be sure that you have an enough space and time to walk for %@."
+            "value" : "Welcome to the timed minute walk test!\n\nPlease be sure that you have an enough space and time to walk for %@."
           }
         }
       }

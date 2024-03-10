@@ -10,9 +10,13 @@ import CoreMotion
 import Foundation
 
 
+/// Error that might occur during a timed walk test.
 public enum TimedWalkTestError: LocalizedError, Codable {
+    /// Could not retrieve pedometer access, please ask the user to provide access in the settings app.
     case unauthorized
+    /// Could not retrieve valid date from the pedometer.
     case invalidData
+    /// Unknown error that occured during the execution.
     case unknown
     
     

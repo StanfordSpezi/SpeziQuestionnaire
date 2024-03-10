@@ -9,6 +9,26 @@
 import SwiftUI
 
 
+/// Displays a timed walk test.
+///
+/// To use the `TimedWalkTestView` you first need to define a ``TimedWalkTest`` that configures the test including its duration and other parameters:
+/// ```swift
+/// timedWalkTest = TimedWalkTest(walkTime: 6 * 60)
+/// ```
+///
+/// The ``TimedWalkTestView`` can subsequentially be displayed in a SwiftUI view:
+/// ```swift
+/// TimedWalkTestView(timedWalkTest: timedWalkTest) { result in
+///     switch result {
+///     case .completed:
+///         // ...
+///     case .failed:
+///         // ...
+///     case .cancelled:
+///         // ...
+///     }
+/// }
+/// ```
 public struct TimedWalkTestView: View {
     @State private var walkTestViewModel: TimedWalkTestViewModel
     
