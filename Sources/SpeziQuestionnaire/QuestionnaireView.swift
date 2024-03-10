@@ -60,6 +60,7 @@ public struct QuestionnaireView: View {
     /// - Parameters:
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
+    ///   - cancelBehavior: The cancel behavior of view. The default setting allows cancellation and asks for confirmation before the view is dismissed.
     ///   - questionnaireResult: Result closure that processes the ``QuestionnaireResult``.
     public init(
         questionnaire: Questionnaire,
