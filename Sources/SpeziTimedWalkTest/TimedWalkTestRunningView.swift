@@ -43,7 +43,7 @@ struct TimedWalkTestRunningView: View {
                     .multilineTextAlignment(.center)
             }
             Spacer()
-            if let prepareCountDown {
+            if let prepareCountDown, Date.now < prepareCountDown {
                 Text("The \(walkTime) minute walk test will start in \(Text(timerInterval: Date.now...prepareCountDown, countsDown: true))")
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)

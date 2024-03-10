@@ -25,7 +25,7 @@ let package = Package(
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
         .package(url: "https://github.com/StanfordSpezi/SpeziViews", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", branch: "feature/cancelbehavior"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.28"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "1.1.0")
     ],
     targets: [
