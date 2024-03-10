@@ -21,7 +21,7 @@ import SwiftUI
 /// ```swift
 /// struct ExampleQuestionnaireView: View {
 ///     @State var displayQuestionnaire = false
-///     
+///
 ///     
 ///     var body: some View {
 ///         Button("Display Questionnaire") {
@@ -42,11 +42,12 @@ public struct QuestionnaireView: View {
     private let questionnaire: Questionnaire
     private let questionnaireResult: (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
+    private let cancelBehavior: CancelBehavior
     
     
     public var body: some View {
         if let task = createTask(questionnaire: questionnaire) {
-            ORKOrderedTaskView(tasks: task, tintColor: .accentColor, result: handleResult)
+            ORKOrderedTaskView(tasks: task, tintColor: .accentColor, cancelBehavior: cancelBehavior, result: handleResult)
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .interactiveDismissDisabled()
@@ -59,22 +60,25 @@ public struct QuestionnaireView: View {
     /// - Parameters:
     ///   - questionnaire: The  `Questionnaire` that should be displayed.
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
+    ///   - cancelBehavior: The cancel behavior of view. The default setting allows cancellation and asks for confirmation before the view is dismissed.
     ///   - questionnaireResult: Result closure that processes the ``QuestionnaireResult``.
     public init(
         questionnaire: Questionnaire,
         completionStepMessage: String? = nil,
+        cancelBehavior: CancelBehavior = .shouldConfirmCancel,
         questionnaireResult: @escaping @MainActor (QuestionnaireResult) async -> Void
     ) {
         self.questionnaire = questionnaire
         self.completionStepMessage = completionStepMessage
+        self.cancelBehavior = cancelBehavior
         self.questionnaireResult = questionnaireResult
     }
-
+    
+    
     private func handleResult(_ result: TaskResult) async {
         let questionnaireResult: QuestionnaireResult
         switch result {
         case let .completed(result):
-            let fhirResponse = result.fhirResponse
             questionnaireResult = .completed(result.fhirResponse)
         case .cancelled:
             questionnaireResult = .cancelled

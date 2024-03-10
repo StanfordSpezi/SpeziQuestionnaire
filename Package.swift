@@ -13,16 +13,19 @@ import PackageDescription
 
 let package = Package(
     name: "SpeziQuestionnaire",
+    defaultLocalization: "en",
     platforms: [
         .iOS(.v17)
     ],
     products: [
-        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
+        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
+        .library(name: "SpeziTimedWalkTest", targets: ["SpeziTimedWalkTest"])
     ],
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi", from: "1.0.0"),
+        .package(url: "https://github.com/StanfordSpezi/SpeziViews", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.25"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "2.2.28"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "1.1.0")
     ],
     targets: [
@@ -41,6 +44,14 @@ let package = Package(
             name: "SpeziQuestionnaireTests",
             dependencies: [
                 .target(name: "SpeziQuestionnaire")
+            ]
+        ),
+        .target(
+            name: "SpeziTimedWalkTest",
+            dependencies: [
+                .product(name: "Spezi", package: "Spezi"),
+                .product(name: "SpeziViews", package: "SpeziViews"),
+                .product(name: "ModelsR4", package: "FHIRModels")
             ]
         )
     ]

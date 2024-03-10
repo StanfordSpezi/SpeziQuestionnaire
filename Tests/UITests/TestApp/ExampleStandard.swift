@@ -6,20 +6,27 @@
 // SPDX-License-Identifier: MIT
 //
 
+import ResearchKit
 import Spezi
 import SpeziQuestionnaire
+import SpeziTimedWalkTest
 import SwiftUI
 
 
 @Observable
 private class ExampleModel {
     var surveyResponseCount: Int = 0
+    var timedWalkTestResponseCount: Int = 0
+    
+    
     init() {}
 }
+
 
 /// An example Standard used for the configuration.
 actor ExampleStandard: Standard, EnvironmentAccessible {
     @MainActor private let model = ExampleModel()
+    
     
     @MainActor var surveyResponseCount: Int {
         get {
@@ -27,6 +34,15 @@ actor ExampleStandard: Standard, EnvironmentAccessible {
         }
         set {
             model.surveyResponseCount = newValue
+        }
+    }
+    
+    @MainActor var timedWalkTestResponseCount: Int {
+        get {
+            model.timedWalkTestResponseCount
+        }
+        set {
+            model.timedWalkTestResponseCount = newValue
         }
     }
 }

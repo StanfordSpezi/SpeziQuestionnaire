@@ -1,0 +1,99 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+
+    },
+    "%lld m" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Cancel Timed Walk Test?" : {
+
+    },
+    "Cancel Walk Test" : {
+
+    },
+    "Distance:" : {
+
+    },
+    "Done" : {
+
+    },
+    "Invalid Data Error" : {
+
+    },
+    "Make yourself ready for the %@ minute walk test" : {
+
+    },
+    "Next" : {
+
+    },
+    "Pedometer access is not authorized" : {
+
+    },
+    "Pedometer data is invalid" : {
+
+    },
+    "Please go to the Settings App to authorize pedometer access for this application." : {
+
+    },
+    "Restart" : {
+
+    },
+    "Return" : {
+
+    },
+    "Start" : {
+
+    },
+    "Steps:" : {
+
+    },
+    "The %@ minute walk test will start in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "The %1$@ minute walk test will start in %2$@"
+          }
+        }
+      }
+    },
+    "Timed Walk Test" : {
+
+    },
+    "Unauthorized Error" : {
+
+    },
+    "Unknown" : {
+
+    },
+    "Unknown Error" : {
+
+    },
+    "WALK_TEST_DEFAULT_COMPLETION_MESSAGE" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Great job completing the timed walk test. Please review your results and press \"Done\" to save your results."
+          }
+        }
+      }
+    },
+    "WALK_TEST_DEFAULT_TASK_DESCRIPTION %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to the timed minute walk test!\n\nPlease be sure that you have an enough space and time to walk for %@."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
