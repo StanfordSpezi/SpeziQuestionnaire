@@ -40,7 +40,7 @@ class TimedWalkTestViewModel {
     func requestPedemoterAccess() {
         #if !targetEnvironment(simulator)
         guard CMPedometer.isStepCountingAvailable() else {
-            walkTestResponse = .failure(.unauthorized)
+            walkTestResponse = .failed(.unauthorized)
             return
         }
         
@@ -48,7 +48,7 @@ class TimedWalkTestViewModel {
             if data != nil {
                 self.authorizationStatus = CMPedometer.authorizationStatus()
             } else {
-                self.walkTestResponse = .failure(TimedWalkTestError(errorCode: (error as? NSError)?.code ?? -1))
+                self.walkTestResponse = .failed(TimedWalkTestError(errorCode: (error as? NSError)?.code ?? -1))
             }
         }
         #else
@@ -81,7 +81,7 @@ class TimedWalkTestViewModel {
             #if !targetEnvironment(simulator)
             pedometer.queryPedometerData(from: walkTestStartDate, to: walkTestEndDate) { data, error in
                 if let data, let distance = data.distance?.doubleValue {
-                    self.walkTestResponse = .success(
+                    self.walkTestResponse = .completed(
                         TimedWalkTestResult(
                             stepCount: data.numberOfSteps.doubleValue,
                             distance: distance,
@@ -90,7 +90,7 @@ class TimedWalkTestViewModel {
                         )
                     )
                 } else {
-                    self.walkTestResponse = .failure(TimedWalkTestError(errorCode: (error as? NSError)?.code ?? -1))
+                    self.walkTestResponse = .failed(TimedWalkTestError(errorCode: (error as? NSError)?.code ?? -1))
                 }
             }
             #else
