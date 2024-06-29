@@ -10,12 +10,14 @@ import XCTest
 
 
 class TestAppUITests: XCTestCase {
+    @MainActor
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
     }
     
     
+    @MainActor
     func testSpeziQuestionnaire() throws {
         let app = XCUIApplication()
         app.launch()
@@ -53,6 +55,7 @@ class TestAppUITests: XCTestCase {
         XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
     }
     
+    @MainActor
     func testSpeziTimedWalkTest() throws {
         let app = XCUIApplication()
         app.launch()
