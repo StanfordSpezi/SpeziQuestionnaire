@@ -39,7 +39,7 @@ struct TimedWalkTestCompletedView: View {
             Button("Restart", role: .destructive) {
                 dismiss()
             }
-            AsyncButton(action: completeAction) {
+            Button(action: completeAction) {
                 Text("Done")
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
@@ -68,8 +68,9 @@ struct TimedWalkTestCompletedView: View {
             .bold()
             .padding()
     }
-    
-    private func completeAction() async {
+
+    @MainActor
+    private func completeAction() {
         walkTestViewModel.completeWalkTest()
     }
 }

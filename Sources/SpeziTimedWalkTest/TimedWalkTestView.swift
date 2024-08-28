@@ -68,7 +68,8 @@ public struct TimedWalkTestView: View {
             .environment(walkTestViewModel)
     }
 
-    
+
+    @MainActor
     public init(
         timedWalkTest: TimedWalkTest = TimedWalkTest(),
         completion: @escaping (TimedWalkTestViewResult) -> Void

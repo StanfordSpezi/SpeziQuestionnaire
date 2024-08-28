@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/StanfordSpezi/SpeziViews", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "3.0.1"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "2.0.0")
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "2.0.1")
     ] + swiftLintPackage(),
     targets: [
         .target(

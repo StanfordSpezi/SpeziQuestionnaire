@@ -10,7 +10,7 @@ import Foundation
 
 
 /// Defines the configuration of a timed walk test.
-public struct TimedWalkTest: Codable, Equatable, Hashable {
+public struct TimedWalkTest: Codable, Equatable, Hashable, Sendable {
     /// Default values.
     public enum Defaults {
         /// Default timed walk test duration.
