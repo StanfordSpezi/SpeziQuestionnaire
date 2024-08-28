@@ -9,4 +9,8 @@
 import ModelsR4
 
 
-extension Identifier: Identifiable {}
+#if compiler(<6)
+extension ModelsR4.Identifier: Swift.Identifiable {}
+#else
+extension Identifier: @retroactive Identifiable {}
+#endif

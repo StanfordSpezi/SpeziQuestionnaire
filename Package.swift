@@ -13,9 +13,9 @@ import PackageDescription
 
 
 #if swift(<6)
-let swiftConcurrency: SwiftSetting = .enableExperimentalFeature("SwiftConcurrency")
+let swiftConcurrency: SwiftSetting = .enableExperimentalFeature("StrictConcurrency")
 #else
-let swiftConcurrency: SwiftSetting = .enableUpcomingFeature("SwiftConcurrency")
+let swiftConcurrency: SwiftSetting = .enableUpcomingFeature("StrictConcurrency")
 #endif
 
 
@@ -89,7 +89,7 @@ func swiftLintPlugin() -> [Target.PluginUsage] {
 
 func swiftLintPackage() -> [PackageDescription.Package.Dependency] {
     if ProcessInfo.processInfo.environment["SPEZI_DEVELOPMENT_SWIFTLINT"] != nil {
-        [.package(url: "https://github.com/realm/SwiftLint.git", .upToNextMinor(from: "0.55.1"))]
+        [.package(url: "https://github.com/realm/SwiftLint.git", from: "0.55.1")]
     } else {
         []
     }
