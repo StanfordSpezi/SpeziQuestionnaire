@@ -69,7 +69,8 @@ struct TimedWalkTestRunningView: View {
             .modifier(TimedWalkTestCancelModifier())
     }
     
-    
+
+    @MainActor
     private func start() async {
         withAnimation {
             prepareCountDown = Date.now.addingTimeInterval(5)

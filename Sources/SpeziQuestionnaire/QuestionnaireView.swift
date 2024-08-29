@@ -40,7 +40,7 @@ public struct QuestionnaireView: View {
     private static let logger = Logger(subsystem: "edu.stanford.spezi.questionnaire", category: "QuestionnaireView")
 
     private let questionnaire: Questionnaire
-    private let questionnaireResult: (QuestionnaireResult) async -> Void
+    private let questionnaireResult: @MainActor (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
     private let cancelBehavior: CancelBehavior
     

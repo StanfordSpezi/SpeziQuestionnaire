@@ -13,9 +13,9 @@ import PackageDescription
 
 
 #if swift(<6)
-let swiftConcurrency: SwiftSetting = .enableExperimentalFeature("SwiftConcurrency")
+let swiftConcurrency: SwiftSetting = .enableExperimentalFeature("StrictConcurrency")
 #else
-let swiftConcurrency: SwiftSetting = .enableUpcomingFeature("SwiftConcurrency")
+let swiftConcurrency: SwiftSetting = .enableUpcomingFeature("StrictConcurrency")
 #endif
 
 
@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/StanfordSpezi/SpeziViews", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels", .upToNextMinor(from: "0.5.0")),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit", from: "3.0.1"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "2.0.0")
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR", from: "2.0.1")
     ] + swiftLintPackage(),
     targets: [
         .target(
@@ -89,7 +89,7 @@ func swiftLintPlugin() -> [Target.PluginUsage] {
 
 func swiftLintPackage() -> [PackageDescription.Package.Dependency] {
     if ProcessInfo.processInfo.environment["SPEZI_DEVELOPMENT_SWIFTLINT"] != nil {
-        [.package(url: "https://github.com/realm/SwiftLint.git", .upToNextMinor(from: "0.55.1"))]
+        [.package(url: "https://github.com/realm/SwiftLint.git", from: "0.55.1")]
     } else {
         []
     }

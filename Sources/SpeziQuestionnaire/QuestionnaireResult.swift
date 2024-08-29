@@ -18,3 +18,6 @@ public enum QuestionnaireResult {
     /// The questionnaire task failed due to an error.
     case failed
 }
+
+
+extension QuestionnaireResult: Hashable {}

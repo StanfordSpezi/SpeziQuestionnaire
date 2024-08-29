@@ -11,8 +11,9 @@ import Foundation
 import SwiftUI
 
 
+@MainActor
 @Observable
-class TimedWalkTestViewModel {
+class TimedWalkTestViewModel: Sendable {
     let pedometer = CMPedometer()
     
     let timedWalkTest: TimedWalkTest
