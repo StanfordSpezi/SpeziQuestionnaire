@@ -32,7 +32,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/Spezi.git", from: "1.0.0"),
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.0.0"),
-        .package(url: "https://github.com/apple/FHIRModels.git", from: "0.5.0"),
+        .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.0.1"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.1")
     ] + swiftLintPackage(),
