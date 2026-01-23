@@ -71,6 +71,7 @@ struct TimedWalkTestRunningView: View {
     
 
     @MainActor
+    @Sendable
     private func start() async {
         withAnimation {
             prepareCountDown = Date.now.addingTimeInterval(5)
