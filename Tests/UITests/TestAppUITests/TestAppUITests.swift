@@ -18,15 +18,22 @@ class TestAppUITests: XCTestCase {
     
     
     @MainActor
-    func testSpeziQuestionnaire() throws {
+    func testSpeziQuestionnaire() async throws {
         let app = XCUIApplication()
         app.launch()
         
-        XCTAssert(app.staticTexts["No. of surveys complete: 0"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["Surveys"].waitForExistence(timeout: 2))
         
-        XCTAssert(app.buttons["Display Questionnaire"].waitForExistence(timeout: 2))
-        app.buttons["Display Questionnaire"].tap()
+        app.buttons["Pick Predefined Questionnaire"].tap()
+        app.buttons["GCS"].tap()
         
+        try await Task.sleep(for: .seconds(2))
+        
+        XCTAssert(app.buttons["Start Questionnaire"].waitForExistence(timeout: 2))
+        app.buttons["Start Questionnaire"].tap()
+        
+        try await Task.sleep(for: .seconds(2))
+        app.buttons["Start Questionnaire"].tap()
         XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
         
         let table = app.tables.element(boundBy: 0)
@@ -52,17 +59,19 @@ class TestAppUITests: XCTestCase {
         app.buttons["Done"].tap()
         
         /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["No. of surveys complete: 1"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
     }
     
     @MainActor
-    func testSpeziTimedWalkTest() throws {
+    func testSpeziTimedWalkTest() async throws {
         let app = XCUIApplication()
         app.launch()
         
-        XCTAssert(app.staticTexts["No. of walk tests complete: 0"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["Timed Walk Test"].waitForExistence(timeout: 2))
         
         XCTAssert(app.buttons["Display Walk Test"].waitForExistence(timeout: 2))
+        app.buttons["Display Walk Test"].tap()
+        try await Task.sleep(for: .seconds(2))
         app.buttons["Display Walk Test"].tap()
         
         /// Tap Next to move to the next screen
@@ -83,6 +92,6 @@ class TestAppUITests: XCTestCase {
         app.buttons["Done"].tap()
         
         /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["No. of walk tests complete: 1"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
     }
 }
