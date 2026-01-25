@@ -23,17 +23,15 @@ let package = Package(
         .library(name: "SpeziTimedWalkTest", targets: ["SpeziTimedWalkTest"])
     ],
     dependencies: [
-        .package(url: "https://github.com/StanfordSpezi/Spezi.git", from: "1.0.0"),
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.0.1"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.4")
     ] + swiftLintPackage(),
     targets: [
         .target(
             name: "SpeziQuestionnaire",
             dependencies: [
-                .product(name: "Spezi", package: "Spezi"),
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR"),
                 .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR"),
@@ -55,7 +53,6 @@ let package = Package(
         .target(
             name: "SpeziTimedWalkTest",
             dependencies: [
-                .product(name: "Spezi", package: "Spezi"),
                 .product(name: "SpeziViews", package: "SpeziViews"),
                 .product(name: "ModelsR4", package: "FHIRModels")
             ],

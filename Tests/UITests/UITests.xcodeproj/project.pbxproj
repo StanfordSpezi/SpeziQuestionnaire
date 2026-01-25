@@ -10,6 +10,7 @@
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
 		2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */; };
+		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 				2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */,
 			);
@@ -122,6 +124,7 @@
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
 				2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */,
+				803769F62F262FC400FA2F59 /* Spezi */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -174,6 +177,7 @@
 			);
 			mainGroup = 2F6D138928F5F384007C25D6;
 			packageReferences = (
+				803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -626,6 +630,17 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -634,6 +649,11 @@
 		2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziTimedWalkTest;
+		};
+		803769F62F262FC400FA2F59 /* Spezi */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */;
+			productName = Spezi;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
