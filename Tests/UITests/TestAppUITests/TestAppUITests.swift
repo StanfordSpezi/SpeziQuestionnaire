@@ -10,7 +10,6 @@ import XCTest
 
 
 class TestAppUITests: XCTestCase {
-    @MainActor
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false

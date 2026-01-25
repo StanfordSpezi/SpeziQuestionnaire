@@ -16,8 +16,5 @@ public enum QuestionnaireResult {
     /// The questionnaire task was cancelled by the user.
     case cancelled
     /// The questionnaire task failed due to an error.
-    case failed
+    case failed(_ error: any Error)
 }
-
-
-extension QuestionnaireResult: Hashable {}

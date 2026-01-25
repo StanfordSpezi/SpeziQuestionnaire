@@ -17,22 +17,29 @@ import SwiftUI
 
 /// Present a FHIR `Questionnaire` to the user.
 ///
+/// Note that the ``QuestionnaireView`` does not dismiss itself; the presenting view is responsible for this.
+///
 /// The following example shows how to present a questionnaire:
 /// ```swift
 /// struct ExampleQuestionnaireView: View {
 ///     @State var displayQuestionnaire = false
 ///
-///     
 ///     var body: some View {
-///         Button("Display Questionnaire") {
-///             displayQuestionnaire.toggle()
+///         Button("Answer Questionnaire") {
+///             displayQuestionnaire = true
 ///         }
-///             .sheet(isPresented: $displayQuestionnaire) {
-///                 QuestionnaireView(
-///                     questionnaire: Questionnaire.gcs,
-///                     isPresented: $displayQuestionnaire
-///                 )
+///         .sheet(isPresented: $displayQuestionnaire) {
+///             QuestionnaireView(questionnaire: Questionnaire.gcs) { result in
+///                 switch result {
+///                 case .completed(let response):
+///                     displayQuestionnaire = false
+///                     await upload(response)
+///                 case .cancelled, .failed:
+///                     // handle somehow
+///                     displayQuestionnaire = false
+///                 }
 ///             }
+///         }
 ///     }
 /// }
 /// ```
@@ -52,7 +59,7 @@ public struct QuestionnaireView: View {
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .interactiveDismissDisabled()
         } else {
-            Text("QUESTIONNAIRE_LOADING_ERROR_MESSAGE")
+            Text("QUESTIONNAIRE_LOADING_ERROR_MESSAGE", bundle: .module)
         }
     }
     
@@ -82,10 +89,9 @@ public struct QuestionnaireView: View {
             questionnaireResult = .completed(result.fhirResponse)
         case .cancelled:
             questionnaireResult = .cancelled
-        case .failed:
-            questionnaireResult = .failed
+        case .failed(let error):
+            questionnaireResult = .failed(error)
         }
-
         await self.questionnaireResult(questionnaireResult)
     }
 
