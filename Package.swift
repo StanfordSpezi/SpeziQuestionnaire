@@ -19,8 +19,7 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
-        .library(name: "SpeziTimedWalkTest", targets: ["SpeziTimedWalkTest"])
+        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
     ],
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.0.0"),
@@ -47,17 +46,6 @@ let package = Package(
             name: "SpeziQuestionnaireTests",
             dependencies: [
                 .target(name: "SpeziQuestionnaire")
-            ],
-            plugins: [] + swiftLintPlugin()
-        ),
-        .target(
-            name: "SpeziTimedWalkTest",
-            dependencies: [
-                .product(name: "SpeziViews", package: "SpeziViews"),
-                .product(name: "ModelsR4", package: "FHIRModels")
-            ],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
             ],
             plugins: [] + swiftLintPlugin()
         )

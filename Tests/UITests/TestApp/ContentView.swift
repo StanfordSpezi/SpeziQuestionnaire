@@ -7,7 +7,6 @@
 //
 
 import SpeziQuestionnaire
-import SpeziTimedWalkTest
 import SwiftUI
 
 
@@ -16,7 +15,6 @@ struct ContentView: View {
         NavigationStack {
             Form {
                 QuestionnaireSection()
-                WalkTestSection()
             }
             .navigationTitle("Spezi Questionnaire")
         }

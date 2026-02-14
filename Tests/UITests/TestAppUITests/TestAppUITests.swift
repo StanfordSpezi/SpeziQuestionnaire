@@ -60,37 +60,4 @@ class TestAppUITests: XCTestCase {
         /// Verify that the number of survey responses increases
         XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
     }
-    
-    @MainActor
-    func testSpeziTimedWalkTest() async throws {
-        let app = XCUIApplication()
-        app.launch()
-        
-        XCTAssert(app.staticTexts["Timed Walk Test"].waitForExistence(timeout: 2))
-        
-        XCTAssert(app.buttons["Display Walk Test"].waitForExistence(timeout: 2))
-        app.buttons["Display Walk Test"].tap()
-        try await Task.sleep(for: .seconds(2))
-        app.buttons["Display Walk Test"].tap()
-        
-        /// Tap Next to move to the next screen
-        XCTAssert(app.buttons["Next"].waitForExistence(timeout: 2))
-        app.buttons["Next"].tap()
-        
-        /// Tap Start to start the walk test
-        XCTAssert(app.buttons["Start"].waitForExistence(timeout: 2))
-        app.buttons["Start"].tap()
-        
-        /// Wait for walk test to complete
-        sleep(15)
-        
-        XCTAssert(app.staticTexts["42"].waitForExistence(timeout: 2))
-        XCTAssert(app.staticTexts["12 m"].waitForExistence(timeout: 2))
-
-        XCTAssert(app.buttons["Done"].waitForExistence(timeout: 5))
-        app.buttons["Done"].tap()
-        
-        /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
-    }
 }

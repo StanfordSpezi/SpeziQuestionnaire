@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
 		2F8A431329130A8C005D2B8F /* TestAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F8A431229130A8C005D2B8F /* TestAppUITests.swift */; };
-		2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */ = {isa = PBXBuildFile; productRef = 2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */; };
 		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
 /* End PBXBuildFile section */
 
@@ -52,7 +51,6 @@
 			files = (
 				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
-				2FB059642B95C0A8000E6743 /* SpeziTimedWalkTest in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,7 +121,6 @@
 			name = TestApp;
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
-				2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */,
 				803769F62F262FC400FA2F59 /* Spezi */,
 			);
 			productName = Example;
@@ -642,10 +639,6 @@
 		2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziQuestionnaire;
-		};
-		2FB059632B95C0A8000E6743 /* SpeziTimedWalkTest */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SpeziTimedWalkTest;
 		};
 		803769F62F262FC400FA2F59 /* Spezi */ = {
 			isa = XCSwiftPackageProductDependency;
