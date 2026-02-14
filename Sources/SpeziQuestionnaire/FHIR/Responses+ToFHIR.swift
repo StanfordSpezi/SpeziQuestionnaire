@@ -10,7 +10,7 @@
 public import ModelsR4
 
 
-extension Questionnaire {
+extension QuestionnaireResponse {
     private struct FHIRConversionError: Error {
         let message: String
         
@@ -19,9 +19,8 @@ extension Questionnaire {
         }
     }
     
-    
-    /// Creates a ``Questionnaire`` from a FHIR R4 `Questionnaire`.
-    public init(_ other: ModelsR4.Questionnaire) throws {
+    /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
+    public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
         throw FHIRConversionError("Not Yet Implemented")
     }
 }

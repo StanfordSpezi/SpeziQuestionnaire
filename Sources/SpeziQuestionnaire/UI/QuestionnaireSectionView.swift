@@ -86,7 +86,7 @@ struct QuestionnaireSectionView: View {
 extension QuestionnaireSectionView {
     private struct CancelButton: View {
         @State private var showConfirmation = false
-        let onDismiss: @MainActor () async -> Void
+        let action: @MainActor () async -> Void
         
         var body: some View {
             button
@@ -95,7 +95,7 @@ extension QuestionnaireSectionView {
                     isPresented: $showConfirmation,
                     titleVisibility: .visible,
                     actions: {
-                        AsyncButton("Yes", role: .destructive, action: onDismiss)
+                        AsyncButton("Yes", role: .destructive, action: action)
                         Button("No", role: .cancel) {}
                     },
                     message: {

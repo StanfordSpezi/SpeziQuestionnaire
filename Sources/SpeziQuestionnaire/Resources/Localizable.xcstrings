@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "" : {
+
+    },
     "Are you sure you want to cancel the questionnaire?\nYour responses will be lost." : {
 
     },

@@ -6,12 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-public import Foundation
 private import SpeziFoundation
 
 
 extension Questionnaire {
     func validate() {
+        checkComponentIdentifiers()
     }
     
     private func checkComponentIdentifiers() {

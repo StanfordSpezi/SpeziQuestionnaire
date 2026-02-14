@@ -7,55 +7,70 @@
 //
 
 
+import Foundation
 public import Observation
 
 
 @Observable
 public final class QuestionnaireResponses {
-    // TODO use the ComponentPath instead!! (thatll allow us to also take the sectionId into account!)
-    public struct SelectedSCMCOption: Hashable, Identifiable, LosslessStringConvertible, Sendable {
-        public let taskId: Questionnaire.Task.ID
-        public let optionId: Questionnaire.Task.SCMCOption.ID
-        
-        public var id: some Hashable {
-            self
-        }
-        
-        public var description: String {
-            "\(taskId)/\(optionId)"
-        }
-        
-        public init(taskId: Questionnaire.Task.ID, optionId: Questionnaire.Task.SCMCOption.ID) {
-            self.taskId = taskId
-            self.optionId = optionId
-        }
-        
-        public init?(_ description: String) {
-            // TODO what if the task/option IDs themselves contain slashes?
-            guard let sepIdx = description.firstIndex(of: "/") else {
-                return nil
-            }
-            taskId = String(description[..<sepIdx])
-            optionId = String(description[sepIdx...].dropFirst())
-        }
-    }
+//    // TODO use the ComponentPath instead!! (thatll allow us to also take the sectionId into account!)
+//    public struct SelectedSCMCOption: Hashable, Identifiable, LosslessStringConvertible, Sendable {
+//        public let taskId: Questionnaire.Task.ID
+//        public let optionId: Questionnaire.Task.SCMCOption.ID
+//        
+//        public var id: some Hashable {
+//            self
+//        }
+//        
+//        public var description: String {
+//            "\(taskId)/\(optionId)"
+//        }
+//        
+//        public init(taskId: Questionnaire.Task.ID, optionId: Questionnaire.Task.SCMCOption.ID) {
+//            self.taskId = taskId
+//            self.optionId = optionId
+//        }
+//        
+//        public init?(_ description: String) {
+//            // TODO what if the task/option IDs themselves contain slashes?
+//            guard let sepIdx = description.firstIndex(of: "/") else {
+//                return nil
+//            }
+//            taskId = String(description[..<sepIdx])
+//            optionId = String(description[sepIdx...].dropFirst())
+//        }
+//    }
     
     let questionnaire: Questionnaire
-    private var selectedSCMCOptions = Set<SelectedSCMCOption>()
+    
+    private var selectedSCMCOptions = Set<ComponentPath>()
+    // TODO is there some way of implementing this in a way that upating one question's text doesn't trigger view updates for all other qiestions?
+    // mayve we should give each question its own ResponseStorage? (would make the live condition update logic hell, probably?)
+    private var freeTextResponses: [ComponentPath: String] = [:]
+    
+    private var dateTimeResponses: [ComponentPath: DateComponents] = [:]
     
     init(questionnaire: Questionnaire) {
         self.questionnaire = questionnaire
     }
     
     
-    subscript(task task: Questionnaire.Task, option option: Questionnaire.Task.SCMCOption) -> Bool {
-        get { self[task: task.id, option: option.id] }
-        set { self[task: task.id, option: option.id] = newValue }
+    subscript(
+        section section: Questionnaire.Section,
+        task task: Questionnaire.Task,
+        option option: Questionnaire.Task.SCMCOption
+    ) -> Bool {
+        get { self[section: section.id, task: task.id, option: option.id] }
+        set { self[section: section.id, task: task.id, option: option.id] = newValue }
     }
     
-    subscript(task taskId: Questionnaire.Task.ID, option optionId: Questionnaire.Task.SCMCOption.ID) -> Bool {
+    subscript(
+        section sectionId: Questionnaire.Section.ID,
+        task taskId: Questionnaire.Task.ID,
+        option optionId: Questionnaire.Task.SCMCOption.ID
+    ) -> Bool {
         get {
-            selectedSCMCOptions.contains(.init(taskId: taskId, optionId: optionId))
+            selectedSCMCOptions.contains([sectionId, taskId, optionId])
         }
         set {
             guard let task = questionnaire.task(withId: taskId) else {
@@ -64,36 +79,41 @@ public final class QuestionnaireResponses {
             switch task.kind {
             case .singleChoice:
                 // if we're about to make a single-choice selection, we first need to remove any current selection for this task.
-                selectedSCMCOptions.remove { $0.taskId == taskId }
+                selectedSCMCOptions.remove { $0.isDescendant(of: [sectionId, taskId]) }
             case .multipleChoice:
                  break
-            case .instructional:
+            case .instructional, .freeText, .dateTime:
                 fatalError("Attempted to set SCMC response for non-SCMC task!")
             }
             if newValue {
-                selectedSCMCOptions.insert(.init(taskId: taskId, optionId: optionId))
+                selectedSCMCOptions.insert([sectionId, taskId, optionId])
             } else {
-                selectedSCMCOptions.remove(.init(taskId: taskId, optionId: optionId))
+                selectedSCMCOptions.remove([sectionId, taskId, optionId])
             }
         }
     }
     
+    subscript(freeTextResponseAt path: ComponentPath) -> String? {
+        get { freeTextResponses[path] }
+        set { freeTextResponses[path] = newValue }
+    }
     
-    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
-        switch condition {
-        case .none:
-            true
-        case let .didSelect(optionId, taskId):
-            self[task: taskId, option: optionId]
-        }
+    subscript(dateTimeResponseAt path: ComponentPath) -> DateComponents? {
+        get { dateTimeResponses[path] }
+        set { dateTimeResponses[path] = newValue }
     }
     
     func hasAnswer(for task: Questionnaire.Task, in section: Questionnaire.Section) -> Bool {
-        switch task.kind {
+        let path: ComponentPath = [section.id, task.id]
+        return switch task.kind {
         case .instructional:
             true
         case .singleChoice, .multipleChoice:
-            selectedSCMCOptions.contains { $0.taskId == task.id }
+            selectedSCMCOptions.contains { $0.isDescendant(of: path) }
+        case .freeText:
+            (freeTextResponses[path] ?? "") != ""
+        case .dateTime:
+            dateTimeResponses[path] != nil
         }
     }
     
@@ -115,6 +135,48 @@ public final class QuestionnaireResponses {
     }
 }
 
+
+// MARK: Conditions
+
+extension QuestionnaireResponses {
+    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
+        switch condition {
+        case .true:
+            true
+        case .false:
+            false
+        case .not(let inner):
+            !evaluate(inner)
+        case .any(let inner):
+            inner.contains(where: evaluate)
+        case .all(let inner):
+            inner.allSatisfy(evaluate)
+        case .hasResponse(let taskPath):
+            if let section = taskPath.section(in: questionnaire), let task = taskPath.task(in: questionnaire) {
+                hasAnswer(for: task, in: section)
+            } else {
+                false
+            }
+        case .isMissingResponse(let taskPath):
+            if let section = taskPath.section(in: questionnaire), let task = taskPath.task(in: questionnaire) {
+                isMissingResponse(for: task, in: section)
+            } else {
+                false
+            }
+        case let .selectionValueEquals(optionPath, value):
+            if let section = optionPath.section(in: questionnaire),
+               let task = optionPath.task(in: questionnaire),
+               let option = optionPath.option(in: questionnaire) {
+                self[section: section, task: task, option: option] == value
+            } else {
+                false
+            }
+        }
+    }
+}
+
+
+// MARK: Utils
 
 extension Set {
     mutating func remove(where predicate: (Element) -> Bool) {

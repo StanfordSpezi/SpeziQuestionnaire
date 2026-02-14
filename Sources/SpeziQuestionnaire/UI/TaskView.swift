@@ -53,16 +53,24 @@ struct TaskView<Header: View>: View {
             Text(markdown: text)
         case .singleChoice(let options), .multipleChoice(let options):
             makeSCMCRows(for: options)
+        case .freeText:
+            TextEditor(text: Binding<String> {
+                responses[freeTextResponseAt: [section.id, task.id]] ?? ""
+            } set: { newValue in
+                responses[freeTextResponseAt: [section.id, task.id]] = newValue
+            })
+            .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
+        case .dateTime(let style):
+            DateTimeRow(path: [section.id, task.id], style: style)
         }
     }
     
-    @ViewBuilder
     private func makeSCMCRows(for options: [Questionnaire.Task.SCMCOption]) -> some View {
         ForEach(options) { option in
             SCMCRow(option: option, isSelected: Binding<Bool> {
-                responses[task: task, option: option]
+                responses[section: section, task: task, option: option]
             } set: {
-                responses[task: task, option: option] = $0
+                responses[section: section, task: task, option: option] = $0
             })
         }
     }
@@ -96,6 +104,56 @@ extension TaskView {
         }
     }
 }
+
+
+extension TaskView {
+    private struct DateTimeRow: View {
+        @Environment(\.calendar) private var cal
+        @Environment(QuestionnaireResponses.self) private var responses
+        let path: ComponentPath
+        let style: Questionnaire.Task.Kind.DateTimeStyle
+        
+        var body: some View {
+            let binding = Binding<Date> {
+                if let response = responses[dateTimeResponseAt: path] {
+                    cal.date(from: response)! // what if this fails?
+                } else {
+                    .now
+                }
+            } set: { newValue in
+                // TODO there is no way to clear a response here!!
+                responses[dateTimeResponseAt: path] = cal.dateComponents(style.components, from: newValue)
+            }
+            // TOOD make this look good!
+            DatePicker("", selection: binding, displayedComponents: { () -> DatePickerComponents in
+                switch style {
+                case .dateOnly:
+                    .date
+                case .timeOnly:
+                    .hourAndMinute
+                case .dateAndTime:
+                    [.date, .hourAndMinute]
+                }
+            }())
+//            .datePickerStyle(.graphical)
+        }
+    }
+}
+
+
+extension Questionnaire.Task.Kind.DateTimeStyle {
+    var components: Set<Calendar.Component> {
+        switch self {
+        case .dateOnly:
+            [.year, .month, .day]
+        case .timeOnly:
+            [.hour, .minute, .second]
+        case .dateAndTime:
+            [.year, .month, .day, .hour, .minute, .second]
+        }
+    }
+}
+
 
 extension ColorScheme {
     var textLabelForegroundStyle: Color {
