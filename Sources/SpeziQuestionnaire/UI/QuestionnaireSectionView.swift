@@ -10,12 +10,14 @@ private import SpeziViews
 import SwiftUI
 
 
+/// Displays a section of tasks within a questionnaire, as a single page on the navigation stack.
 struct QuestionnaireSectionView: View {
-    @Environment(ManagedNavigationStack.Path.self)
-    private var navigationPath
+    @Environment(ManagedNavigationStack.Path.self) private var navigationPath
     
-    @Environment(QuestionnaireResponses.self)
-    private var responses
+    @Environment(QuestionnaireResponses.self) private var responses
+    @Environment(\.questionnaireSheetResultHandler) private var resultHandler
+    
+    @Environment(\.dismiss) private var dismiss
     
     let questionnaire: Questionnaire
     let section: Questionnaire.Section
@@ -34,8 +36,8 @@ struct QuestionnaireSectionView: View {
                     }
                     .id(ComponentPath(section.id, task.id))
                 }
-                Button {
-                    advance(using: scrollViewProxy)
+                AsyncButton {
+                    await advance(using: scrollViewProxy)
                 } label: {
                     Text("Continue")
                         .bold()
@@ -51,20 +53,18 @@ struct QuestionnaireSectionView: View {
         .navigationTitle(questionnaire.metadata.title)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
-            if #available(iOS 26, *) {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .cancel) {
-                        // TODO show a confirmation alert and somehow propagate the cancellation back to the Sheet!
-                    }
+            ToolbarItem(placement: .cancellationAction) {
+                CancelButton {
+                    await resultHandler?(.cancelled)
+                    dismiss()
                 }
-//            } else {
-//                // TODO fallback!!!
             }
         }
     }
     
     
-    private func advance(using scrollViewProxy: ScrollViewProxy) {
+    
+    private func advance(using scrollViewProxy: ScrollViewProxy) async {
         if let missedTask = responses.firstTaskWithMissingResponse(in: section) {
             indicateMissingResponses = true
             withAnimation {
@@ -76,7 +76,47 @@ struct QuestionnaireSectionView: View {
             }
             indicateMissingResponses = false
         } else {
-            // is at end. report to Sheet!!!!!!!
+            await resultHandler?(.success(responses))
+            dismiss()
+        }
+    }
+}
+
+
+extension QuestionnaireSectionView {
+    private struct CancelButton: View {
+        @State private var showConfirmation = false
+        let onDismiss: @MainActor () async -> Void
+        
+        var body: some View {
+            button
+                .confirmationDialog(
+                    "Cancel Questionnaire",
+                    isPresented: $showConfirmation,
+                    titleVisibility: .visible,
+                    actions: {
+                        AsyncButton("Yes", role: .destructive, action: onDismiss)
+                        Button("No", role: .cancel) {}
+                    },
+                    message: {
+                        Text("Are you sure you want to cancel the questionnaire?\nYour responses will be lost.")
+                    }
+                )
+        }
+        
+        @ViewBuilder private var button: some View {
+            if #available(iOS 26, *) {
+                Button(role: .cancel) {
+                    showConfirmation = true
+                }
+            } else {
+                Button {
+                    showConfirmation = true
+                } label: {
+                    Image(systemName: "xmark")
+                        .accessibilityLabel("Cancel")
+                }
+            }
         }
     }
 }

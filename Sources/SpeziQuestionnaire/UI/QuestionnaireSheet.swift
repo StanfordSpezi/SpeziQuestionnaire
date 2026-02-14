@@ -11,6 +11,8 @@ private import SpeziViews
 
 
 public struct QuestionnaireSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
     private let questionnaire: Questionnaire
     private let resultHandler: @MainActor (Result) async -> Void
     
@@ -26,8 +28,9 @@ public struct QuestionnaireSheet: View {
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
             }
         }
-        .environment(responses)
         .interactiveDismissDisabled()
+        .environment(responses)
+        .environment(\.questionnaireSheetResultHandler, resultHandler)
     }
     
     public init(
@@ -49,4 +52,9 @@ extension QuestionnaireSheet {
         case success(QuestionnaireResponses)
         case cancelled
     }
+}
+
+
+extension EnvironmentValues {
+    @Entry var questionnaireSheetResultHandler: (@MainActor (QuestionnaireSheet.Result) async -> Void)?
 }
