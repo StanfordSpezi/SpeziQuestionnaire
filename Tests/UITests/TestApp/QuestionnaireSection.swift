@@ -6,124 +6,147 @@
 // SPDX-License-Identifier: MIT
 //
 
+import class ModelsR4.Questionnaire
 import SpeziQuestionnaire
+import SpeziViews
 import SwiftUI
 import UniformTypeIdentifiers
 
 
-struct QuestionnaireSection: View {
+struct ContentView: View {
     @Environment(ExampleStandard.self) var standard
     
     @State private var showDetails = false
-    @State private var displayQuestionnaire = false
-    @State private var loadedQuestionnaire: Questionnaire?
+    @State private var loadedQuestionnaire: SpeziQuestionnaire.Questionnaire?
+    @State private var activeQuestionnaire: SpeziQuestionnaire.Questionnaire?
     @State private var showFileImporter = false
+    @State private var viewState: ViewState = .idle
     
     
     var body: some View {
-        Section(header: Text("Surveys"), footer: Text("Pick a predefined questionnaire or import one from a file.")) {
-            HStack {
-                Label("Completed", systemImage: "checkmark.circle")
-                Spacer()
-                Text("\(standard.surveyResponseCount)")
-                    .foregroundStyle(.secondary)
+        Form {
+            Section {
+                sectionContent
+            } header: {
+                Text("Surveys")
+            } footer: {
+                Text("Pick a predefined questionnaire or import one from a file.")
             }
-            predefinedMenu
-            Button("Load Questionnaire from File") { showFileImporter = true }
-            if let loadedQuestionnaire = loadedQuestionnaire {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(loadedQuestionnaire.title?.value?.string ?? "Untitled Questionnaire")
-                        .font(.headline)
-                    if let url = loadedQuestionnaire.url?.value?.description {
-                        Text(url)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
+            .viewStateAlert(state: $viewState)
+        }
+        .navigationTitle("Spezi Questionnaire")
+        .sheet(item: $activeQuestionnaire) { questionnaire in
+            QuestionnaireSheet(questionnaire) { result in
+                switch result {
+                case .success:
+                    standard.surveyResponseCount += 1
+                default:
+                    break
                 }
-                    .padding(.top, 4)
-                Button { displayQuestionnaire = true } label: {
-                    Label("Start Questionnaire", systemImage: "play.circle")
-                }
-                Button { showDetails = true } label: {
-                    Label("Details", systemImage: "info.circle")
-                }
-            } else {
-                ContentUnavailableView(
-                    "No Questionnaire Selected",
-                    systemImage: "list.bullet.rectangle",
-                    description: Text("Pick a predefined questionnaire or import a JSON file to begin.")
-                )
+                activeQuestionnaire = nil
             }
         }
-        .sheet(isPresented: $displayQuestionnaire) {
-            if let loadedQuestionnaire {
-                QuestionnaireView(
-                    questionnaire: loadedQuestionnaire,
-                    completionStepMessage: "Completed",
-                    questionnaireResult: { result in
-                        switch result {
-                        case .completed:
-                            standard.surveyResponseCount += 1
-                        default:
-                            break
-                        }
-                        displayQuestionnaire = false
-                    }
-                )
-            }
-        }
-        .sheet(isPresented: $showDetails) {
-            if let loadedQuestionnaire {
-                NavigationStack {
-                    QuestionnaireDetailView(questionnaire: loadedQuestionnaire)
-                }
-            }
-        }
-        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.json]) { result in
-            switch result {
-            case .success(let url):
-                do {
-                    let data = try Data(contentsOf: url)
-                    if let fhirQuestionnaire = try? JSONDecoder().decode(Questionnaire.self, from: data) {
-                        loadedQuestionnaire = fhirQuestionnaire
-                    } else {
-                        print("Failed to decode Questionnaire from selected file.")
-                    }
-                } catch {
-                    print("Error reading file: \(error)")
-                }
-            case .failure(let error):
-                print("File import failed: \(error)")
-            }
-        }
+//        .sheet(isPresented: $showDetails) {
+//            if let loadedQuestionnaire {
+//                NavigationStack {
+//                    QuestionnaireDetailView(questionnaire: loadedQuestionnaire)
+//                }
+//            }
+//        }
     }
     
+    
+    @ViewBuilder private var sectionContent: some View {
+        HStack {
+            Label("Completed", systemImage: "checkmark.circle")
+            Spacer()
+                Text("\(standard.surveyResponseCount)")
+                    .foregroundStyle(.secondary)
+        }
+        predefinedMenu
+        fileImporterButton
+        if let loadedQuestionnaire = loadedQuestionnaire {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(loadedQuestionnaire.metadata.title)
+                    .font(.headline)
+//                    if let url = loadedQuestionnaire.url?.value?.description {
+//                        Text(url)
+//                            .font(.footnote)
+//                            .foregroundStyle(.secondary)
+//                    }
+            }
+                .padding(.top, 4)
+            Button {
+                activeQuestionnaire = loadedQuestionnaire
+            } label: {
+                Label("Start Questionnaire", systemImage: "play.circle")
+            }
+            Button {
+                showDetails = true
+            } label: {
+                Label("Details", systemImage: "info.circle")
+            }
+        } else {
+            ContentUnavailableView(
+                "No Questionnaire Selected",
+                systemImage: "list.bullet.rectangle",
+                description: Text("Pick a predefined questionnaire or import a JSON file to begin.")
+            )
+        }
+    }
     
     private var predefinedMenu: some View {
         Menu("Pick Predefined Questionnaire") {
-            Section("Examples") {
-                menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
-                menuButton(title: "Multiple EnableWhen", questionnaire: .multipleEnableWhen)
-                menuButton(title: "Text Validation Example", questionnaire: .textValidationExample)
-                menuButton(title: "Contained ValueSet Example", questionnaire: .containedValueSetExample)
-                menuButton(title: "Number Example", questionnaire: .numberExample)
-                menuButton(title: "Date/Time Example", questionnaire: .dateTimeExample)
-                menuButton(title: "Form Example", questionnaire: .formExample)
-                menuButton(title: "Image Capture Example", questionnaire: .imageCaptureExample)
-                menuButton(title: "Slider Example", questionnaire: .sliderExample)
-            }
+//            Section("Examples") {
+//                menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
+//                menuButton(title: "Multiple EnableWhen", questionnaire: .multipleEnableWhen)
+//                menuButton(title: "Text Validation Example", questionnaire: .textValidationExample)
+//                menuButton(title: "Contained ValueSet Example", questionnaire: .containedValueSetExample)
+//                menuButton(title: "Number Example", questionnaire: .numberExample)
+//                menuButton(title: "Date/Time Example", questionnaire: .dateTimeExample)
+//                menuButton(title: "Form Example", questionnaire: .formExample)
+//                menuButton(title: "Image Capture Example", questionnaire: .imageCaptureExample)
+//                menuButton(title: "Slider Example", questionnaire: .sliderExample)
+//            }
             Section("Research") {
                 menuButton(title: "PHQ-9", questionnaire: .phq9)
                 menuButton(title: "GAD-7", questionnaire: .gad7)
-                menuButton(title: "IPSS", questionnaire: .ipss)
-                menuButton(title: "GCS", questionnaire: .gcs)
+//                menuButton(title: "IPSS", questionnaire: .ipss)
+//                menuButton(title: "GCS", questionnaire: .gcs)
             }
         }
     }
     
-    private func menuButton(title: String, questionnaire: Questionnaire) -> some View {
+    private var fileImporterButton: some View {
+        Button("Load Questionnaire from File") {
+            showFileImporter = true
+        }
+        .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.json]) { result in
+            do {
+                viewState = .processing
+                switch result {
+                case .success(let url):
+                    loadedQuestionnaire = try importQuestionnaire(from: url)
+                case .failure(let error):
+                    throw error
+                }
+                viewState = .idle
+            } catch {
+                viewState = .error(AnyLocalizedError(error: error))
+            }
+        }
+    }
+    
+    private func menuButton(title: String, questionnaire: SpeziQuestionnaire.Questionnaire) -> some View {
         Button(title) {
             loadedQuestionnaire = questionnaire
         }
+    }
+    
+    
+    private func importQuestionnaire(from url: URL) throws -> SpeziQuestionnaire.Questionnaire {
+        let data = try Data(contentsOf: url)
+        let fhirQuestionnaire = try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: data)
+        return try SpeziQuestionnaire.Questionnaire(fhirQuestionnaire)
     }
 }
