@@ -13,34 +13,6 @@ public import Observation
 
 @Observable
 public final class QuestionnaireResponses {
-//    // TODO use the ComponentPath instead!! (thatll allow us to also take the sectionId into account!)
-//    public struct SelectedSCMCOption: Hashable, Identifiable, LosslessStringConvertible, Sendable {
-//        public let taskId: Questionnaire.Task.ID
-//        public let optionId: Questionnaire.Task.SCMCOption.ID
-//        
-//        public var id: some Hashable {
-//            self
-//        }
-//        
-//        public var description: String {
-//            "\(taskId)/\(optionId)"
-//        }
-//        
-//        public init(taskId: Questionnaire.Task.ID, optionId: Questionnaire.Task.SCMCOption.ID) {
-//            self.taskId = taskId
-//            self.optionId = optionId
-//        }
-//        
-//        public init?(_ description: String) {
-//            // TODO what if the task/option IDs themselves contain slashes?
-//            guard let sepIdx = description.firstIndex(of: "/") else {
-//                return nil
-//            }
-//            taskId = String(description[..<sepIdx])
-//            optionId = String(description[sepIdx...].dropFirst())
-//        }
-//    }
-    
     let questionnaire: Questionnaire
     
     private var selectedSCMCOptions = Set<ComponentPath>()
