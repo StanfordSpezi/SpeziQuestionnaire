@@ -6,7 +6,9 @@
 // SPDX-License-Identifier: MIT
 //
 
+import PhotosUI
 import SwiftUI
+private import UniformTypeIdentifiers
 
 
 struct TaskView<Header: View>: View {
@@ -75,17 +77,17 @@ struct TaskView<Header: View>: View {
             } set: { newValue in
                 responses[booleanResponseAt: task.id] = !newValue
             })
-        case .fileAttachment:
-            Text(verbatim: "Coming Soon")
+        case .fileAttachment(let config):
+            FileAttachmentQuestionView(task: task, config: config)
         }
     }
     
     private func makeSCMCRows(for options: [Questionnaire.Task.SCMCOption]) -> some View {
         ForEach(options) { option in
             SCMCRow(option: option, isSelected: Binding<Bool> {
-                responses[section: section, task: task, option: option]
+                responses[task: task, option: option]
             } set: {
-                responses[section: section, task: task, option: option] = $0
+                responses[task: task, option: option] = $0
             })
         }
     }
@@ -216,6 +218,89 @@ private struct NumberTextField<Value: BinaryFloatingPoint>: View {
     init(_ title: String, value: Binding<Value?>) {
         self.title = title
         self._value = value
+    }
+}
+
+
+private struct FileAttachmentQuestionView: View {
+    private struct CollectedAttachment: Identifiable, Sendable {
+        let id = UUID()
+        let filename: String
+        let data: Data
+        // TODO thumbnail?
+    }
+    
+    @Environment(QuestionnaireResponses.self) private var responses
+    let task: Questionnaire.Task
+    let config: Questionnaire.Task.Kind.FileAttachmentConfig
+    
+    @State private var collectedAttachments: [CollectedAttachment] = []
+    @State private var selectedPhotos: [PhotosPickerItem] = []
+    
+    var body: some View {
+        ForEach(collectedAttachments) { attachment in
+            row(for: attachment)
+        }
+        .onDelete { indices in
+            collectedAttachments.remove(atOffsets: indices)
+        }
+        Menu {
+            importMenuContents
+        } label: {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                    .foregroundStyle(.green)
+                    .accessibilityHidden(true)
+                Text("Select File")
+                Spacer()
+                Image(systemName: "chevron.up.chevron.down")
+                    .foregroundStyle(.secondary)
+            }
+            .contentShape(Rectangle())
+            .background(.red)
+        }
+//        .listRowInsets(EdgeInsets())
+    }
+    
+    @ViewBuilder private var importMenuContents: some View {
+        if UTType.image.conforms(to: config.uti) {
+            Button {
+                // TODO
+            } label: {
+                Label("Take Photo", systemImage: "camera")
+            }
+            PhotosPicker(
+                selection: $selectedPhotos,
+                maxSelectionCount: nil,
+                selectionBehavior: .default,
+                matching: nil,
+                preferredItemEncoding: .automatic,
+                photoLibrary: .shared()
+            ) {
+                Label("Select Photo (2)", systemImage: "photo.on.rectangle")
+            }
+            Button {
+                // TODO
+            } label: {
+                Label("Select Photo", systemImage: "photo.on.rectangle")
+            }
+        }
+        Button {
+            // TODO
+        } label: {
+            Label("Select File", systemImage: "document")
+        }
+    }
+    
+    @ViewBuilder
+    private func row(for attachment: CollectedAttachment) -> some View {
+        HStack {
+//            Image // TODO file thumbnail!
+            VStack(alignment: .leading) {
+                Text(attachment.filename)
+                Text(Int64(attachment.data.count), format: .byteCount(style: .file, spellsOutZero: true, includesActualByteCount: true))
+            }
+        }
     }
 }
 

@@ -35,16 +35,14 @@ public final class QuestionnaireResponses {
     
     
     subscript(
-        section section: Questionnaire.Section,
         task task: Questionnaire.Task,
         option option: Questionnaire.Task.SCMCOption
     ) -> Bool {
-        get { self[section: section.id, task: task.id, option: option.id] }
-        set { self[section: section.id, task: task.id, option: option.id] = newValue }
+        get { self[task: task.id, option: option.id] }
+        set { self[task: task.id, option: option.id] = newValue }
     }
     
     subscript(
-        section sectionId: Questionnaire.Section.ID,
         task taskId: Questionnaire.Task.ID,
         option optionId: Questionnaire.Task.SCMCOption.ID
     ) -> Bool {
@@ -100,7 +98,7 @@ public final class QuestionnaireResponses {
         case .singleChoice, .multipleChoice:
             selectedSCMCOptions.contains { $0.taskId == task.id }
         case .freeText:
-            (freeTextResponses[task.id, default: ""] ?? "") != ""
+            (freeTextResponses[task.id] ?? "") != ""
         case .dateTime:
             dateTimeResponses[task.id] != nil
         case .numeric:
@@ -135,7 +133,6 @@ public final class QuestionnaireResponses {
 
 extension QuestionnaireResponses {
     func evaluate(_ condition: Questionnaire.Condition) -> Bool {
-//        print(condition)
         switch condition {
         case .true:
             return true
@@ -153,38 +150,16 @@ extension QuestionnaireResponses {
             } else {
                 false
             }
-//            guard let (section, path) =
-//            return if let section = taskPath.section(in: questionnaire), let task = taskPath.task(in: questionnaire) {
-//                hasAnswer(for: task, in: section)
-//            } else {
-//                false
-//            }
         case .isMissingResponse(let taskId):
             return if let task = questionnaire.task(withId: taskId) {
                 isMissingResponse(for: task)
             } else {
                 false
             }
-//            return if let section = taskPath.section(in: questionnaire), let task = taskPath.task(in: questionnaire) {
-//                isMissingResponse(for: task, in: section)
-//            } else {
-//                false
-//            }
-//        case let .selectionValueEquals(optionPath, value):
-//            return if let section = optionPath.section(in: questionnaire),
-//               let task = optionPath.task(in: questionnaire),
-//               let option = optionPath.option(in: questionnaire) {
-//                self[section: section, task: task, option: option] == value
-//            } else {
-//                false
-//            }
         case let .responseValueComparison(taskId, `operator`, value):
-            guard let task = self.questionnaire.task(withId: taskId),
-                  // TODO remove this and instead have the path directly in the enum?!
-                  let section = self.questionnaire.sections.first(where: { $0.tasks.contains(task) }) else {
+            guard let task = self.questionnaire.task(withId: taskId) else {
                 return false
             }
-//            let path: ComponentPath = [section.id, task.id]
             switch task.kind {
             case .instructional:
                 return false

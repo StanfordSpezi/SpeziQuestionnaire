@@ -35,7 +35,6 @@ private struct FHIRConversionError: LocalizedError {
 extension SpeziQuestionnaire.Questionnaire {
     /// Creates a ``Questionnaire`` from a FHIR R4 `Questionnaire`.
     public init(_ other: ModelsR4.Questionnaire) throws {
-//        throw FHIRConversionError("Not Yet Implemented")
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
         }
@@ -58,8 +57,6 @@ extension SpeziQuestionnaire.Questionnaire {
 private struct ConversionContext {
     /// The FHIR questionnaire being converted
     let questionnaire: ModelsR4.Questionnaire
-//    /// The current element's path in the resulting Spezi Questionnaire.
-//    let path: ComponentPath
     /// The "is enabled" condition of the parent item.
     let parentItemCondition: SpeziQuestionnaire.Questionnaire.Condition
 }
@@ -105,16 +102,6 @@ extension ModelsR4.Questionnaire {
             }
             return topLevelItems
         }()
-        
-//        // Note: We need to wrap top-level items in implicit sections, since FHIR allows non-grouped items to exist a
-//        enum TopLevelElement {
-//            case section(SpeziQuestionnaire.Questionnaire.Section)
-//            case task(SpeziQuestionnaire.Questionnaire.Task)
-//        }
-//        var topLevelElements: [TopLevelElement] = []
-//        var currentImplicitTopLevelSectionIdx = 0
-////        var currentImplicitTopLevelSection = SpeziQuestionnaire.Questionnaire.Section(id: "0", tasks: [])
-        
         return try topLevelItems.map { item in
             guard let itemType = item.type.value else {
                 throw FHIRConversionError("QuestionnaireItem is missing 'type'")
@@ -122,64 +109,12 @@ extension ModelsR4.Questionnaire {
             guard itemType == .group else {
                 fatalError("Preprocessing failed")
             }
-            let linkId = try item.getLinkId()
             let context = ConversionContext(
                 questionnaire: self,
-//                path: [linkId],
                 parentItemCondition: .none
             )
-            
             return try item.toSection(using: context)
         }
-//        }
-//        return topLevelElements
-//            .lazy
-//            .chunked { lhs, rhs in
-//                switch (lhs, rhs) {
-//                    // put all adjacent top-level tasks into the same chunk
-//                case (.task, .task):
-//                    true
-//                case (.task, .section), (.section, .section), (.section, .task):
-//                    // anything else goes into separate chunks
-//                    false
-//                }
-//            }
-//            .map { chunk in
-//                if chunk.count == 1 {
-//                    switch chunk[0] {
-//                    case .section(let section):
-//                        section
-//                    case .task(let task):
-//                        SpeziQuestionnaire.Questionnaire.Section(
-//                            id: UUID().uuidString, // TODO which id to use here??
-//                            tasks: [task]
-//                        )
-//                    }
-//                } else {
-//                    SpeziQuestionnaire.Questionnaire.Section(
-//                        id: UUID().uuidString, // TODO which id to use here??
-//                        tasks: chunk.map { element in
-//                            switch element {
-//                            case .task(let task):
-//                                return task
-//                            case .section:
-//                                // unreachable, bc of the chunking above
-//                                fatalError("Found an unexpected section")
-//                            }
-//                        }
-//                    )
-//                }
-//            }
-////        return topLevelElements.reduce(into: []) { sections, element in
-////            switch element {
-////            case .section(let section):
-////                switch sections.last {
-////                case nil:
-////                    sections.append(section)
-////                case
-////                }
-////            }
-////        }
     }
 }
 
@@ -193,22 +128,19 @@ extension ModelsR4.QuestionnaireItem {
             throw FHIRConversionError("Not a group item!")
         }
         let linkId = try getLinkId()
-//        precondition(context.path == [linkId])
         guard let nestedItems = item, !nestedItems.isEmpty else {
             // TODO do we want to allow this? be a little more lenient here?
             throw FHIRConversionError("Empty top-level group!")
         }
         let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
+        let itemContext = ConversionContext(
+            questionnaire: context.questionnaire,
+            parentItemCondition: groupCondition
+        )
         return .init(
             id: linkId,
             tasks: try nestedItems.flatMap { item in
-                let itemLinkId = try item.getLinkId()
-                let itemContext = ConversionContext(
-                    questionnaire: context.questionnaire,
-//                    path: context.path.appending(itemLinkId),
-                    parentItemCondition: groupCondition
-                )
-                return try item.toTasks(using: itemContext)
+                try item.toTasks(using: itemContext)
             }
         )
     }
@@ -223,37 +155,21 @@ extension ModelsR4.QuestionnaireItem {
         }
         switch itemType {
         case .group:
-//            precondition(context.path.isEmpty)
             guard let nestedItems = self.item, !nestedItems.isEmpty else {
                 return []
             }
             let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
             // non-top-level groups are flattened into a series of tasks; the group's title is ignored but its condition is inherited by the tasks
+            let itemContext = ConversionContext(
+                questionnaire: context.questionnaire,
+                parentItemCondition: context.parentItemCondition && groupCondition
+            )
             return try nestedItems.flatMap { item in
-                let itemLinkId = try item.getLinkId()
-                let itemContext = ConversionContext(
-                    questionnaire: context.questionnaire,
-//                    // NOTE that we're intentionally not appending the group's linkId here
-//                    // all non-top-level groups are treated as being fully transparent.
-//                    path: context.path.appending(itemLinkId),
-                    parentItemCondition: context.parentItemCondition && groupCondition
-                )
-                return try item.toTasks(using: itemContext)
+                try item.toTasks(using: itemContext)
             }
-//        case .display:
-//            guard let text = text?.value?.string else {
-//                throw FHIRConversionError("display QuestionnaireItem is missing 'text'")
-//            }
-//            let task = SpeziQuestionnaire.Questionnaire.Task(
-//                id: identifier,
-//                title: "", // ???
-//                kind: .instructional(text),
-//                isOptional: true,
-//                enabledCondition: context.parentItemCondition
-//            )
-//            return [task]
         case .question:
-            fatalError()
+            // is this what we'd need to parse/support for custom question kinds??
+            fatalError() // TODO does this ever appear? how should we handle it?
         case .display, .boolean, .decimal, .integer, .date, .dateTime, .time, .string, .text, .url, .choice, .openChoice, .attachment, .reference, .quantity:
             let task = SpeziQuestionnaire.Questionnaire.Task(
                 id: try self.getLinkId(),
@@ -263,18 +179,12 @@ extension ModelsR4.QuestionnaireItem {
                 enabledCondition: try context.parentItemCondition && .init(self, using: context)
             )
             if itemType != .display, let nestedItems = item, !nestedItems.isEmpty {
+                let itemContext = ConversionContext(
+                    questionnaire: context.questionnaire,
+                    parentItemCondition: context.parentItemCondition && task.enabledCondition
+                )
                 let nestedTasks = try nestedItems.flatMap { item in
-                    let linkId = try item.getLinkId()
-                    let itemContext = ConversionContext(
-                        questionnaire: context.questionnaire,
-//                        // we're processing a nested item w/in another item that is not a group.
-//                        // the child item gets flattened into the containing group, and as a result
-//                        // we need to adjust the path, by removing the last element the non-group-type parent item's linkId
-//                        // and instead append the new child's linkId.
-//                        path: context.path.deletingLastElement().appending(linkId),
-                        parentItemCondition: context.parentItemCondition && task.enabledCondition
-                    )
-                    return try item.toTasks(using: itemContext)
+                    try item.toTasks(using: itemContext)
                 }
                 return [task] + nestedTasks
             } else {
@@ -373,9 +283,6 @@ extension ModelsR4.QuestionnaireItem {
                         title: display,
                         subtitle: "" // could supply this via an extension
                     ))
-//                    let valueCoding = ValueCoding(code: code, system: system, display: display)
-//                    let choice = ORKTextChoice(text: display, value: valueCoding.rawValue as NSSecureCoding & NSCopying & NSObjectProtocol)
-//                    choices.append(choice)
                 }
             } else {
                 // If the `QuestionnaireItem` has `answerOptions` defined instead, extract these options
@@ -394,9 +301,6 @@ extension ModelsR4.QuestionnaireItem {
                         fatalError() // TODO does this happen?
                         continue
                     }
-//                    let valueCoding = ValueCoding(code: code, system: system, display: display)
-//                    let choice = ORKTextChoice(text: display, value: valueCoding.rawValue as NSSecureCoding & NSCopying & NSObjectProtocol)
-//                    choices.append(choice)
                     options.append(.init(
                         id: "\(system):\(code)", // TODO is this correct?
                         title: display,
@@ -532,30 +436,6 @@ extension SpeziQuestionnaire.Questionnaire.Condition {
         case .lessThanOrEqual:
             self = .responseValueComparison(taskId: questionLinkId, operator: .lessThanOrEqual, value: try enableWhen.answer.toConditionValue())
         }
-        
-//        self = .responseValueComparison(taskId: questionLinkId, operator: <#T##ComparisonOperator#>, value: <#T##Value#>)
-//        switch enableWhen.answer {
-//        case .boolean(let value):
-//            fatalError()
-//        case .coding(let value):
-//            fatalError()
-//        case .date(let value):
-//            fatalError()
-//        case .dateTime(let value):
-//            fatalError()
-//        case .decimal(let value):
-//            fatalError()
-//        case .integer(let value):
-//            fatalError()
-//        case .quantity(let value):
-//            fatalError()
-//        case .reference(let value):
-//            fatalError()
-//        case .string(let value):
-//            fatalError()
-//        case .time(let value):
-//            fatalError()
-//        }
     }
 }
 

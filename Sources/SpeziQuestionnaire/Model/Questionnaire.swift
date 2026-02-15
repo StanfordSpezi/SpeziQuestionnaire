@@ -51,17 +51,11 @@ extension Questionnaire {
         public let title: String
         /// Natural-language description of the questionnaire
         public let explainer: String
-//        public let url: URL?
-//        public let version: String?
-//        public let publisher: String?
         
         public init(id: String, title: String, explainer: String) {
             self.id = id
             self.title = title
             self.explainer = explainer
-//            self.url = url
-//            self.version = version
-//            self.publisher = publisher
         }
     }
 }
