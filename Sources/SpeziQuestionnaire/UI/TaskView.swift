@@ -223,18 +223,11 @@ private struct NumberTextField<Value: BinaryFloatingPoint>: View {
 
 
 private struct FileAttachmentQuestionView: View {
-    private struct CollectedAttachment: Identifiable, Sendable {
-        let id = UUID()
-        let filename: String
-        let data: Data
-        // TODO thumbnail?
-    }
-    
     @Environment(QuestionnaireResponses.self) private var responses
     let task: Questionnaire.Task
     let config: Questionnaire.Task.Kind.FileAttachmentConfig
     
-    @State private var collectedAttachments: [CollectedAttachment] = []
+    @State private var collectedAttachments: [QuestionnaireResponses.CollectedAttachment] = []
     @State private var selectedPhotos: [PhotosPickerItem] = []
     
     var body: some View {
@@ -293,7 +286,7 @@ private struct FileAttachmentQuestionView: View {
     }
     
     @ViewBuilder
-    private func row(for attachment: CollectedAttachment) -> some View {
+    private func row(for attachment: QuestionnaireResponses.CollectedAttachment) -> some View {
         HStack {
 //            Image // TODO file thumbnail!
             VStack(alignment: .leading) {

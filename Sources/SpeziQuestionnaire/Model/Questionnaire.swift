@@ -48,12 +48,14 @@ public struct Questionnaire: Hashable, Identifiable, Sendable { // TODO Codable?
 extension Questionnaire {
     public struct Metadata: Hashable, Sendable {
         public let id: String
+        public let url: URL?
         public let title: String
         /// Natural-language description of the questionnaire
         public let explainer: String
         
-        public init(id: String, title: String, explainer: String) {
+        public init(id: String, url: URL?, title: String, explainer: String) {
             self.id = id
+            self.url = url
             self.title = title
             self.explainer = explainer
         }

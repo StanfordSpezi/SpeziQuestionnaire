@@ -40,6 +40,7 @@ extension SpeziQuestionnaire.Questionnaire {
         }
         let metadata = Metadata(
             id: id,
+            url: other.url?.value?.url,
             title: other.title?.value?.string ?? "",
             explainer: other.description_fhir?.value?.string ?? ""
         )
@@ -485,7 +486,8 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
         case .integer(let value):
             return .integer(Int(try unwrap(value.value?.integer)))
         case .quantity(let value):
-            fatalError()
+            // ISSUE: we might need to convert units here? (if the condition uses a different unit than the quesion (which is allowed (i think))
+            fatalError() // TODO
         case .reference(let value):
             throw FHIRConversionError("Unsupported comparison value '\(value)'")
         case .string(let value):

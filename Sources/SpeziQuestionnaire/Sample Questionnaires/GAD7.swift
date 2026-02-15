@@ -12,6 +12,7 @@ extension Questionnaire {
     public static let gad7 = Self(
         metadata: .init(
             id: "gad7",
+            url: nil,
             title: "GAD-7 Anxiety",
             explainer: ""
         ),

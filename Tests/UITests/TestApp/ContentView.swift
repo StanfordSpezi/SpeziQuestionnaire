@@ -178,6 +178,7 @@ extension SpeziQuestionnaire.Questionnaire {
     static let testQuestionnaire = Self(
         metadata: .init(
             id: "edu.stanford.SpeziQuestionnaire.test",
+            url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaire")!,
             title: "Test Questionnaire",
             explainer: "This is the test questionnaire, whose purpose is testing the questionnaire infrastructure."
         ),

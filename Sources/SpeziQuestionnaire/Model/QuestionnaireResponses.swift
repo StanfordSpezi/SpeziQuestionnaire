@@ -7,32 +7,46 @@
 //
 
 
-import Foundation
+public import Foundation
 public import Observation
 
 
 @Observable
 public final class QuestionnaireResponses {
-    struct SelectedOption: Hashable {
-        let taskId: Questionnaire.Task.ID
-        let optionId: Questionnaire.Task.SCMCOption.ID
+    public struct SelectedOption: Hashable {
+        public let taskId: Questionnaire.Task.ID
+        public let optionId: Questionnaire.Task.SCMCOption.ID
     }
     
-    let questionnaire: Questionnaire
+    public struct CollectedAttachment: Hashable, Identifiable, Sendable {
+        public let id = UUID()
+        public let filename: String
+        public let data: Data // TODO be smarter here!
+        // TODO thumbnail?
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.id == rhs.id
+        }
+    }
     
-    private var selectedSCMCOptions = Set<SelectedOption>()
+    public let questionnaire: Questionnaire
+    
+    public private(set) var selectedSCMCOptions = Set<SelectedOption>()
     // TODO is there some way of implementing this in a way that upating one question's text doesn't trigger view updates for all other qiestions?
     // mayve we should give each question its own ResponseStorage? (would make the live condition update logic hell, probably?)
-    private var freeTextResponses: [Questionnaire.Task.ID: String] = [:]
-    private var dateTimeResponses: [Questionnaire.Task.ID: DateComponents] = [:]
-    private var numericResponses: [Questionnaire.Task.ID: Double] = [:]
-    private var booleanResponses: [Questionnaire.Task.ID: Bool] = [:]
-    private var fileAttachmentResponses: [Questionnaire.Task.ID: [Data]] = [:] // TODO be smarter here!!!!
+    public private(set) var freeTextResponses: [Questionnaire.Task.ID: String] = [:]
+    public private(set) var dateTimeResponses: [Questionnaire.Task.ID: DateComponents] = [:]
+    public private(set) var numericResponses: [Questionnaire.Task.ID: Double] = [:]
+    public private(set) var booleanResponses: [Questionnaire.Task.ID: Bool] = [:]
+    public private(set) var fileAttachmentResponses: [Questionnaire.Task.ID: [CollectedAttachment]] = [:]
     
     init(questionnaire: Questionnaire) {
         self.questionnaire = questionnaire
     }
-    
     
     subscript(
         task task: Questionnaire.Task,
