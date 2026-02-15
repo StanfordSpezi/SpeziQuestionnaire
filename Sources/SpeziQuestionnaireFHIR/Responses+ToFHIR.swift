@@ -171,5 +171,6 @@ extension ModelsR4.QuestionnaireResponse {
                 linkId: taskId.asFHIRStringPrimitive()
             ))
         }
+        self.item = items
     }
 }
