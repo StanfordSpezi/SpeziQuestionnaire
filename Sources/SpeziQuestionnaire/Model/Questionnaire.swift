@@ -24,6 +24,16 @@ public struct Questionnaire: Hashable, Identifiable, Sendable { // TODO Codable?
         self.sections = sections
     }
     
+    public func find(taskId: Task.ID) -> (section: Section, task: Task)? {
+        for section in sections {
+            for task in section.tasks {
+                if task.id == taskId {
+                    return (section, task)
+                }
+            }
+        }
+        return nil
+    }
     
     public func task(withId taskId: Task.ID) -> Task? {
         sections.lazy.flatMap(\.tasks).first { $0.id == taskId }
@@ -60,7 +70,7 @@ extension Questionnaire {
 extension Questionnaire {
     public struct Section: Hashable, Identifiable, Sendable {
         public let id: String
-        public let tasks: [Task]
+        public var tasks: [Task]
         
         public init(id: String, tasks: [Task]) {
             self.id = id

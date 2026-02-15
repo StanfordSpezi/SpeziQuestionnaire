@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
+		80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */; };
 		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */,
 				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 			);
@@ -113,6 +115,7 @@
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
 				803769F62F262FC400FA2F59 /* Spezi */,
+				80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -632,6 +635,10 @@
 		2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziQuestionnaire;
+		};
+		80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpeziQuestionnaireFHIR;
 		};
 		803769F62F262FC400FA2F59 /* Spezi */ = {
 			isa = XCSwiftPackageProductDependency;

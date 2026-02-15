@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-import ResearchKit
+//import ResearchKit
 import Spezi
 import SpeziQuestionnaire
 import SwiftUI

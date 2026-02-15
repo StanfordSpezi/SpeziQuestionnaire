@@ -7,6 +7,7 @@
 //
 
 import Spezi
+//import SpeziQuestionnaire
 import SwiftUI
 
 
@@ -22,4 +23,11 @@ struct UITestsApp: App {
             .spezi(appDelegate)
         }
     }
+    
+    
+//    init() {
+//        let cond: Questionnaire.Condition = .none
+//        print(cond)
+//        fatalError()
+//    }
 }

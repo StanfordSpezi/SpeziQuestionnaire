@@ -19,24 +19,38 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"])
+        .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
+        .library(name: "SpeziQuestionnaireFHIR", targets: ["SpeziQuestionnaireFHIR"])
     ],
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.4")
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.4"),
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1")
     ] + swiftLintPackage(),
     targets: [
         .target(
             name: "SpeziQuestionnaire",
             dependencies: [
-                .product(name: "SpeziViews", package: "SpeziViews"),
+                .product(name: "SpeziViews", package: "SpeziViews")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault")
+            ],
+            plugins: [] + swiftLintPlugin()
+        ),
+        .target(
+            name: "SpeziQuestionnaireFHIR",
+            dependencies: [
+                "SpeziQuestionnaire",
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR"),
+                .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR"),
-                .product(name: "ResearchKit", package: "ResearchKit"),
-                .product(name: "ResearchKitSwiftUI", package: "ResearchKit")
+//                .product(name: "ResearchKit", package: "ResearchKit"),
+//                .product(name: "ResearchKitSwiftUI", package: "ResearchKit")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),

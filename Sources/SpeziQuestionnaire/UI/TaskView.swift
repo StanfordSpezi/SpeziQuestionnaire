@@ -55,13 +55,28 @@ struct TaskView<Header: View>: View {
             makeSCMCRows(for: options)
         case .freeText:
             TextEditor(text: Binding<String> {
-                responses[freeTextResponseAt: [section.id, task.id]] ?? ""
+                responses[freeTextResponseAt: task.id] ?? ""
             } set: { newValue in
-                responses[freeTextResponseAt: [section.id, task.id]] = newValue
+                responses[freeTextResponseAt: task.id] = newValue
             })
             .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
-        case .dateTime(let style):
-            DateTimeRow(path: [section.id, task.id], style: style)
+        case .dateTime(let config):
+            DateTimeRow(task: task, config: config)
+        case .numeric(let config):
+            NumericInputRow(task: task, config: config)
+        case .boolean:
+            SCMCRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
+                responses[booleanResponseAt: task.id] == true
+            } set: { newValue in
+                responses[booleanResponseAt: task.id] = newValue
+            })
+            SCMCRow(option: .init(id: "1", title: "No"), isSelected: Binding {
+                responses[booleanResponseAt: task.id] == false
+            } set: { newValue in
+                responses[booleanResponseAt: task.id] = !newValue
+            })
+        case .fileAttachment:
+            Text(verbatim: "Coming Soon")
         }
     }
     
@@ -110,23 +125,23 @@ extension TaskView {
     private struct DateTimeRow: View {
         @Environment(\.calendar) private var cal
         @Environment(QuestionnaireResponses.self) private var responses
-        let path: ComponentPath
-        let style: Questionnaire.Task.Kind.DateTimeStyle
+        let task: Questionnaire.Task
+        let config: Questionnaire.Task.Kind.DateTimeConfig
         
         var body: some View {
             let binding = Binding<Date> {
-                if let response = responses[dateTimeResponseAt: path] {
+                if let response = responses[dateTimeResponseAt: task.id] {
                     cal.date(from: response)! // what if this fails?
                 } else {
                     .now
                 }
             } set: { newValue in
                 // TODO there is no way to clear a response here!!
-                responses[dateTimeResponseAt: path] = cal.dateComponents(style.components, from: newValue)
+                responses[dateTimeResponseAt: task.id] = cal.dateComponents(config.style.components, from: newValue)
             }
             // TOOD make this look good!
             DatePicker("", selection: binding, displayedComponents: { () -> DatePickerComponents in
-                switch style {
+                switch config.style {
                 case .dateOnly:
                     .date
                 case .timeOnly:
@@ -141,7 +156,71 @@ extension TaskView {
 }
 
 
-extension Questionnaire.Task.Kind.DateTimeStyle {
+extension TaskView {
+    private struct NumericInputRow: View {
+        @Environment(QuestionnaireResponses.self) private var responses
+        let task: Questionnaire.Task
+        let config: Questionnaire.Task.Kind.NumericTaskConfig
+        
+        var body: some View {
+            switch config.inputMode {
+            case .numberPad:
+                numberPad()
+            case .slider(let stepValue):
+                if let minimum = config.minimum, let maximum = config.maximum {
+                    slider(bounds: minimum...maximum, stepValue: stepValue)
+                } else {
+                    // if we don't have both limits, we fall back to the number-pad-based input
+                }
+            }
+        }
+        
+        @ViewBuilder
+        private func numberPad() -> some View {
+            @Bindable var responses = responses
+            NumberTextField("TODO title", value: $responses[numericResponseAt: task.id])
+        }
+        
+        @ViewBuilder
+        private func slider(bounds: ClosedRange<Double>, stepValue: Double) -> some View {
+            let binding = Binding<Double> {
+                responses[numericResponseAt: task.id] ?? 0
+            } set: { newValue in
+                responses[numericResponseAt: task.id] = newValue
+            }
+            // TODO use onEditingChanged to commit the update to the responses? (instead of live-updating it all the time)
+            // would that even be needed?
+            HStack {
+                Slider(value: binding, in: bounds, step: stepValue)
+//                Text(binding.wrappedValue, format: .number)
+//                    .monospacedDigit()
+            }
+        }
+    }
+}
+
+
+private struct NumberTextField<Value: BinaryFloatingPoint>: View {
+    // Note: using a NumberFormatter() instead of the new `FloatingPointFormatStyle<Double>.number` API,
+    // because of https://github.com/swiftlang/swift-foundation/issues/135
+    private let formatter = NumberFormatter()
+    
+    private let title: String
+    @Binding private var value: Value?
+    
+    var body: some View {
+        TextField(title, value: $value, formatter: formatter, prompt: Text(verbatim: "0"))
+//            .keyboardType(allowsDecimalEntry ? .decimalPad : .numberPad) // TODO
+    }
+    
+    init(_ title: String, value: Binding<Value?>) {
+        self.title = title
+        self._value = value
+    }
+}
+
+
+extension Questionnaire.Task.Kind.DateTimeConfig.Style {
     var components: Set<Calendar.Component> {
         switch self {
         case .dateOnly:

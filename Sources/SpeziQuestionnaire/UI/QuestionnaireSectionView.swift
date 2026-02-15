@@ -29,12 +29,12 @@ struct QuestionnaireSectionView: View {
             Form {
                 ForEach(section.tasks) { task in
                     TaskView(section: section, task: task) {
-                        if indicateMissingResponses && responses.isMissingResponse(for: task, in: section) {
+                        if indicateMissingResponses && responses.isMissingResponse(for: task) {
                             Text("Missing Response")
                                 .foregroundStyle(.red)
                         }
                     }
-                    .id(ComponentPath(section.id, task.id))
+                    .id(task.id)
                 }
                 AsyncButton {
                     await advance(using: scrollViewProxy)
@@ -68,7 +68,7 @@ struct QuestionnaireSectionView: View {
         if let missedTask = responses.firstTaskWithMissingResponse(in: section) {
             indicateMissingResponses = true
             withAnimation {
-                scrollViewProxy.scrollTo(ComponentPath(section.id, missedTask.id))
+                scrollViewProxy.scrollTo(missedTask.id)
             }
         } else if let nextSection = responses.questionnaire.section(after: section) {
             navigationPath.append {
