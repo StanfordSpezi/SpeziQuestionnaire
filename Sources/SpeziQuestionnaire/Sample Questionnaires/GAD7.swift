@@ -8,7 +8,9 @@
 
 
 extension Questionnaire {
-    // https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf
+    /// Generalized Anxiety Disorder 7 Questionnaire
+    ///
+    /// - SeeAlso: https://adaa.org/sites/default/files/GAD-7_Anxiety-updated_0.pdf
     public static let gad7 = Self(
         metadata: .init(
             id: "gad7",

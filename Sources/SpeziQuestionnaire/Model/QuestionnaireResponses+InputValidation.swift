@@ -10,18 +10,17 @@ private import Foundation
 
 
 extension QuestionnaireResponses {
-    public enum ResponseValidationResult: Sendable {
+    public enum ResponseValidationResult: Hashable, Sendable {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
         case invalid(message: String) // TODO LocalizedStringResource!
     }
     
-    public func validateResponse(for taskId: Questionnaire.Task.ID) -> ResponseValidationResult {
-        guard let task = questionnaire.task(withId: taskId) else {
-            // should never happen, at least for calls coming from the `QuestionnaireSheet`
-            return .invalid(message: "Unknown Task")
-        }
+    
+    // TODO look into the current overhead of always computing this on demand. maybe cache them?
+    // (prob not necessary...)
+    public func validateResponse(for task: Questionnaire.Task) -> ResponseValidationResult {
         guard hasResponse(for: task) else {
             // if no response exists, there is nothing that could be invalid.
             // were we to report this as being invalid, every questionnaire would,
@@ -40,7 +39,7 @@ extension QuestionnaireResponses {
             // not a problem for now
             return .ok
         case .freeText(let config):
-            guard let response = self[freeTextResponseFor: taskId] else {
+            guard let response = self[freeTextResponseFor: task.id] else {
                 return .ok
             }
             if let minLength = config.minLength, response.count < minLength {
@@ -56,7 +55,7 @@ extension QuestionnaireResponses {
             }
             return .ok
         case .dateTime(let config):
-            guard let response = self[dateTimeResponseFor: taskId] else {
+            guard let response = self[dateTimeResponseFor: task.id] else {
                 return .ok
             }
             switch config.style {
@@ -78,7 +77,7 @@ extension QuestionnaireResponses {
                 return .ok
             }
         case .numeric(let config):
-            guard let response = self[numericResponseFor: taskId] else {
+            guard let response = self[numericResponseFor: task.id] else {
                 return .ok
             }
             if let minimum = config.minimum, response < minimum {

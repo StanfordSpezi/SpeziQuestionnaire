@@ -46,7 +46,7 @@ struct QuestionnaireSectionView: View {
                 .buttonStyleGlassProminent()
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
-                .tint(responses.isMissingResponses(in: section) ? .some(.gray.secondary) : .none)
+                .tint(responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
             }
         }
@@ -63,10 +63,11 @@ struct QuestionnaireSectionView: View {
     }
     
     private func advance(using scrollViewProxy: ScrollViewProxy) async {
-        if let missedTask = responses.firstTaskWithMissingResponse(in: section) {
+        if let problematicTask = responses.firstTaskPreventingCompletion(of: section) {
             indicateMissingResponses = true
             withAnimation {
-                scrollViewProxy.scrollTo(missedTask.id)
+                // IDEA can we make it that when the animation is done, we have the section flash in red for a short moment?
+                scrollViewProxy.scrollTo(problematicTask.id)
             }
         } else if let nextSection = responses.questionnaire.section(after: section) {
             navigationPath.append {

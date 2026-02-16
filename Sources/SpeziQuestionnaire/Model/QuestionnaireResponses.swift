@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable missing_docs
+
 
 public import CoreTransferable
 public import Foundation
@@ -33,7 +35,12 @@ public final class QuestionnaireResponses {
     init(questionnaire: Questionnaire) {
         self.questionnaire = questionnaire
     }
-    
+}
+
+
+// MARK: Response Accessors
+
+extension QuestionnaireResponses {
     subscript(
         task task: Questionnaire.Task,
         option option: Questionnaire.Task.SCMCOption
@@ -58,7 +65,7 @@ public final class QuestionnaireResponses {
                 // if we're about to make a single-choice selection, we first need to remove any current selection for this task.
                 selectedSCMCOptions.remove { $0.taskId == taskId }
             case .multipleChoice:
-                 break
+                break
             case .instructional, .freeText, .dateTime, .numeric, .boolean, .fileAttachment:
                 fatalError("Attempted to set SCMC response for non-SCMC task!")
             }
@@ -94,8 +101,12 @@ public final class QuestionnaireResponses {
         get { fileAttachmentResponses[taskId] ?? [] }
         set { fileAttachmentResponses[taskId] = newValue }
     }
-    
-    
+}
+
+
+// MARK: Completeness
+
+extension QuestionnaireResponses {
     func hasResponse(for task: Questionnaire.Task) -> Bool {
         return switch task.kind {
         case .instructional:
@@ -127,13 +138,28 @@ public final class QuestionnaireResponses {
         }
     }
     
-    func firstTaskWithMissingResponse(in section: Questionnaire.Section) -> Questionnaire.Task? {
+    /// Determines whether the questionnaire is currently complete in the specified section.
+    ///
+    /// This function returns `true` iff all currently enabled required tasks have responses, and none of these responses are invalid.
+    func isComplete(in section: Questionnaire.Section) -> Bool {
+        !isMissingResponses(in: section) && section.tasks.allSatisfy { task in
+            // either the task is disabled, or its response is valid.
+            !evaluate(task.enabledCondition) || validateResponse(for: task) == .ok
+        }
+    }
+    
+    /// Returns the first task in the section that currently prevents the section from being complete.
+    ///
+    /// For example, if a required task is missing a response or its response is invalid, it would get returned.
+    func firstTaskPreventingCompletion(of section: Questionnaire.Section) -> Questionnaire.Task? {
         section.tasks.first { task in
-            isMissingResponse(for: task)
+            isMissingResponse(for: task) || validateResponse(for: task) != .ok
         }
     }
 }
 
+
+// MARK: Supporting Types
 
 extension QuestionnaireResponses {
     public final class CollectedAttachment: Hashable, Identifiable, Sendable {

@@ -8,7 +8,6 @@
 
 // swiftlint:disable file_types_order todo file_length
 
-
 private import Algorithms
 private import Foundation
 public import ModelsR4
@@ -54,9 +53,6 @@ extension SpeziQuestionnaire.Questionnaire {
 }
 
 
-
-
-
 private struct ConversionContext {
     /// The FHIR questionnaire being converted
     let questionnaire: ModelsR4.Questionnaire
@@ -70,7 +66,6 @@ extension ModelsR4.Questionnaire {
         guard let items = item, !items.isEmpty else {
             throw FHIRConversionError("Input questionnaire is empty")
         }
-        
         let topLevelItems = try { () throws -> [ModelsR4.QuestionnaireItem] in
             var topLevelItems: [ModelsR4.QuestionnaireItem] = []
             var itemsIterator = items.makeIterator()
@@ -122,8 +117,6 @@ extension ModelsR4.Questionnaire {
 }
 
 
-
-
 extension ModelsR4.QuestionnaireItem {
     /// - invariant: the item must be a top-level `group` item.
     fileprivate func toSection(using context: ConversionContext) throws -> SpeziQuestionnaire.Questionnaire.Section {
@@ -148,7 +141,6 @@ extension ModelsR4.QuestionnaireItem {
         )
     }
     
-    
     /// Converts a FHIR QuestionnaireItem into a Task (within a Section) within a Spezi Questionnaire.
     ///
     /// - invariant: If this `QuestionnaireItem` is a `group`, is must not be a top-level item (in that case, ``toSection(using:)`` must be used instead).
@@ -172,7 +164,7 @@ extension ModelsR4.QuestionnaireItem {
             }
         case .question:
             // is this what we'd need to parse/support for custom question kinds??
-            fatalError() // TODO does this ever appear? how should we handle it?
+            fatalError("TODO") // TODO does this ever appear? how should we handle it?
         case .display, .boolean, .decimal, .integer, .date, .dateTime, .time, .string, .text, .url, .choice, .openChoice, .attachment, .reference, .quantity:
             let task = SpeziQuestionnaire.Questionnaire.Task(
                 id: try self.getLinkId(),
@@ -195,7 +187,6 @@ extension ModelsR4.QuestionnaireItem {
             }
         }
     }
-    
     
     fileprivate func toTaskKind(using context: ConversionContext) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
         guard let itemType = type.value else {
@@ -280,11 +271,10 @@ extension ModelsR4.QuestionnaireItem {
                     }
                     return false
                 }
-                
                 guard let answerOptions = valueSet?.compose?.include.first?.concept else {
                     // TODO why the early return here?
 //                    return choices
-                    fatalError()
+                    fatalError("TODO")
                 }
                 
                 for option in answerOptions {
@@ -308,7 +298,6 @@ extension ModelsR4.QuestionnaireItem {
                     //                    return choices
                                         fatalError()
                 }
-                
                 for option in answerOptions {
                     guard case let .coding(coding) = option.value,
                           let display = coding.display?.value?.string,
@@ -323,7 +312,6 @@ extension ModelsR4.QuestionnaireItem {
                         subtitle: "" // could supply this via an extension
                     ))
                 }
-                
                 if itemType == .openChoice {
                     // TODO
 //                    throw FHIRConversionError("openChoice questions not yet supported")
@@ -339,8 +327,6 @@ extension ModelsR4.QuestionnaireItem {
 //                    choices.append(otherChoice)
                 }
             }
-            
-            
             return (repeats?.value?.bool ?? false) ? .multipleChoice(options: options) : .singleChoice(options: options)
         case .attachment:
             return .fileAttachment(.init(
@@ -365,7 +351,6 @@ extension ModelsR4.QuestionnaireItem {
 }
 
 
-
 extension ModelsR4.Extension.ValueX {
     var stringValue: String? {
         switch self {
@@ -387,7 +372,6 @@ extension ModelsR4.Extension.ValueX {
 }
 
 
-
 extension ModelsR4.QuestionnaireItem {
     fileprivate func getLinkId() throws -> String {
         guard let linkId = self.linkId.value?.string else {
@@ -396,7 +380,6 @@ extension ModelsR4.QuestionnaireItem {
         return linkId
     }
 }
-
 
 
 extension SpeziQuestionnaire.Questionnaire.Condition {

@@ -6,11 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
+import FHIRQuestionnaires
 import class ModelsR4.Questionnaire
 import class ModelsR4.QuestionnaireResponse
 import SpeziQuestionnaire
 import SpeziQuestionnaireFHIR
-import FHIRQuestionnaires
 import SpeziViews
 import SwiftUI
 import UniformTypeIdentifiers
@@ -222,7 +222,7 @@ extension SpeziQuestionnaire.Questionnaire {
                     kind: .freeText(.init(
                         minLength: nil,
                         maxLength: nil,
-                        regex: try! NSRegularExpression(pattern: #"https?://[a-zA-Z]+\.[a-z]{3}"#),
+                        regex: try! NSRegularExpression(pattern: #"https?://[a-zA-Z]+\.[a-z]{3}"#), // swiftlint:disable:this force_try
                         disableAutocomplete: true
                     ))
                 ),

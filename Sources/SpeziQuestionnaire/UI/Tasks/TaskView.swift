@@ -6,14 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order
-
 import SwiftUI
 
 
 struct TaskView<Header: View>: View {
-    @Environment(QuestionnaireResponses.self)
-    private var responses
+    @Environment(QuestionnaireResponses.self) private var responses
     
     let section: Questionnaire.Section
     let task: Questionnaire.Task
@@ -46,7 +43,7 @@ struct TaskView<Header: View>: View {
             if !task.footer.isEmpty {
                 Text(markdown: task.footer)
             }
-            switch responses.validateResponse(for: task.id) {
+            switch responses.validateResponse(for: task) {
             case .ok:
                 EmptyView()
             case .invalid(let message):

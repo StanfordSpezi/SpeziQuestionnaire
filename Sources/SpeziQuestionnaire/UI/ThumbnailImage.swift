@@ -21,6 +21,7 @@ struct FileThumbnail: View {
         VStack {
             if let image {
                 Image(uiImage: image)
+                    .accessibilityHidden(true)
             }
         }
         .task {
