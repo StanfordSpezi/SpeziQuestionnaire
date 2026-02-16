@@ -9,6 +9,7 @@
 import FHIRQuestionnaires
 import ModelsR4
 @testable import SpeziQuestionnaire
+@testable import SpeziQuestionnaireFHIR
 import Testing
 
 
@@ -20,7 +21,7 @@ struct FHIRConversionTests {
         for input in allR4Inputs {
             // simply test that we can import all of the sample questionnaires without failure
             // TODO also test that they are what we expect
-            _ = try SpeziQuestionnaire.Questionnaire(r4Questionnaire)
+            _ = try SpeziQuestionnaire.Questionnaire(input)
         }
     }
 }
