@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_types_order
+
 import SwiftUI
 
 
@@ -17,21 +19,33 @@ extension TaskView {
         
         var body: some View {
             switch config.inputMode {
-            case .numberPad:
-                numberPad()
+            case .numberPad(let numberKind):
+                numberPad(numberKind)
             case .slider(let stepValue):
                 if let minimum = config.minimum, let maximum = config.maximum {
                     slider(bounds: minimum...maximum, stepValue: stepValue)
                 } else {
                     // if we don't have both limits, we fall back to the number-pad-based input
+                    numberPad(.decimal)
                 }
             }
         }
         
         @ViewBuilder
-        private func numberPad() -> some View {
+        private func numberPad(_ numberKind: Questionnaire.Task.Kind.NumericTaskConfig.NumberKind) -> some View {
             @Bindable var responses = responses
-            NumberTextField("TODO title", value: $responses[numericResponseFor: task.id])
+            NumberTextField(
+                "", // ???
+                value: $responses[numericResponseFor: task.id],
+                allowsDecimalEntry: { () -> Bool in
+                    switch numberKind {
+                    case .integer:
+                        false
+                    case .decimal:
+                        true
+                    }
+                }()
+            )
         }
         
         @ViewBuilder
@@ -41,12 +55,18 @@ extension TaskView {
             } set: { newValue in
                 responses[numericResponseFor: task.id] = newValue
             }
-            // TODO use onEditingChanged to commit the update to the responses? (instead of live-updating it all the time)
-            // would that even be needed?
-            HStack {
-                Slider(value: binding, in: bounds, step: stepValue)
-//                Text(binding.wrappedValue, format: .number)
-//                    .monospacedDigit()
+            VStack {
+                Text(binding.wrappedValue, format: .number)
+                    .font(.title)
+                    .bold()
+                    .monospacedDigit()
+                Slider(value: binding, in: bounds, step: stepValue) {
+                    EmptyView() // doesn't seem to get displayed anyway?
+                } minimumValueLabel: {
+                    Text(bounds.lowerBound, format: .number)
+                } maximumValueLabel: {
+                    Text(bounds.upperBound, format: .number)
+                }
             }
         }
     }
@@ -59,15 +79,17 @@ private struct NumberTextField<Value: BinaryFloatingPoint>: View {
     private let formatter = NumberFormatter()
     
     private let title: String
+    private let allowsDecimalEntry: Bool
     @Binding private var value: Value?
     
     var body: some View {
         TextField(title, value: $value, formatter: formatter, prompt: Text(verbatim: "0"))
-//            .keyboardType(allowsDecimalEntry ? .decimalPad : .numberPad) // TODO
+            .keyboardType(allowsDecimalEntry ? .decimalPad : .numberPad)
     }
     
-    init(_ title: String, value: Binding<Value?>) {
+    init(_ title: String, value: Binding<Value?>, allowsDecimalEntry: Bool) {
         self.title = title
         self._value = value
+        self.allowsDecimalEntry = allowsDecimalEntry
     }
 }

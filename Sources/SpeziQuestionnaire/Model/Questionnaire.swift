@@ -41,8 +41,17 @@ public struct Questionnaire: Hashable, Identifiable, Sendable {
         sections.lazy.flatMap(\.tasks).first { $0.id == taskId }
     }
     
-    public func section(after section: Section) -> Section? {
-        sections.firstIndex(of: section).flatMap { sections[safe: sections.index(after: $0)] }
+    /// Determines the next section, taking into account the current responses and task conditions.
+    ///
+    /// This function automatically skips empty sections, if e.g. a section doesn't contain any tasks, or all of the section's tasks should be skipped, because of their conditions.
+    public func nextSection(after section: Section, using responses: QuestionnaireResponses) -> Section? {
+        guard let sectionIdx = sections.firstIndex(of: section) else {
+            return nil
+        }
+        let remainingSections = sections[sectionIdx...].dropFirst()
+        return remainingSections.first { section in
+            section.tasks.contains { responses.evaluate($0.enabledCondition) }
+        }
     }
 }
 

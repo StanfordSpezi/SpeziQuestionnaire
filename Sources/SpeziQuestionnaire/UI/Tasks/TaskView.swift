@@ -24,7 +24,9 @@ struct TaskView<Header: View>: View {
     
     private var content: some View {
         Section {
-            // TODO add a "Question x of y" here?
+            // IDEA: We could add a "Question x of y" thing here, like RK does,
+            // but since these question indices would change dynamically based on which questions are currently enabled/disabled,
+            // it might not be the best idea.
             if !task.title.isEmpty || !task.subtitle.isEmpty {
                 VStack(alignment: .leading) {
                     if !task.title.isEmpty {

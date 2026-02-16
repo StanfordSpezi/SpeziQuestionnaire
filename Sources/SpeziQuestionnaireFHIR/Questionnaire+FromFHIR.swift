@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order todo file_length
+// swiftlint:disable file_types_order todo
 
 private import Algorithms
 private import Foundation
@@ -88,7 +88,8 @@ extension ModelsR4.Questionnaire {
                             topLevelItems.append(item)
                             continue l1
                         } else {
-                            group.item!.append(item)
+                            // SAFETY: we just set this to a non-nil value a couple lines earlier
+                            group.item!.append(item) // swiftlint:disable:this force_unwrapping
                         }
                     }
                 }
@@ -157,15 +158,13 @@ extension ModelsR4.QuestionnaireItem {
             return try nestedItems.flatMap { item in
                 try item.toTasks(using: itemContext)
             }
-        case .question:
-            // is this what we'd need to parse/support for custom question kinds??
-            fatalError("TODO") // TODO does this ever appear? how should we handle it?
-        case .display, .boolean, .decimal, .integer, .date, .dateTime, .time, .string, .text, .url, .choice, .openChoice, .attachment, .reference, .quantity:
+        // swiftlint:disable:next line_length
+        case .display, .boolean, .decimal, .integer, .date, .dateTime, .time, .string, .text, .url, .choice, .openChoice, .attachment, .reference, .quantity, .question:
             let task = SpeziQuestionnaire.Questionnaire.Task(
                 id: try self.getLinkId(),
                 title: self.text?.value?.string ?? "",
                 kind: try toTaskKind(using: context),
-                isOptional: self.required?.value?.bool ?? true, // TODO do we want to default this to true or false?
+                isOptional: !(self.required?.value?.bool ?? true), // if the `required` field is not set, we assume it to be true.
                 enabledCondition: try context.parentItemCondition && .init(self, using: context)
             )
             if itemType != .display, let nestedItems = item, !nestedItems.isEmpty {
@@ -183,7 +182,9 @@ extension ModelsR4.QuestionnaireItem {
         }
     }
     
-    fileprivate func toTaskKind(using context: ConversionContext) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
+    fileprivate func toTaskKind( // swiftlint:disable:this cyclomatic_complexity function_body_length
+        using context: ConversionContext
+    ) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
         guard let itemType = type.value else {
             throw FHIRConversionError("QuestionnaireItem is missing 'type'")
         }
@@ -197,7 +198,7 @@ extension ModelsR4.QuestionnaireItem {
             return .instructional(text)
         case .question:
             // is this what we'd need to parse/support for custom question kinds??
-            fatalError() // TODO does this ever appear? how should we handle it?
+            throw FHIRConversionError("Not-yet-supported question type 'question'")
         case .boolean:
             return .boolean
         case .decimal, .integer, .quantity:
@@ -290,14 +291,14 @@ extension ModelsR4.QuestionnaireItem {
                 guard let answerOptions = answerOption else {
                     // TODO why the early return here?
                     //                    return choices
-                                        fatalError()
+                                        fatalError("TODO")
                 }
                 for option in answerOptions {
                     guard case let .coding(coding) = option.value,
                           let display = coding.display?.value?.string,
                           let code = coding.code?.value?.string,
                           let system = coding.system?.value?.url.absoluteString else {
-                        fatalError() // TODO does this happen?
+                        fatalError("TODO") // TODO does this happen?
                         continue
                     }
                     options.append(.init(

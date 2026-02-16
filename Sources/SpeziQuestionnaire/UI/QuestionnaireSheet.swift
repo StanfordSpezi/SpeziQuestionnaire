@@ -6,8 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
-public import SwiftUI
 private import SpeziViews
+public import SwiftUI
 
 
 /// Presents a ``Questionnaire`` for answering.
@@ -28,7 +28,6 @@ public struct QuestionnaireSheet: View {
                     dismiss()
                 }
             } else {
-                // TODO??
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
             }
         }

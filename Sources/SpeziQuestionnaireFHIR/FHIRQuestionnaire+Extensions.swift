@@ -28,13 +28,14 @@ extension QuestionnaireItem {
 
         static let validationMessageLegacy = "http://biodesign.stanford.edu/fhir/StructureDefinition/validationtext"
         static let validationMessage = "http://bdh.stanford.edu/fhir/StructureDefinition/validationtext"
-#if os(iOS) || os(visionOS)
+        #if os(iOS) || os(visionOS)
         static let keyboardType = "http://bdh.stanford.edu/fhir/StructureDefinition/ios-keyboardtype"
-#endif
-#if os(iOS) || os(visionOS) || os(tvOS)
+        #endif
+        
+        #if os(iOS) || os(visionOS) || os(tvOS)
         static let textContentType = "http://bdh.stanford.edu/fhir/StructureDefinition/ios-textcontenttype"
         static let autocapitalizationType = "http://bdh.stanford.edu/fhir/StructureDefinition/ios-autocapitalizationType"
-#endif
+        #endif
 
         static let dateMaxValue = "http://ehelse.no/fhir/StructureDefinition/sdf-maxvalue"
         static let dateMinValue = "http://ehelse.no/fhir/StructureDefinition/sdf-minvalue"
@@ -367,18 +368,3 @@ extension FHIRDate {
         return Calendar.current.date(from: dateComponents).map { Calendar.current.startOfDay(for: $0) }
     }
 }
-
-
-//extension FHIRPrimitive {
-//    /// Returns a Boolean value indicating whether a `FHIRPrimitive`'s value is not equal to the specified `rhs` value.
-//    @inlinable
-//    public static func != (lhs: Self, rhs: PrimitiveType) -> Bool {
-//        !(lhs == rhs)
-//    }
-//    
-//    /// Returns a Boolean value indicating whether a `FHIRPrimitive`'s value is not equal to the specified `lhs` value.
-//    @inlinable
-//    public static func != (lhs: PrimitiveType, rhs: Self) -> Bool {
-//        rhs != lhs
-//    }
-//}

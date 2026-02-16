@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable line_length
+
 
 extension Questionnaire {
     /// Patient Health Questionnaire-9

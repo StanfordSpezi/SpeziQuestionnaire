@@ -12,6 +12,7 @@
 public import CoreTransferable
 public import Foundation
 public import Observation
+public import UniformTypeIdentifiers
 
 
 @Observable
@@ -24,8 +25,6 @@ public final class QuestionnaireResponses {
     public let questionnaire: Questionnaire
     
     public private(set) var selectedSCMCOptions = Set<SelectedOption>()
-    // TODO is there some way of implementing this in a way that upating one question's text doesn't trigger view updates for all other qiestions?
-    // mayve we should give each question its own ResponseStorage? (would make the live condition update logic hell, probably?)
     public private(set) var freeTextResponses: [Questionnaire.Task.ID: String] = [:]
     public private(set) var dateTimeResponses: [Questionnaire.Task.ID: DateComponents] = [:]
     public private(set) var numericResponses: [Questionnaire.Task.ID: Double] = [:]
@@ -108,7 +107,7 @@ extension QuestionnaireResponses {
 
 extension QuestionnaireResponses {
     func hasResponse(for task: Questionnaire.Task) -> Bool {
-        return switch task.kind {
+        switch task.kind {
         case .instructional:
             // instructional tasks never collect a response; they are always considered as being complete.
             true
@@ -173,6 +172,11 @@ extension QuestionnaireResponses {
         public let url: URL
         /// The attachment's file size, in bytes
         public let size: UInt64?
+        
+        /// The attachment's content type, determined based on the fle at `url`.
+        public var contentType: UTType? {
+            (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
+        }
         
         init(url inputUrl: URL) throws {
             guard inputUrl.startAccessingSecurityScopedResource() else {

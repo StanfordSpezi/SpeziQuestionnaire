@@ -51,11 +51,33 @@ struct QuestionnaireSectionView: View {
         .navigationTitle(questionnaire.metadata.title)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                CancelButton {
-                    await resultHandler(.cancelled)
+            ToolbarItem(placement: .primaryAction) {
+                if responses.isComplete(in: section) && questionnaire.nextSection(after: section, using: responses) == nil {
+                    // if we're about to complete the questionnaire, we turn this into a Done button
+                    toolbarDoneButton
+                } else {
+                    CancelButton {
+                        await resultHandler(.cancelled)
+                    }
                 }
             }
+        }
+    }
+    
+    @ViewBuilder private var toolbarDoneButton: some View {
+        if #available(iOS 26, *) {
+            AsyncButton(role: .confirm) {
+                await resultHandler(.success(responses))
+            } label: {
+                Text("Submit")
+            }
+        } else {
+            AsyncButton {
+                await resultHandler(.success(responses))
+            } label: {
+                Label("Submis", systemImage: "checkmark")
+            }
+            .labelStyle(.iconOnly)
         }
     }
     
@@ -66,7 +88,7 @@ struct QuestionnaireSectionView: View {
                 // IDEA can we make it that when the animation is done, we have the section flash in red for a short moment?
                 scrollViewProxy.scrollTo(problematicTask.id)
             }
-        } else if let nextSection = responses.questionnaire.section(after: section) {
+        } else if let nextSection = questionnaire.nextSection(after: section, using: responses) {
             navigationPath.append {
                 QuestionnaireSectionView(
                     questionnaire: questionnaire,

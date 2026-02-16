@@ -18,16 +18,8 @@ extension Questionnaire {
         for (id, sections) in sections.grouped(by: \.id) {
             precondition(sections.count < 2, "Multiple sections for id '\(id)'")
         }
-//        // TODO / Question: do we want to allow two tasks in different sections to have the same identifier? (prob yeah...)
-//        let tasksByPath: [ComponentPath: [Task]] = sections.reduce(into: [:]) { acc, section in
-//            for task in section.tasks {
-//                let path: ComponentPath = [section.id, task.id]
-//                acc[path, default: []].append(task)
-//            }
-//        }
-//        for (path, tasks) in tasksByPath {
-//            precondition(tasks.count < 2, "Multiple sections for id '\(path)'")
-//        }
-        // TODO more!!!
+        for (id, tasks) in sections.lazy.flatMap(\.tasks).grouped(by: \.id) {
+            precondition(tasks.count < 2, "Multiple tasks for id '\(id)'")
+        }
     }
 }

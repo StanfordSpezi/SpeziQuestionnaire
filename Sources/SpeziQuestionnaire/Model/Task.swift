@@ -136,11 +136,8 @@ extension Questionnaire.Task {
 }
 
 
-
-
-
 extension Questionnaire {
-    /// TODO
+    /// A condition that determines whether a questionnaire task should be enabled.
     ///
     /// Conditions containing invalid ``ComponentPath``s always evaluate to `false`.
     public indirect enum Condition: Hashable, ExpressibleByNilLiteral, Sendable {

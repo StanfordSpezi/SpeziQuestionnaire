@@ -6,10 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
-
 import Foundation
 import SpeziQuestionnaire
-//import UniformTypeIdentifiers
 
 
 extension Questionnaire {

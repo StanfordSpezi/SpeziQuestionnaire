@@ -25,11 +25,12 @@ struct FilePicker: View {
     private let selectionHandler: @Sendable ([Item]) -> Void
     @State private var isShowingPhotosPicker = false
     @State private var isShowingFileImporter = false
+    @State private var isShowingCameraSheet = false
     @State private var viewState: ViewState = .idle
     @State private var selectedPhotos: [PhotosPickerItem] = []
     
     var body: some View {
-        // TODO
+        // IDEAS
         // - if there is only one enabled uti, we should skip the menu!
         // - if there are no enabled UTIs, we show the regular menu, but disable it!
         Menu {
@@ -43,6 +44,7 @@ struct FilePicker: View {
                 Spacer()
                 Image(systemName: "chevron.up.chevron.down")
                     .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
             }
             .contentShape(Rectangle())
             .frame(maxHeight: .infinity)
@@ -62,7 +64,7 @@ struct FilePicker: View {
                     .videos
                 }
                 if shouldEnable(.image) {
-                    // TODO if the user has live photos enabled, would this filter only photos w/out a live photo attached,
+                    // QUESTION if the user has live photos enabled, would this filter only photos w/out a live photo attached,
                     // or would it still include everything?
                     .images
                 }
@@ -81,6 +83,9 @@ struct FilePicker: View {
                 viewState = .error(AnyLocalizedError(error: error))
             }
         }
+        .sheet(isPresented: $isShowingCameraSheet) {
+            Text("Not Yet Implemented")
+        }
         .onChange(of: selectedPhotos) { _, newValue in
             guard !newValue.isEmpty else {
                 return
@@ -89,26 +94,11 @@ struct FilePicker: View {
             // if multiple selection is enabled, the binding does not get continuously updated as the selection changes.
             let photos = exchange(&selectedPhotos, with: [])
             selectionHandler(photos.map { .photo($0) })
-//            Task {
-//                var attachments: [QuestionnaireResponses.CollectedAttachment] = []
-//                for photo in photos {
-//                    do {
-//                        if let attachment = try await photo.loadTransferable(type: QuestionnaireResponses.CollectedAttachment.self) {
-//                            attachments.append(attachment)
-//                        } else {
-//                            print("HMMMMM")
-//                        }
-//                    } catch {
-//                        print("Failed to load image as attachment: \(error)")
-//                    }
-//                }
-//                print("attachments", attachments)
-//            }
         }
     }
     
     @ViewBuilder private var importMenuContents: some View {
-        if shouldEnable(.image) { // TODO what about videos?
+        if shouldEnable(.image) || shouldEnable(.video) {
             takePhotoButton
             selectPhotosButton
         }
@@ -118,7 +108,7 @@ struct FilePicker: View {
     
     private var takePhotoButton: some View {
         Button {
-            // TODO
+            isShowingCameraSheet = true
         } label: {
             Label("Take Photo", systemImage: "camera")
         }

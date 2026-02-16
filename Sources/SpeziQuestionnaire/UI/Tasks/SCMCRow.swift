@@ -31,7 +31,10 @@ struct SCMCRow: View {
                 .foregroundStyle(colorScheme.textLabelForegroundStyle)
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .accessibilityHidden(true)
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Option: \(option.title), \(isSelected ? "Selected" : "Not Selected")")
         }
     }
 }

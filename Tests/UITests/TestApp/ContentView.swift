@@ -18,21 +18,21 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     struct WrappedQuestionnaire: Hashable, Identifiable {
-        let r4: ModelsR4.Questionnaire?
+        let r4: ModelsR4.Questionnaire? // swiftlint:disable:this identifier_name
         let spezi: SpeziQuestionnaire.Questionnaire
         
         var id: some Hashable {
             spezi.id
         }
         
-        init(r4: ModelsR4.Questionnaire) throws {
-            self.r4 = r4
-            self.spezi = try .init(r4)
+        init(r4 questionnaire: ModelsR4.Questionnaire) throws {
+            self.r4 = questionnaire
+            self.spezi = try .init(questionnaire)
         }
         
-        init(spezi: SpeziQuestionnaire.Questionnaire) {
+        init(spezi questionnaire: SpeziQuestionnaire.Questionnaire) {
             self.r4 = nil
-            self.spezi = spezi
+            self.spezi = questionnaire
         }
     }
     
@@ -71,7 +71,6 @@ struct ContentView: View {
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
                 case .success(let response):
-//                    standard.surveyResponseCount += 1
                     do {
                         let fhirResponse = try ModelsR4.QuestionnaireResponse(response)
                         responsesStore.responses.append(fhirResponse)
@@ -194,9 +193,7 @@ struct ContentView: View {
     
     private func menuButton(title: String, questionnaire: ModelsR4.Questionnaire) -> some View {
         AsyncButton(title, state: $viewState) {
-//            loadedQuestionnaire = try SpeziQuestionnaire.Questionnaire(questionnaire)
             loadedQuestionnaire = try .init(r4: questionnaire)
-            dump(loadedQuestionnaire!.spezi)
         }
     }
     
@@ -235,7 +232,6 @@ struct ContentView: View {
         let data = try Data(contentsOf: url)
         let fhirQuestionnaire = try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: data)
         return try WrappedQuestionnaire(r4: fhirQuestionnaire)
-//        return try SpeziQuestionnaire.Questionnaire(fhirQuestionnaire)
     }
 }
 

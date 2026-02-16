@@ -16,7 +16,6 @@ let package = Package(
     name: "SpeziQuestionnaire",
     defaultLocalization: "en",
     platforms: [
-        // TODO expand this once we drop the ResearchKit dependency
         .iOS(.v17)
     ],
     products: [

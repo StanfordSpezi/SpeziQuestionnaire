@@ -20,7 +20,7 @@ struct FHIRConversionTests {
         let allR4Inputs = ModelsR4.Questionnaire.exampleQuestionnaires + ModelsR4.Questionnaire.researchQuestionnaires
         for input in allR4Inputs {
             // simply test that we can import all of the sample questionnaires without failure
-            // TODO also test that they are what we expect
+            // IDEA maybe also test that they are what we expect
             _ = try SpeziQuestionnaire.Questionnaire(input)
         }
     }

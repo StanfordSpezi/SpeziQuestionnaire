@@ -24,7 +24,9 @@ private struct FHIRConversionError: Error {
 
 extension ModelsR4.QuestionnaireResponse {
     /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
-    public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
+    public convenience init( // swiftlint:disable:this function_body_length cyclomatic_complexity
+        _ other: SpeziQuestionnaire.QuestionnaireResponses
+    ) throws {
         self.init(status: .init(.completed))
         let id = UUID().uuidString
         self.id = id.asFHIRStringPrimitive()
@@ -33,7 +35,6 @@ extension ModelsR4.QuestionnaireResponse {
         if let url = other.questionnaire.metadata.url {
             self.questionnaire = FHIRPrimitive(Canonical(url))
         }
-        // TODO somehow encode the questionnaire id? or use a URL for the questionnaiure ID in the first place?
         var items: [QuestionnaireResponseItem] = []
         for (taskId, optionIds) in other.selectedSCMCOptions.grouped(by: \.taskId).mapValues({ $0.map(\.optionId) }) {
             guard let task = other.questionnaire.task(withId: taskId) else {
@@ -41,8 +42,8 @@ extension ModelsR4.QuestionnaireResponse {
             }
             let options: [SpeziQuestionnaire.Questionnaire.Task.SCMCOption]
             switch task.kind {
-            case .singleChoice(let _options), .multipleChoice(let _options):
-                options = _options
+            case .singleChoice(let opts), .multipleChoice(let opts):
+                options = opts
             default:
                 throw FHIRConversionError("Invalid Input")
             }
@@ -105,7 +106,7 @@ extension ModelsR4.QuestionnaireResponse {
                     return .time(FHIRPrimitive(FHIRTime(
                         hour: response.hour.map(numericCast) ?? 0,
                         minute: response.minute.map(numericCast) ?? 0,
-                        second:  response.second.map { Decimal($0) } ?? 0
+                        second: response.second.map { Decimal($0) } ?? 0
                     )))
                 case .dateAndTime:
                     return .dateTime(FHIRPrimitive(DateTime(
@@ -161,8 +162,8 @@ extension ModelsR4.QuestionnaireResponse {
                     let data = try Data(contentsOf: attachment.url)
                     let sha1 = Insecure.SHA1.hash(data: data)
                     return .init(value: .attachment(.init(
-                        //contentType: <#T##FHIRPrimitive<FHIRString>?#>, // TODO?
-                        //creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
+                        contentType: attachment.contentType?.identifier.asFHIRStringPrimitive(),
+//                        creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
                         data: FHIRPrimitive(Base64Binary(data.base64EncodedString())),
                         hash: FHIRPrimitive(Base64Binary(Data(sha1).base64EncodedString())),
                         id: attachment.id.uuidString.asFHIRStringPrimitive(),
@@ -181,7 +182,7 @@ extension ModelsR4.QuestionnaireResponse {
         try items.sort { lhs, rhs in
             let lhsLinkId = try lhs.getLinkId()
             let rhsLinkId = try rhs.getLinkId()
-            return tasksIdsByOverallPosition[lhsLinkId]! < tasksIdsByOverallPosition[rhsLinkId]!
+            return tasksIdsByOverallPosition[lhsLinkId]! < tasksIdsByOverallPosition[rhsLinkId]! // swiftlint:disable:this force_unwrapping
         }
         self.item = items
     }

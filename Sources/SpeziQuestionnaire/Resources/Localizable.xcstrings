@@ -22,6 +22,19 @@
     "No" : {
 
     },
+    "Not Yet Implemented" : {
+
+    },
+    "Option: %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Option: %1$@, %2$@"
+          }
+        }
+      }
+    },
     "QUESTIONNAIRE_LOADING_ERROR_MESSAGE" : {
       "comment" : "This is a string that is balh",
       "localizations" : {
@@ -37,6 +50,12 @@
 
     },
     "Select Photo" : {
+
+    },
+    "Submis" : {
+
+    },
+    "Submit" : {
 
     },
     "Take Photo" : {

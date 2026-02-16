@@ -12,6 +12,6 @@ import SwiftUI
 
 class TestAppDelegate: SpeziAppDelegate {
     override var configuration: Configuration {
-        Configuration() {}
+        Configuration {}
     }
 }

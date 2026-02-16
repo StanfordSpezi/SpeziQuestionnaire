@@ -14,12 +14,10 @@ extension QuestionnaireResponses {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
-        case invalid(message: String) // TODO LocalizedStringResource!
+        case invalid(message: String)
     }
     
     
-    // TODO look into the current overhead of always computing this on demand. maybe cache them?
-    // (prob not necessary...)
     func validateResponse( // swiftlint:disable:this function_body_length cyclomatic_complexity
         for task: Questionnaire.Task
     ) -> ResponseValidationResult {
@@ -37,7 +35,7 @@ extension QuestionnaireResponses {
             // the user cannot provide an invalid response for boolean tasks
             return .ok
         case .singleChoice(let options), .multipleChoice(let options):
-            // TODO when we support an `"other" with custom string entry" option, we'll need to validate that the string isn't empty.
+            // when we support an `"other" with custom string entry" option, we'll need to validate that the string isn't empty.
             // not a problem for now
             return .ok
         case .freeText(let config):

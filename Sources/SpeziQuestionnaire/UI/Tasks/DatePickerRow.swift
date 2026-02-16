@@ -18,25 +18,39 @@ struct DatePickerRow: View {
     var body: some View {
         let binding = Binding<Date> {
             if let response = responses[dateTimeResponseFor: task.id] {
-                cal.date(from: response)! // what if this fails?
+                // Q // what if this fails?
+                cal.date(from: response)! // swiftlint:disable:this force_unwrapping
             } else {
                 .now
             }
         } set: { newValue in
-            // TODO there is no way to clear a response here!!
             responses[dateTimeResponseFor: task.id] = cal.dateComponents(config.style.components, from: newValue)
         }
-        // TOOD make this look good!
-        DatePicker("", selection: binding, displayedComponents: { () -> DatePickerComponents in
-            switch config.style {
-            case .dateOnly:
-                .date
-            case .timeOnly:
-                .hourAndMinute
-            case .dateAndTime:
-                [.date, .hourAndMinute]
-            }
-        }())
-//            .datePickerStyle(.graphical)
+        DatePicker(label, selection: binding, displayedComponents: components)
+            .datePickerStyle(.compact)
+    }
+    
+    private var label: String {
+        switch config.style {
+        case .dateOnly:
+            "Enter Date"
+        case .timeOnly:
+            "Enter Time"
+        case .dateAndTime:
+            // Ideally we'd have "Enter Date and Time",
+            // but that's too long and will cause the date picker to get displayed below the label :/
+            "Enter Date"
+        }
+    }
+    
+    private var components: DatePickerComponents {
+        switch config.style {
+        case .dateOnly:
+            .date
+        case .timeOnly:
+            .hourAndMinute
+        case .dateAndTime:
+            [.date, .hourAndMinute]
+        }
     }
 }
