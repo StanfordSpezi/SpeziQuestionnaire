@@ -69,13 +69,13 @@ struct TaskView<Header: View>: View {
         case .boolean:
             SCMCRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
                 responses[booleanResponseFor: task.id] == true
-            } set: { newValue in
-                responses[booleanResponseFor: task.id] = newValue
+            } set: { isSelected in
+                responses[booleanResponseFor: task.id] = isSelected ? true : nil
             })
             SCMCRow(option: .init(id: "1", title: "No"), isSelected: Binding {
                 responses[booleanResponseFor: task.id] == false
-            } set: { newValue in
-                responses[booleanResponseFor: task.id] = !newValue
+            } set: { isSelected in
+                responses[booleanResponseFor: task.id] = isSelected ? false : nil
             })
         case .fileAttachment(let config):
             FileAttachmentQuestionView(task: task, config: config)
