@@ -219,7 +219,12 @@ extension SpeziQuestionnaire.Questionnaire {
                     id: "4",
                     title: "Free-Text Entry",
                     subtitle: "Tell us a little about yourself",
-                    kind: .freeText
+                    kind: .freeText(.init(
+                        minLength: nil,
+                        maxLength: nil,
+                        regex: try! NSRegularExpression(pattern: #"https?://[a-zA-Z]+\.[a-z]{3}"#),
+                        disableAutocomplete: true
+                    ))
                 ),
                 .init(
                     id: "5",
@@ -243,6 +248,7 @@ extension SpeziQuestionnaire.Questionnaire {
                         inputMode: .slider(stepValue: 0.25),
                         minimum: -5,
                         maximum: 12,
+                        maxDecimalPlaces: nil,
                         unit: ""
                     ))
                 ),
@@ -253,6 +259,7 @@ extension SpeziQuestionnaire.Questionnaire {
                         inputMode: .numberPad(.decimal),
                         minimum: -5,
                         maximum: 12,
+                        maxDecimalPlaces: nil,
                         unit: ""
                     ))
                 ),
@@ -263,6 +270,7 @@ extension SpeziQuestionnaire.Questionnaire {
                         inputMode: .numberPad(.integer),
                         minimum: -5,
                         maximum: 12,
+                        maxDecimalPlaces: nil,
                         unit: ""
                     ))
                 ),
@@ -273,6 +281,7 @@ extension SpeziQuestionnaire.Questionnaire {
                         inputMode: .numberPad(.integer),
                         minimum: -5,
                         maximum: 12,
+                        maxDecimalPlaces: nil,
                         unit: "m/s^2"
                     ))
                 )

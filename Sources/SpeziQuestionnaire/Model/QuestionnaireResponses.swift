@@ -96,9 +96,10 @@ public final class QuestionnaireResponses {
     }
     
     
-    func hasAnswer(for task: Questionnaire.Task) -> Bool {
+    func hasResponse(for task: Questionnaire.Task) -> Bool {
         return switch task.kind {
         case .instructional:
+            // instructional tasks never collect a response; they are always considered as being complete.
             true
         case .singleChoice, .multipleChoice:
             selectedSCMCOptions.contains { $0.taskId == task.id }
@@ -117,7 +118,7 @@ public final class QuestionnaireResponses {
     
     
     func isMissingResponse(for task: Questionnaire.Task) -> Bool {
-        !task.isOptional && evaluate(task.enabledCondition) && !hasAnswer(for: task)
+        !task.isOptional && evaluate(task.enabledCondition) && !hasResponse(for: task)
     }
     
     func isMissingResponses(in section: Questionnaire.Section) -> Bool {
@@ -129,122 +130,6 @@ public final class QuestionnaireResponses {
     func firstTaskWithMissingResponse(in section: Questionnaire.Section) -> Questionnaire.Task? {
         section.tasks.first { task in
             isMissingResponse(for: task)
-        }
-    }
-}
-
-
-// MARK: Conditions
-
-extension QuestionnaireResponses {
-    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
-        switch condition {
-        case .true:
-            return true
-        case .false:
-            return false
-        case .not(let inner):
-            return !evaluate(inner)
-        case .any(let inner):
-            return inner.contains(where: evaluate)
-        case .all(let inner):
-            return inner.allSatisfy(evaluate)
-        case .hasResponse(let taskId):
-            return if let task = questionnaire.task(withId: taskId) {
-                hasAnswer(for: task)
-            } else {
-                false
-            }
-        case .isMissingResponse(let taskId):
-            return if let task = questionnaire.task(withId: taskId) {
-                isMissingResponse(for: task)
-            } else {
-                false
-            }
-        case let .responseValueComparison(taskId, `operator`, value):
-            guard let task = self.questionnaire.task(withId: taskId) else {
-                return false
-            }
-            switch task.kind {
-            case .instructional:
-                return false
-            case .boolean:
-                guard let response = self[booleanResponseAt: task.id],
-                      case let .bool(value) = value else {
-                    return false
-                }
-                switch `operator` {
-                case .equal:
-                    return response == value
-                case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
-                    // not supported
-                    return false
-                }
-            case .singleChoice, .multipleChoice:
-                guard case let .SCMCOption(optionId) = value else {
-                    return false
-                }
-                switch `operator` {
-                case .equal:
-                    return selectedSCMCOptions.contains(.init(taskId: taskId, optionId: optionId))
-                case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
-                    // not supported
-                    return false
-                }
-            case .freeText:
-                guard case let .string(value) = value else {
-                    return false
-                }
-                switch `operator` {
-                case .equal:
-                    return self[freeTextResponseAt: task.id] == value
-                case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
-                    // not supported
-                    return false
-                }
-            case .dateTime:
-                fatalError() // TODO
-            case .numeric:
-                switch value {
-                case .integer(let value):
-                    guard let response = self[numericResponseAt: task.id].flatMap(Int.init(exactly:)) else {
-                        return false
-                    }
-                    return switch `operator` {
-                    case .equal:
-                        response == value
-                    case .lessThan:
-                        response < value
-                    case .greaterThan:
-                        response > value
-                    case .lessThanOrEqual:
-                        response <= value
-                    case .greaterThanOrEqual:
-                        response >= value
-                    }
-                case .decimal(let value):
-                    guard let response = self[numericResponseAt: task.id] else {
-                        return false
-                    }
-                    return switch `operator` {
-                    case .equal:
-                        response == value
-                    case .lessThan:
-                        response < value
-                    case .greaterThan:
-                        response > value
-                    case .lessThanOrEqual:
-                        response <= value
-                    case .greaterThanOrEqual:
-                        response >= value
-                    }
-                case .bool, .date, .string, .SCMCOption:
-                    // invalid match
-                    return false
-                }
-            case .fileAttachment:
-                fatalError() // TODO
-            }
         }
     }
 }
@@ -262,8 +147,6 @@ extension QuestionnaireResponses {
         public let url: URL
         /// The attachment's file size, in bytes
         public let size: UInt64?
-//        nonisolated(unsafe) public private(set) var thumbnail: Image?
-        // TODO thumbnail?
         
         init(url inputUrl: URL) throws {
             guard inputUrl.startAccessingSecurityScopedResource() else {

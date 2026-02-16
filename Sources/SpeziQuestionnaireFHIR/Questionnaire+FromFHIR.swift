@@ -231,6 +231,7 @@ extension ModelsR4.QuestionnaireItem {
                 }(),
                 minimum: minValue?.doubleValue,
                 maximum: maxValue?.doubleValue,
+                maxDecimalPlaces: self.maximumDecimalPlaces?.uintValue,
                 unit: unit ?? ""
             ))
         case .date, .time, .dateTime:
@@ -247,12 +248,24 @@ extension ModelsR4.QuestionnaireItem {
                         fatalError("unreachable")
                     }
                 }(),
+                // NOTE: it's not ideal that we use a `Date` object here, instead of `DateComponents`,
+                // but as long as the FHIR -> Spezi conversion happens in the same time zone where the questionnaire is also being answered, we should be good.
                 minDate: minDateValue,
                 maxDate: maxDateValue
             ))
         case .string, .text, .url:
-            // TODO pass along the context here!!!
-            return .freeText
+            return .freeText(.init(
+                minLength: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/minLength").first?.value?.intValue,
+                maxLength: { () -> Int? in
+                    if let value = self.maxLength?.value?.integer {
+                        Int(value)
+                    } else {
+                        self.extensions(for: "http://hl7.org/fhir/StructureDefinition/maxLength").first?.value?.intValue
+                    }
+                }(),
+                regex: self.validationRegularExpression,
+                disableAutocomplete: itemType == .url
+            ))
         case .choice, .openChoice:
             var options: [SpeziQuestionnaire.Questionnaire.Task.SCMCOption] = []
             let valueSets = context.questionnaire.getContainedValueSets()
@@ -363,10 +376,10 @@ extension ModelsR4.Extension.ValueX {
         }
     }
     
-    var intValue: Int32? {
+    var intValue: Int? {
         switch self {
         case .integer(let value):
-            value.value?.integer
+            (value.value?.integer).map { Int($0) }
         default:
             nil
         }

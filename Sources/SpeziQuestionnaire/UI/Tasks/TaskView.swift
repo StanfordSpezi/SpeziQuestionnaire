@@ -46,6 +46,13 @@ struct TaskView<Header: View>: View {
             if !task.footer.isEmpty {
                 Text(markdown: task.footer)
             }
+            switch responses.validateResponse(for: task.id) {
+            case .ok:
+                EmptyView()
+            case .invalid(let message):
+                Text(message)
+                    .foregroundStyle(.red)
+            }
         }
     }
     
@@ -55,13 +62,8 @@ struct TaskView<Header: View>: View {
             Text(markdown: text)
         case .singleChoice(let options), .multipleChoice(let options):
             makeSCMCRows(for: options)
-        case .freeText:
-            TextEditor(text: Binding<String> {
-                responses[freeTextResponseAt: task.id] ?? ""
-            } set: { newValue in
-                responses[freeTextResponseAt: task.id] = newValue
-            })
-            .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
+        case .freeText(let config):
+            textEditor(for: config)
         case .dateTime(let config):
             DatePickerRow(task: task, config: config)
         case .numeric(let config):
@@ -90,6 +92,17 @@ struct TaskView<Header: View>: View {
                 responses[task: task, option: option] = $0
             })
         }
+    }
+    
+    private func textEditor(for config: Questionnaire.Task.Kind.FreeTextConfig) -> some View {
+        TextEditor(text: Binding<String> {
+            responses[freeTextResponseAt: task.id] ?? ""
+        } set: { newValue in
+            responses[freeTextResponseAt: task.id] = newValue
+        })
+        .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
+        .textInputAutocapitalization(config.disableAutocomplete ? .never : nil)
+        .autocorrectionDisabled(config.disableAutocomplete)
     }
 }
 

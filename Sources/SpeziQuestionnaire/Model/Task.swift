@@ -11,7 +11,7 @@ public import UniformTypeIdentifiers
 
 
 extension Questionnaire {
-    public struct Task: Hashable, Identifiable, Sendable { // Element? Item?
+    public struct Task: Hashable, Identifiable, Sendable {
         public let id: String
         public let title: String
         public let subtitle: String
@@ -47,10 +47,24 @@ extension Questionnaire.Task {
         case boolean
         case singleChoice(options: [SCMCOption])
         case multipleChoice(options: [SCMCOption])
-        case freeText
+        case freeText(FreeTextConfig)
         case dateTime(DateTimeConfig)
         case numeric(NumericTaskConfig)
         case fileAttachment(FileAttachmentConfig)
+        
+        public struct FreeTextConfig: Hashable, Sendable {
+            public let minLength: Int?
+            public let maxLength: Int?
+            public let regex: NSRegularExpression?
+            public let disableAutocomplete: Bool
+            
+            public init(minLength: Int?, maxLength: Int?, regex: NSRegularExpression?, disableAutocomplete: Bool) {
+                self.minLength = minLength
+                self.maxLength = maxLength
+                self.regex = regex
+                self.disableAutocomplete = disableAutocomplete
+            }
+        }
         
         public struct DateTimeConfig: Hashable, Sendable {
             public enum Style: Hashable, Sendable {
@@ -80,12 +94,14 @@ extension Questionnaire.Task {
             public let inputMode: InputMode
             public let minimum: Double?
             public let maximum: Double?
+            public let maxDecimalPlaces: UInt?
             public let unit: String
             
-            public init(inputMode: InputMode, minimum: Double?, maximum: Double?, unit: String) {
+            public init(inputMode: InputMode, minimum: Double?, maximum: Double?, maxDecimalPlaces: UInt?, unit: String) {
                 self.inputMode = inputMode
                 self.minimum = minimum
                 self.maximum = maximum
+                self.maxDecimalPlaces = maxDecimalPlaces
                 self.unit = unit
             }
         }
@@ -152,9 +168,14 @@ extension Questionnaire {
         ///     whereas ``hasResponse(taskPath:)`` would also evaluate to `false`, since it only checks for the existence of a response.
         case isMissingResponse(taskId: Task.ID)
         
-//        /// - parameter optionPath: A ``ComponentPath`` pointing to the specific ``Questionnaire/Task/SCMCOption`` whose selection value this condition depends on.
-//        case selectionValueEquals(_ optionPath: ComponentPath, _ value: Bool)
-        
+        /// A condition that compares a task's response to some value.
+        ///
+        /// - Note: Not all comparisons make sense for all question types.
+        ///     If a response is compared against a value of a different type, or if the operator isn't applicable for the type, the condition evaluates to `false`.
+        ///
+        /// - parameter taskId: The id of the task whose response should be inspected.
+        /// - parameter operator: The comparison operation
+        /// - parameter value: The value against which the task's response should be compared
         case responseValueComparison(taskId: Task.ID, operator: ComparisonOperator, value: Value)
         
         
@@ -192,8 +213,6 @@ extension Questionnaire {
         public init(nilLiteral: ()) {
             self = .none
         }
-        
-//        public static func selectionValueEquals
         
         public static func && (lhs: Self, rhs: Self) -> Self {
             .all([lhs, rhs])
