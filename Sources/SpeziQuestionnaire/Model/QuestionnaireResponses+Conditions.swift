@@ -40,7 +40,7 @@ extension QuestionnaireResponses {
             case .instructional:
                 return false
             case .boolean:
-                guard let response = self[booleanResponseAt: task.id],
+                guard let response = self[booleanResponseFor: task.id],
                       case let .bool(value) = value else {
                     return false
                 }
@@ -68,7 +68,7 @@ extension QuestionnaireResponses {
                 }
                 switch `operator` {
                 case .equal:
-                    return self[freeTextResponseAt: task.id] == value
+                    return self[freeTextResponseFor: task.id] == value
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
                     return false
@@ -78,7 +78,7 @@ extension QuestionnaireResponses {
             case .numeric:
                 switch value {
                 case .integer(let value):
-                    guard let response = self[numericResponseAt: task.id].flatMap(Int.init(exactly:)) else {
+                    guard let response = self[numericResponseFor: task.id].flatMap(Int.init(exactly:)) else {
                         return false
                     }
                     return switch `operator` {
@@ -94,7 +94,7 @@ extension QuestionnaireResponses {
                         response >= value
                     }
                 case .decimal(let value):
-                    guard let response = self[numericResponseAt: task.id] else {
+                    guard let response = self[numericResponseFor: task.id] else {
                         return false
                     }
                     return switch `operator` {

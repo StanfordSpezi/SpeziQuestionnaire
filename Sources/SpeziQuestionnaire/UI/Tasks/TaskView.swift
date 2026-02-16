@@ -70,14 +70,14 @@ struct TaskView<Header: View>: View {
             NumericInputRow(task: task, config: config)
         case .boolean:
             SCMCRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
-                responses[booleanResponseAt: task.id] == true
+                responses[booleanResponseFor: task.id] == true
             } set: { newValue in
-                responses[booleanResponseAt: task.id] = newValue
+                responses[booleanResponseFor: task.id] = newValue
             })
             SCMCRow(option: .init(id: "1", title: "No"), isSelected: Binding {
-                responses[booleanResponseAt: task.id] == false
+                responses[booleanResponseFor: task.id] == false
             } set: { newValue in
-                responses[booleanResponseAt: task.id] = !newValue
+                responses[booleanResponseFor: task.id] = !newValue
             })
         case .fileAttachment(let config):
             FileAttachmentQuestionView(task: task, config: config)
@@ -96,9 +96,9 @@ struct TaskView<Header: View>: View {
     
     private func textEditor(for config: Questionnaire.Task.Kind.FreeTextConfig) -> some View {
         TextEditor(text: Binding<String> {
-            responses[freeTextResponseAt: task.id] ?? ""
+            responses[freeTextResponseFor: task.id] ?? ""
         } set: { newValue in
-            responses[freeTextResponseAt: task.id] = newValue
+            responses[freeTextResponseFor: task.id] = newValue
         })
         .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
         .textInputAutocapitalization(config.disableAutocomplete ? .never : nil)

@@ -31,15 +31,15 @@ extension TaskView {
         @ViewBuilder
         private func numberPad() -> some View {
             @Bindable var responses = responses
-            NumberTextField("TODO title", value: $responses[numericResponseAt: task.id])
+            NumberTextField("TODO title", value: $responses[numericResponseFor: task.id])
         }
         
         @ViewBuilder
         private func slider(bounds: ClosedRange<Double>, stepValue: Double) -> some View {
             let binding = Binding<Double> {
-                responses[numericResponseAt: task.id] ?? 0
+                responses[numericResponseFor: task.id] ?? 0
             } set: { newValue in
-                responses[numericResponseAt: task.id] = newValue
+                responses[numericResponseFor: task.id] = newValue
             }
             // TODO use onEditingChanged to commit the update to the responses? (instead of live-updating it all the time)
             // would that even be needed?

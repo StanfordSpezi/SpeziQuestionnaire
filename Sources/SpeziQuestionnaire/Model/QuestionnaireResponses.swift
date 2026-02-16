@@ -70,22 +70,22 @@ public final class QuestionnaireResponses {
         }
     }
     
-    subscript(freeTextResponseAt taskId: Questionnaire.Task.ID) -> String? {
+    subscript(freeTextResponseFor taskId: Questionnaire.Task.ID) -> String? {
         get { freeTextResponses[taskId] }
         set { freeTextResponses[taskId] = newValue }
     }
     
-    subscript(dateTimeResponseAt taskId: Questionnaire.Task.ID) -> DateComponents? {
+    subscript(dateTimeResponseFor taskId: Questionnaire.Task.ID) -> DateComponents? {
         get { dateTimeResponses[taskId] }
         set { dateTimeResponses[taskId] = newValue }
     }
     
-    subscript(numericResponseAt taskId: Questionnaire.Task.ID) -> Double? {
+    subscript(numericResponseFor taskId: Questionnaire.Task.ID) -> Double? {
         get { numericResponses[taskId] }
         set { numericResponses[taskId] = newValue }
     }
     
-    subscript(booleanResponseAt taskId: Questionnaire.Task.ID) -> Bool? {
+    subscript(booleanResponseFor taskId: Questionnaire.Task.ID) -> Bool? {
         get { booleanResponses[taskId] }
         set { booleanResponses[taskId] = newValue }
     }

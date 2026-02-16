@@ -17,14 +17,14 @@ struct DatePickerRow: View {
     
     var body: some View {
         let binding = Binding<Date> {
-            if let response = responses[dateTimeResponseAt: task.id] {
+            if let response = responses[dateTimeResponseFor: task.id] {
                 cal.date(from: response)! // what if this fails?
             } else {
                 .now
             }
         } set: { newValue in
             // TODO there is no way to clear a response here!!
-            responses[dateTimeResponseAt: task.id] = cal.dateComponents(config.style.components, from: newValue)
+            responses[dateTimeResponseFor: task.id] = cal.dateComponents(config.style.components, from: newValue)
         }
         // TOOD make this look good!
         DatePicker("", selection: binding, displayedComponents: { () -> DatePickerComponents in

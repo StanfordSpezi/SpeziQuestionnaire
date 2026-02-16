@@ -40,7 +40,7 @@ extension QuestionnaireResponses {
             // not a problem for now
             return .ok
         case .freeText(let config):
-            guard let response = self[freeTextResponseAt: taskId] else {
+            guard let response = self[freeTextResponseFor: taskId] else {
                 return .ok
             }
             if let minLength = config.minLength, response.count < minLength {
@@ -56,7 +56,7 @@ extension QuestionnaireResponses {
             }
             return .ok
         case .dateTime(let config):
-            guard let response = self[dateTimeResponseAt: taskId] else {
+            guard let response = self[dateTimeResponseFor: taskId] else {
                 return .ok
             }
             switch config.style {
@@ -78,7 +78,7 @@ extension QuestionnaireResponses {
                 return .ok
             }
         case .numeric(let config):
-            guard let response = self[numericResponseAt: taskId] else {
+            guard let response = self[numericResponseFor: taskId] else {
                 return .ok
             }
             if let minimum = config.minimum, response < minimum {
