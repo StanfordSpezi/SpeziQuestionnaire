@@ -8,7 +8,7 @@
 
 
 extension QuestionnaireResponses {
-    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
+    func evaluate(_ condition: Questionnaire.Condition) -> Bool { // swiftlint:disable:this cyclomatic_complexity
         switch condition {
         case .true:
             return true
@@ -74,7 +74,7 @@ extension QuestionnaireResponses {
                     return false
                 }
             case .dateTime:
-                fatalError() // TODO
+                fatalError("TODO")
             case .numeric:
                 switch value {
                 case .integer(let value):
@@ -114,7 +114,7 @@ extension QuestionnaireResponses {
                     return false
                 }
             case .fileAttachment:
-                fatalError() // TODO
+                return false
             }
         }
     }

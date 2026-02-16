@@ -10,7 +10,7 @@ private import Foundation
 
 
 extension QuestionnaireResponses {
-    public enum ResponseValidationResult: Hashable, Sendable {
+    enum ResponseValidationResult: Hashable, Sendable {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
@@ -20,7 +20,9 @@ extension QuestionnaireResponses {
     
     // TODO look into the current overhead of always computing this on demand. maybe cache them?
     // (prob not necessary...)
-    public func validateResponse(for task: Questionnaire.Task) -> ResponseValidationResult {
+    func validateResponse( // swiftlint:disable:this function_body_length cyclomatic_complexity
+        for task: Questionnaire.Task
+    ) -> ResponseValidationResult {
         guard hasResponse(for: task) else {
             // if no response exists, there is nothing that could be invalid.
             // were we to report this as being invalid, every questionnaire would,

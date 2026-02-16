@@ -14,12 +14,15 @@ import SwiftUI
 struct UITestsApp: App {
     @UIApplicationDelegateAdaptor(TestAppDelegate.self) var appDelegate
     
+    @State private var responsesStore = ResponsesStore()
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack {
                 ContentView()
             }
             .spezi(appDelegate)
+            .environment(responsesStore)
         }
     }
 }

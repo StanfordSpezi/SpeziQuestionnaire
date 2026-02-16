@@ -92,7 +92,7 @@ extension QuestionnaireResponses {
         set { numericResponses[taskId] = newValue }
     }
     
-    subscript(booleanResponseFor taskId: Questionnaire.Task.ID) -> Bool? {
+    subscript(booleanResponseFor taskId: Questionnaire.Task.ID) -> Bool? { // swiftlint:disable:this discouraged_optional_boolean
         get { booleanResponses[taskId] }
         set { booleanResponses[taskId] = newValue }
     }
@@ -115,7 +115,7 @@ extension QuestionnaireResponses {
         case .singleChoice, .multipleChoice:
             selectedSCMCOptions.contains { $0.taskId == task.id }
         case .freeText:
-            (freeTextResponses[task.id] ?? "") != ""
+            !(freeTextResponses[task.id] ?? "").isEmpty
         case .dateTime:
             dateTimeResponses[task.id] != nil
         case .numeric:
@@ -192,16 +192,15 @@ extension QuestionnaireResponses {
             self.size = try FileManager.default.attributesOfItem(atPath: self.url.path)[FileAttributeKey.size] as? UInt64
         }
         
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
-        
         public static func == (lhs: CollectedAttachment, rhs: CollectedAttachment) -> Bool {
             lhs.id == rhs.id
         }
         
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
         deinit {
-            print("clearing \(url.path)")
             try? FileManager.default.removeItem(at: url)
         }
     }
@@ -211,7 +210,7 @@ extension QuestionnaireResponses {
 extension QuestionnaireResponses.CollectedAttachment: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(importedContentType: .item) { input in
-            return try Self(url: input.file)
+            try Self(url: input.file)
         }
     }
 }

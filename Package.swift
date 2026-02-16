@@ -25,6 +25,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", branch: "lukas/spm"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1")
     ] + swiftLintPackage(),
@@ -32,7 +33,12 @@ let package = Package(
         .target(
             name: "SpeziQuestionnaire",
             dependencies: [
-                .product(name: "SpeziViews", package: "SpeziViews")
+                .product(name: "SpeziViews", package: "SpeziViews"),
+                // only temporarily, for the legacy support
+                .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "ResearchKit", package: "ResearchKit"),
+                .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR"),
+                .product(name: "ResearchKitSwiftUI", package: "ResearchKit")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
@@ -57,7 +63,10 @@ let package = Package(
         .testTarget(
             name: "SpeziQuestionnaireTests",
             dependencies: [
-                .target(name: "SpeziQuestionnaire")
+                "SpeziQuestionnaire",
+                "SpeziQuestionnaireFHIR",
+                .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR")
             ],
             plugins: [] + swiftLintPlugin()
         )

@@ -15,11 +15,6 @@ public import SpeziQuestionnaire
 private import UniformTypeIdentifiers
 
 
-// ???
-//private typealias Section = SpeziQuestionnaire.Questionnaire.Section
-//private typealias Task = SpeziQuestionnaire.Questionnaire.Task
-
-
 private struct FHIRConversionError: LocalizedError {
     let message: String
     
@@ -258,9 +253,8 @@ extension ModelsR4.QuestionnaireItem {
                 disableAutocomplete: itemType == .url
             ))
         case .choice, .openChoice:
-            var options: [SpeziQuestionnaire.Questionnaire.Task.SCMCOption] = []
             let valueSets = context.questionnaire.getContainedValueSets()
-            
+            var options: [SpeziQuestionnaire.Questionnaire.Task.SCMCOption] = []
             // If the `QuestionnaireItem` has an `answerValueSet` defined which is a reference to a contained `ValueSet`,
             // search the available `ValueSets`and, if a match is found, convert the options to `ORKTextChoice`
             if let answerValueSetURL = answerValueSet?.value?.url.absoluteString,
@@ -281,7 +275,7 @@ extension ModelsR4.QuestionnaireItem {
                     guard let display = option.display?.value?.string,
                           let code = option.code.value?.string,
                           let system = valueSet?.compose?.include.first?.system?.value?.url.absoluteString else {
-                        fatalError() // TODO does this happen?
+                        fatalError("TODO does this happen?")
                         continue
                     }
                     options.append(.init(
@@ -398,7 +392,10 @@ extension SpeziQuestionnaire.Questionnaire.Condition {
         }
     }
     
-    fileprivate init(_ enableWhen: ModelsR4.QuestionnaireItemEnableWhen, using context: ConversionContext) throws {
+    fileprivate init( // swiftlint:disable:this cyclomatic_complexity
+        _ enableWhen: ModelsR4.QuestionnaireItemEnableWhen,
+        using context: ConversionContext
+    ) throws {
         guard let questionLinkId = enableWhen.question.value?.string else {
             throw FHIRConversionError("EnableWhen is missing question linkId")
         }
@@ -483,7 +480,7 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
             return .integer(Int(try unwrap(value.value?.integer)))
         case .quantity(let value):
             // ISSUE: we might need to convert units here? (if the condition uses a different unit than the quesion (which is allowed (i think))
-            fatalError() // TODO
+            fatalError("TODO")
         case .reference(let value):
             throw FHIRConversionError("Unsupported comparison value '\(value)'")
         case .string(let value):

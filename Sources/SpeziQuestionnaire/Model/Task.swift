@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable nesting function_default_parameter_at_end
+
 public import Foundation
 public import UniformTypeIdentifiers
 

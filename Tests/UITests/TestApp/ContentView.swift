@@ -17,14 +17,35 @@ import UniformTypeIdentifiers
 
 
 struct ContentView: View {
-    @Environment(ExampleStandard.self) var standard
+    struct WrappedQuestionnaire: Hashable, Identifiable {
+        let r4: ModelsR4.Questionnaire?
+        let spezi: SpeziQuestionnaire.Questionnaire
+        
+        var id: some Hashable {
+            spezi.id
+        }
+        
+        init(r4: ModelsR4.Questionnaire) throws {
+            self.r4 = r4
+            self.spezi = try .init(r4)
+        }
+        
+        init(spezi: SpeziQuestionnaire.Questionnaire) {
+            self.r4 = nil
+            self.spezi = spezi
+        }
+    }
+    
+    @Environment(ResponsesStore.self) var responsesStore
     
     @State private var showDetails = false
-    @State private var loadedQuestionnaire: SpeziQuestionnaire.Questionnaire?
-    @State private var activeQuestionnaire: SpeziQuestionnaire.Questionnaire?
+    @State private var loadedQuestionnaire: WrappedQuestionnaire?
     @State private var showFileImporter = false
     @State private var viewState: ViewState = .idle
     
+    @State private var activeQuestionnaireNewImpl: SpeziQuestionnaire.Questionnaire?
+    @State private var activeQuestionnaireOldImpl: ModelsR4.Questionnaire?
+    @State private var currentlyShownResponse: ModelsR4.QuestionnaireResponse?
     
     var body: some View {
         Form {
@@ -35,16 +56,25 @@ struct ContentView: View {
             } footer: {
                 Text("Pick a predefined questionnaire or import one from a file.")
             }
-            .viewStateAlert(state: $viewState)
+            if let loadedQuestionnaire {
+                Section("Loaded Questionnaire") {
+                    loadedQuestionnaireSection(for: loadedQuestionnaire)
+                }
+            }
+            if !responsesStore.responses.isEmpty {
+                responsesSection
+            }
         }
         .navigationTitle("Spezi Questionnaire")
-        .sheet(item: $activeQuestionnaire) { questionnaire in
+        .viewStateAlert(state: $viewState)
+        .sheet(item: $activeQuestionnaireNewImpl) { questionnaire in
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
                 case .success(let response):
-                    standard.surveyResponseCount += 1
+//                    standard.surveyResponseCount += 1
                     do {
                         let fhirResponse = try ModelsR4.QuestionnaireResponse(response)
+                        responsesStore.responses.append(fhirResponse)
                         let encoder = JSONEncoder()
                         encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
                         let data = try encoder.encode(fhirResponse)
@@ -56,58 +86,38 @@ struct ContentView: View {
                 default:
                     break
                 }
-                activeQuestionnaire = nil
             }
         }
-        .onAppear {
-            for r4Questionnaire in ModelsR4.Questionnaire.exampleQuestionnaires + ModelsR4.Questionnaire.researchQuestionnaires {
-                do {
-                    _ = try SpeziQuestionnaire.Questionnaire(r4Questionnaire)
-                } catch {
-                    fatalError("Error in \(r4Questionnaire.title?.value?.string ?? ""): \(error)")
+        .sheet(item: $activeQuestionnaireOldImpl) { r4Questionnaire in
+            LegacyQuestionnaireView(
+                questionnaire: r4Questionnaire,
+                completionStepMessage: "Completed"
+            ) { result in
+                switch result {
+                case .completed(let response):
+                    responsesStore.responses.append(response)
+                default:
+                    break
                 }
+                activeQuestionnaireOldImpl = nil
+            }
+        }
+        .sheet(item: $currentlyShownResponse) { response in
+            NavigationStack {
+                ResponseDetailsView(response: response)
             }
         }
     }
-    
     
     @ViewBuilder private var sectionContent: some View {
         HStack {
             Label("Completed", systemImage: "checkmark.circle")
             Spacer()
-                Text("\(standard.surveyResponseCount)")
-                    .foregroundStyle(.secondary)
+            Text(responsesStore.responses.count, format: .number)
+                .foregroundStyle(.secondary)
         }
         predefinedMenu
         fileImporterButton
-        if let loadedQuestionnaire = loadedQuestionnaire {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(loadedQuestionnaire.metadata.title)
-                    .font(.headline)
-                if let url = loadedQuestionnaire.metadata.url?.absoluteString {
-                    Text(url)
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.top, 4)
-            Button {
-                activeQuestionnaire = loadedQuestionnaire
-            } label: {
-                Label("Start Questionnaire", systemImage: "play.circle")
-            }
-            Button {
-                showDetails = true
-            } label: {
-                Label("Details", systemImage: "info.circle")
-            }
-        } else {
-            ContentUnavailableView(
-                "No Questionnaire Selected",
-                systemImage: "list.bullet.rectangle",
-                description: Text("Pick a predefined questionnaire or import a JSON file to begin.")
-            )
-        }
     }
     
     private var predefinedMenu: some View {
@@ -157,135 +167,78 @@ struct ContentView: View {
         }
     }
     
+    private var responsesSection: some View {
+        Section("Responses") {
+            ForEach(responsesStore.responses, id: \.self) { response in
+                Button {
+                    currentlyShownResponse = response
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text(response.questionnaire?.value?.url.absoluteString ?? "n/a")
+                        if let authoredDate = try? response.authored?.value?.asNSDate() {
+                            Text(authoredDate, format: .iso8601)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     private func menuButton(title: String, questionnaire: SpeziQuestionnaire.Questionnaire) -> some View {
         Button(title) {
-            loadedQuestionnaire = questionnaire
+            loadedQuestionnaire = .init(spezi: questionnaire)
         }
     }
     
     private func menuButton(title: String, questionnaire: ModelsR4.Questionnaire) -> some View {
         AsyncButton(title, state: $viewState) {
-            loadedQuestionnaire = try SpeziQuestionnaire.Questionnaire(questionnaire)
+//            loadedQuestionnaire = try SpeziQuestionnaire.Questionnaire(questionnaire)
+            loadedQuestionnaire = try .init(r4: questionnaire)
+            dump(loadedQuestionnaire!.spezi)
         }
     }
     
     
-    private func importQuestionnaire(from url: URL) throws -> SpeziQuestionnaire.Questionnaire {
+    @ViewBuilder
+    private func loadedQuestionnaireSection(for loadedQuestionnaire: WrappedQuestionnaire) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(loadedQuestionnaire.spezi.metadata.title)
+                .font(.headline)
+            if let url = loadedQuestionnaire.spezi.metadata.url?.absoluteString {
+                Text(url)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(.top, 4)
+        Button {
+            activeQuestionnaireNewImpl = loadedQuestionnaire.spezi
+        } label: {
+            Label("Start Questionnaire (Spezi Impl)", systemImage: "play.circle")
+        }
+        Button {
+            activeQuestionnaireOldImpl = loadedQuestionnaire.r4
+        } label: {
+            Label("Start Questionnaire (ResearchKit Impl)", systemImage: "play.circle")
+        }
+        .disabled(loadedQuestionnaire.r4 == nil)
+        Button {
+            showDetails = true
+        } label: {
+            Label("Details", systemImage: "info.circle")
+        }
+    }
+    
+    private func importQuestionnaire(from url: URL) throws -> WrappedQuestionnaire {
         let data = try Data(contentsOf: url)
         let fhirQuestionnaire = try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: data)
-        return try SpeziQuestionnaire.Questionnaire(fhirQuestionnaire)
+        return try WrappedQuestionnaire(r4: fhirQuestionnaire)
+//        return try SpeziQuestionnaire.Questionnaire(fhirQuestionnaire)
     }
 }
 
 
-extension SpeziQuestionnaire.Questionnaire {
-    static let testQuestionnaire = Self(
-        metadata: .init(
-            id: "edu.stanford.SpeziQuestionnaire.test",
-            url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaire")!, // swiftlint:disable:this force_unwrapping
-            title: "Test Questionnaire",
-            explainer: "This is the test questionnaire, whose purpose is testing the questionnaire infrastructure."
-        ),
-        sections: [
-            .init(id: "sec1", tasks: [
-                .init(
-                    id: "1",
-                    title: "Instructions",
-                    kind: .instructional("These are **markdown-based** instructions")
-                ),
-                .init(
-                    id: "2",
-                    title: "Single-Choice Question",
-                    subtitle: "What's your favourite ice cream flavour?",
-                    kind: .singleChoice(options: [
-                        .init(id: "0", title: "Strawberry"),
-                        .init(id: "1", title: "Mango"),
-                        .init(id: "2", title: "Chocolate")
-                    ])
-                ),
-                .init(
-                    id: "3",
-                    title: "Multiple-Choice Question",
-                    subtitle: "Which of the books have you read already?",
-                    kind: .multipleChoice(options: [
-                        .init(id: "0", title: "AGOT"),
-                        .init(id: "1", title: "ACOK"),
-                        .init(id: "2", title: "ASOS"),
-                        .init(id: "3", title: "AFFC"),
-                        .init(id: "4", title: "ADWD")
-                    ])
-                ),
-                .init(
-                    id: "4",
-                    title: "Free-Text Entry",
-                    subtitle: "Tell us a little about yourself",
-                    kind: .freeText(.init(
-                        minLength: nil,
-                        maxLength: nil,
-                        regex: try! NSRegularExpression(pattern: #"https?://[a-zA-Z]+\.[a-z]{3}"#), // swiftlint:disable:this force_try
-                        disableAutocomplete: true
-                    ))
-                ),
-                .init(
-                    id: "5",
-                    title: "Date Entry",
-                    kind: .dateTime(.init(style: .dateOnly, minDate: nil, maxDate: nil))
-                ),
-                .init(
-                    id: "6",
-                    title: "Time Entry",
-                    kind: .dateTime(.init(style: .timeOnly, minDate: nil, maxDate: nil))
-                ),
-                .init(
-                    id: "7",
-                    title: "Date&Time Entry",
-                    kind: .dateTime(.init(style: .dateAndTime, minDate: nil, maxDate: nil))
-                ),
-                .init(
-                    id: "8",
-                    title: "Numeric (Slider)",
-                    kind: .numeric(.init(
-                        inputMode: .slider(stepValue: 0.25),
-                        minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: ""
-                    ))
-                ),
-                .init(
-                    id: "9",
-                    title: "Numeric (TextField Decimal)",
-                    kind: .numeric(.init(
-                        inputMode: .numberPad(.decimal),
-                        minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: ""
-                    ))
-                ),
-                .init(
-                    id: "10",
-                    title: "Numeric (TextField Integer)",
-                    kind: .numeric(.init(
-                        inputMode: .numberPad(.integer),
-                        minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: ""
-                    ))
-                ),
-                .init(
-                    id: "11",
-                    title: "Numeric (Unit Entry)",
-                    kind: .numeric(.init(
-                        inputMode: .numberPad(.integer),
-                        minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: "m/s^2"
-                    ))
-                )
-            ])
-        ]
-    )
-}
+extension ModelsR4.Questionnaire: @retroactive Identifiable {}
+extension ModelsR4.QuestionnaireResponse: @retroactive Identifiable {}

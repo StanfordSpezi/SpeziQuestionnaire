@@ -24,7 +24,6 @@
     },
     "QUESTIONNAIRE_LOADING_ERROR_MESSAGE" : {
       "comment" : "This is a string that is balh",
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

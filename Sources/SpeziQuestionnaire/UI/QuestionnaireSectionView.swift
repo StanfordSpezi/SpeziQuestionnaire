@@ -16,8 +16,6 @@ struct QuestionnaireSectionView: View {
     
     @Environment(QuestionnaireResponses.self) private var responses
     
-    @Environment(\.dismiss) private var dismiss
-    
     let questionnaire: Questionnaire
     let section: Questionnaire.Section
     let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
@@ -46,7 +44,7 @@ struct QuestionnaireSectionView: View {
                 .buttonStyleGlassProminent()
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
-                .tint(responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
+                .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
             }
         }
@@ -56,7 +54,6 @@ struct QuestionnaireSectionView: View {
             ToolbarItem(placement: .cancellationAction) {
                 CancelButton {
                     await resultHandler(.cancelled)
-                    dismiss()
                 }
             }
         }
@@ -80,7 +77,6 @@ struct QuestionnaireSectionView: View {
             indicateMissingResponses = false
         } else {
             await resultHandler(.success(responses))
-            dismiss()
         }
     }
 }

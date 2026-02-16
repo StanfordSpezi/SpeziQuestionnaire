@@ -24,6 +24,7 @@ struct TaskView<Header: View>: View {
     
     private var content: some View {
         Section {
+            // TODO add a "Question x of y" here?
             if !task.title.isEmpty || !task.subtitle.isEmpty {
                 VStack(alignment: .leading) {
                     if !task.title.isEmpty {

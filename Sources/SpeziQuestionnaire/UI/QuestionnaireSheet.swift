@@ -23,11 +23,10 @@ public struct QuestionnaireSheet: View {
     public var body: some View {
         ManagedNavigationStack(path: navigationPath) {
             if let section = questionnaire.sections.first {
-                QuestionnaireSectionView(
-                    questionnaire: questionnaire,
-                    section: section,
-                    resultHandler: resultHandler
-                )
+                QuestionnaireSectionView(questionnaire: questionnaire, section: section) { result in
+                    await resultHandler(result)
+                    dismiss()
+                }
             } else {
                 // TODO??
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")

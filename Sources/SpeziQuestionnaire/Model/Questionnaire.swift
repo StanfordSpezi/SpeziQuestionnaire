@@ -13,7 +13,7 @@ private import SpeziFoundation
 /// A questionnaire.
 ///
 /// Compatible with [FHIR questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
-public struct Questionnaire: Hashable, Identifiable, Sendable { // TODO Codable???
+public struct Questionnaire: Hashable, Identifiable, Sendable {
     public let metadata: Metadata
     public let sections: [Section]
     
@@ -29,7 +29,7 @@ public struct Questionnaire: Hashable, Identifiable, Sendable { // TODO Codable?
     public func find(taskId: Task.ID) -> (section: Section, task: Task)? {
         for section in sections {
             for task in section.tasks {
-                if task.id == taskId {
+                if task.id == taskId { // swiftlint:disable:this for_where
                     return (section, task)
                 }
             }

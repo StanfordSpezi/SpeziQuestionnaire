@@ -13,15 +13,16 @@ public import ModelsR4
 public import SpeziQuestionnaire
 
 
-extension ModelsR4.QuestionnaireResponse {
-    private struct FHIRConversionError: Error {
-        let message: String
-        
-        init(_ message: String) {
-            self.message = message
-        }
-    }
+private struct FHIRConversionError: Error {
+    let message: String
     
+    init(_ message: String) {
+        self.message = message
+    }
+}
+
+
+extension ModelsR4.QuestionnaireResponse {
     /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
     public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
         self.init(status: .init(.completed))
@@ -172,6 +173,27 @@ extension ModelsR4.QuestionnaireResponse {
                 linkId: taskId.asFHIRStringPrimitive()
             ))
         }
+        // sort the items by task
+        let tasksIdsByOverallPosition: [String: Int] = other.questionnaire.sections
+            .flatMap(\.tasks)
+            .enumerated()
+            .reduce(into: [:]) { $0[$1.element.id] = $1.offset }
+        try items.sort { lhs, rhs in
+            let lhsLinkId = try lhs.getLinkId()
+            let rhsLinkId = try rhs.getLinkId()
+            return tasksIdsByOverallPosition[lhsLinkId]! < tasksIdsByOverallPosition[rhsLinkId]!
+        }
         self.item = items
+    }
+}
+
+
+extension QuestionnaireResponseItem {
+    fileprivate func getLinkId() throws -> String {
+        if let linkId = linkId.value?.string {
+            return linkId
+        } else {
+            throw FHIRConversionError("Unable to get linkId")
+        }
     }
 }
