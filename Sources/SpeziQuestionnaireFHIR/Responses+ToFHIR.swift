@@ -156,15 +156,16 @@ extension ModelsR4.QuestionnaireResponse {
         }
         for (taskId, attachments) in other.fileAttachmentResponses {
             items.append(.init(
-                answer: attachments.map { attachment in
-                    let sha1 = Insecure.SHA1.hash(data: attachment.data)
+                answer: try attachments.map { attachment in
+                    let data = try Data(contentsOf: attachment.url)
+                    let sha1 = Insecure.SHA1.hash(data: data)
                     return .init(value: .attachment(.init(
                         //contentType: <#T##FHIRPrimitive<FHIRString>?#>, // TODO?
                         //creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
-                        data: FHIRPrimitive(Base64Binary(attachment.data.base64EncodedString())),
+                        data: FHIRPrimitive(Base64Binary(data.base64EncodedString())),
                         hash: FHIRPrimitive(Base64Binary(Data(sha1).base64EncodedString())),
                         id: attachment.id.uuidString.asFHIRStringPrimitive(),
-                        size: attachment.data.count.asFHIRUnsignedIntegerPrimitive(),
+                        size: data.count.asFHIRUnsignedIntegerPrimitive(),
                         title: attachment.filename.asFHIRStringPrimitive(),
                     )))
                 },

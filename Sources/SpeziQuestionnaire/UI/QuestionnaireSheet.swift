@@ -10,6 +10,7 @@ public import SwiftUI
 private import SpeziViews
 
 
+/// Presents a ``Questionnaire`` for answering.
 public struct QuestionnaireSheet: View {
     @Environment(\.dismiss) private var dismiss
     
@@ -22,7 +23,11 @@ public struct QuestionnaireSheet: View {
     public var body: some View {
         ManagedNavigationStack(path: navigationPath) {
             if let section = questionnaire.sections.first {
-                QuestionnaireSectionView(questionnaire: questionnaire, section: section)
+                QuestionnaireSectionView(
+                    questionnaire: questionnaire,
+                    section: section,
+                    resultHandler: resultHandler
+                )
             } else {
                 // TODO??
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
@@ -30,9 +35,13 @@ public struct QuestionnaireSheet: View {
         }
         .interactiveDismissDisabled()
         .environment(responses)
-        .environment(\.questionnaireSheetResultHandler, resultHandler)
     }
     
+    /// Creates a new `QuestionnaireSheet`
+    ///
+    /// - parameter questionnaire: The ``Questionnaire`` that should be answered.
+    /// - parameter resultHandler: A closure that is invoked when the questionnaire is completed, or cancelled by the user.
+    ///     The sheet dismisses itself once this closure has returned.
     public init(
         _ questionnaire: Questionnaire,
         resultHandler: @escaping @MainActor (Result) async -> Void
@@ -48,13 +57,11 @@ public struct QuestionnaireSheet: View {
 
 
 extension QuestionnaireSheet {
+    /// The result of answering a questionnaire.
     public enum Result {
+        /// The user successfully filled out the whole questionnaire.
         case success(QuestionnaireResponses)
+        /// The user cancelled the questionnaire.
         case cancelled
     }
-}
-
-
-extension EnvironmentValues {
-    @Entry var questionnaireSheetResultHandler: (@MainActor (QuestionnaireSheet.Result) async -> Void)?
 }

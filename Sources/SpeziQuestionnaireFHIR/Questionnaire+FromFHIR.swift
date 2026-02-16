@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_types_order todo file_length
+
 
 private import Algorithms
 private import Foundation
@@ -329,21 +331,19 @@ extension ModelsR4.QuestionnaireItem {
             return (repeats?.value?.bool ?? false) ? .multipleChoice(options: options) : .singleChoice(options: options)
         case .attachment:
             return .fileAttachment(.init(
-                uti: { () -> UTType in
-                    if let mimeType = self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").first?.value?.stringValue {
-                        UTType(mimeType: mimeType, conformingTo: .data) ?? .data
-                    } else {
-                        // accept anything if no mime type is specified
-                        .data
-                    }
-                }(),
+                contentTypes: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").compactMapIntoSet { ext in
+                    ext.value?.stringValue.flatMap { UTType(mimeType: $0) }
+                },
                 maxSize: { () -> UInt64? in
                     if let value = self.extensions(for: "http://hl7.org/fhir/StructureDefinition/maxSize").first?.value?.intValue {
                         UInt64(exactly: value)
                     } else {
                         nil
                     }
-                }()
+                }(),
+                // TODO this will likely lead to effectively all such questions NOT allowing multiple selection,
+                // since the `repeats` field is typically not used, and eg the phoenix builder only offers it when you know where to look...
+                allowsMultipleSelection: self.repeats == true
             ))
         case .reference:
             throw FHIRConversionError("Unsupported question type '\(itemType)'")

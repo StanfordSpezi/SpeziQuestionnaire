@@ -7,6 +7,7 @@
 //
 
 import class ModelsR4.Questionnaire
+import class ModelsR4.QuestionnaireResponse
 import SpeziQuestionnaire
 import SpeziQuestionnaireFHIR
 import FHIRQuestionnaires
@@ -40,8 +41,18 @@ struct ContentView: View {
         .sheet(item: $activeQuestionnaire) { questionnaire in
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
-                case .success:
+                case .success(let response):
                     standard.surveyResponseCount += 1
+                    do {
+                        let fhirResponse = try ModelsR4.QuestionnaireResponse(response)
+                        let encoder = JSONEncoder()
+                        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
+                        let data = try encoder.encode(fhirResponse)
+                        let string = String(decoding: data, as: UTF8.self)
+                        print(string)
+                    } catch {
+                        print("\(error)")
+                    }
                 default:
                     break
                 }
@@ -57,13 +68,6 @@ struct ContentView: View {
                 }
             }
         }
-//        .sheet(isPresented: $showDetails) {
-//            if let loadedQuestionnaire {
-//                NavigationStack {
-//                    QuestionnaireDetailView(questionnaire: loadedQuestionnaire)
-//                }
-//            }
-//        }
     }
     
     
@@ -80,13 +84,13 @@ struct ContentView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(loadedQuestionnaire.metadata.title)
                     .font(.headline)
-//                    if let url = loadedQuestionnaire.url?.value?.description {
-//                        Text(url)
-//                            .font(.footnote)
-//                            .foregroundStyle(.secondary)
-//                    }
+                if let url = loadedQuestionnaire.metadata.url?.absoluteString {
+                    Text(url)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
-                .padding(.top, 4)
+            .padding(.top, 4)
             Button {
                 activeQuestionnaire = loadedQuestionnaire
             } label: {
@@ -178,7 +182,7 @@ extension SpeziQuestionnaire.Questionnaire {
     static let testQuestionnaire = Self(
         metadata: .init(
             id: "edu.stanford.SpeziQuestionnaire.test",
-            url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaire")!,
+            url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaire")!, // swiftlint:disable:this force_unwrapping
             title: "Test Questionnaire",
             explainer: "This is the test questionnaire, whose purpose is testing the questionnaire infrastructure."
         ),

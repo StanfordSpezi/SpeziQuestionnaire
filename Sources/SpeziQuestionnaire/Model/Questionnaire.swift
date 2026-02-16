@@ -10,7 +10,9 @@ public import Foundation
 private import SpeziFoundation
 
 
-/// https://hl7.org/fhir/R4/questionnaire.html
+/// A questionnaire.
+///
+/// Compatible with [FHIR questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
 public struct Questionnaire: Hashable, Identifiable, Sendable { // TODO Codable???
     public let metadata: Metadata
     public let sections: [Section]

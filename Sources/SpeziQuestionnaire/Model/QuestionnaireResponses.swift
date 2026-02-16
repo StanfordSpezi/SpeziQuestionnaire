@@ -7,6 +7,7 @@
 //
 
 
+public import CoreTransferable
 public import Foundation
 public import Observation
 
@@ -16,21 +17,6 @@ public final class QuestionnaireResponses {
     public struct SelectedOption: Hashable {
         public let taskId: Questionnaire.Task.ID
         public let optionId: Questionnaire.Task.SCMCOption.ID
-    }
-    
-    public struct CollectedAttachment: Hashable, Identifiable, Sendable {
-        public let id = UUID()
-        public let filename: String
-        public let data: Data // TODO be smarter here!
-        // TODO thumbnail?
-        
-        public func hash(into hasher: inout Hasher) {
-            hasher.combine(id)
-        }
-        
-        public static func == (lhs: Self, rhs: Self) -> Bool {
-            lhs.id == rhs.id
-        }
     }
     
     public let questionnaire: Questionnaire
@@ -104,6 +90,11 @@ public final class QuestionnaireResponses {
         set { booleanResponses[taskId] = newValue }
     }
     
+    subscript(fileAttachmentsFor taskId: Questionnaire.Task.ID) -> [CollectedAttachment] {
+        get { fileAttachmentResponses[taskId] ?? [] }
+        set { fileAttachmentResponses[taskId] = newValue }
+    }
+    
     
     func hasAnswer(for task: Questionnaire.Task) -> Bool {
         return switch task.kind {
@@ -126,18 +117,18 @@ public final class QuestionnaireResponses {
     
     
     func isMissingResponse(for task: Questionnaire.Task) -> Bool {
-        !task.isOptional && !hasAnswer(for: task)
+        !task.isOptional && evaluate(task.enabledCondition) && !hasAnswer(for: task)
     }
     
     func isMissingResponses(in section: Questionnaire.Section) -> Bool {
         section.tasks.contains { task in
-            !task.isOptional && !hasAnswer(for: task)
+            isMissingResponse(for: task)
         }
     }
     
     func firstTaskWithMissingResponse(in section: Questionnaire.Section) -> Questionnaire.Task? {
         section.tasks.first { task in
-            !task.isOptional && !hasAnswer(for: task)
+            isMissingResponse(for: task)
         }
     }
 }
@@ -254,6 +245,64 @@ extension QuestionnaireResponses {
             case .fileAttachment:
                 fatalError() // TODO
             }
+        }
+    }
+}
+
+
+extension QuestionnaireResponses {
+    public final class CollectedAttachment: Hashable, Identifiable, Sendable {
+        private static let tmpDir = URL.temporaryDirectory.appending(path: "edu.stanford.SpeziQuestionnaire.TmpAttachment")
+        
+        public let id = UUID()
+        public let filename: String
+        /// A temporary file url where the attachment is stored.
+        ///
+        /// - Important: This file will automatically be deleted when the attachment object gets deallocated.
+        public let url: URL
+        /// The attachment's file size, in bytes
+        public let size: UInt64?
+//        nonisolated(unsafe) public private(set) var thumbnail: Image?
+        // TODO thumbnail?
+        
+        init(url inputUrl: URL) throws {
+            guard inputUrl.startAccessingSecurityScopedResource() else {
+                throw NSError(domain: "edu.stanford.Spezi", code: 0, userInfo: [
+                    NSLocalizedDescriptionKey: "Unable to access file url"
+                ])
+            }
+            defer {
+                inputUrl.stopAccessingSecurityScopedResource()
+            }
+            self.filename = inputUrl.lastPathComponent
+            self.url = Self.tmpDir
+                .appending(component: id.uuidString)
+                .appendingPathExtension(inputUrl.pathExtension)
+            try FileManager.default.createDirectory(at: Self.tmpDir, withIntermediateDirectories: true)
+            try FileManager.default.copyItem(at: inputUrl, to: self.url)
+            self.size = try FileManager.default.attributesOfItem(atPath: self.url.path)[FileAttributeKey.size] as? UInt64
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(id)
+        }
+        
+        public static func == (lhs: CollectedAttachment, rhs: CollectedAttachment) -> Bool {
+            lhs.id == rhs.id
+        }
+        
+        deinit {
+            print("clearing \(url.path)")
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+}
+
+
+extension QuestionnaireResponses.CollectedAttachment: Transferable {
+    public static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .item) { input in
+            return try Self(url: input.file)
         }
     }
 }

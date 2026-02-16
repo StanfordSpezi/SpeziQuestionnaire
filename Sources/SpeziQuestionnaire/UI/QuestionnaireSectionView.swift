@@ -15,12 +15,12 @@ struct QuestionnaireSectionView: View {
     @Environment(ManagedNavigationStack.Path.self) private var navigationPath
     
     @Environment(QuestionnaireResponses.self) private var responses
-    @Environment(\.questionnaireSheetResultHandler) private var resultHandler
     
     @Environment(\.dismiss) private var dismiss
     
     let questionnaire: Questionnaire
     let section: Questionnaire.Section
+    let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
     
@@ -55,14 +55,12 @@ struct QuestionnaireSectionView: View {
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 CancelButton {
-                    await resultHandler?(.cancelled)
+                    await resultHandler(.cancelled)
                     dismiss()
                 }
             }
         }
     }
-    
-    
     
     private func advance(using scrollViewProxy: ScrollViewProxy) async {
         if let missedTask = responses.firstTaskWithMissingResponse(in: section) {
@@ -72,11 +70,15 @@ struct QuestionnaireSectionView: View {
             }
         } else if let nextSection = responses.questionnaire.section(after: section) {
             navigationPath.append {
-                QuestionnaireSectionView(questionnaire: questionnaire, section: nextSection)
+                QuestionnaireSectionView(
+                    questionnaire: questionnaire,
+                    section: nextSection,
+                    resultHandler: resultHandler
+                )
             }
             indicateMissingResponses = false
         } else {
-            await resultHandler?(.success(responses))
+            await resultHandler(.success(responses))
             dismiss()
         }
     }

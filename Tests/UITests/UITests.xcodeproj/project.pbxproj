@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
 		80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */; };
+		80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E8A2F42349F00827270 /* FHIRQuestionnaires */; };
 		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
 /* End PBXBuildFile section */
 
@@ -50,6 +51,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */,
+				80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */,
 				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 			);
@@ -116,6 +118,7 @@
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
 				803769F62F262FC400FA2F59 /* Spezi */,
 				80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */,
+				80073E8A2F42349F00827270 /* FHIRQuestionnaires */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -172,6 +175,7 @@
 			mainGroup = 2F6D138928F5F384007C25D6;
 			packageReferences = (
 				803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */,
+				80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -383,6 +387,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.spezi.questionnaire.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -424,6 +429,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.spezi.questionnaire.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -562,6 +568,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.stanford.spezi.questionnaire.testapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -621,6 +628,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.7;
+			};
+		};
 		803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
@@ -639,6 +654,11 @@
 		80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SpeziQuestionnaireFHIR;
+		};
+		80073E8A2F42349F00827270 /* FHIRQuestionnaires */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
+			productName = FHIRQuestionnaires;
 		};
 		803769F62F262FC400FA2F59 /* Spezi */ = {
 			isa = XCSwiftPackageProductDependency;

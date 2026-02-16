@@ -91,12 +91,15 @@ extension Questionnaire.Task {
         }
         
         public struct FileAttachmentConfig: Hashable, Sendable {
-            public let uti: UTType
+            /// The content types allowed for attachments.
+            public let contentTypes: Set<UTType>
             public let maxSize: UInt64?
+            public let allowsMultipleSelection: Bool
             
-            public init(uti: UTType, maxSize: UInt64?) {
-                self.uti = uti
+            public init(contentTypes: Set<UTType>, maxSize: UInt64?, allowsMultipleSelection: Bool) {
+                self.contentTypes = contentTypes
                 self.maxSize = maxSize
+                self.allowsMultipleSelection = allowsMultipleSelection
             }
         }
     }
