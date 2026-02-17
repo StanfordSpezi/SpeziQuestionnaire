@@ -36,7 +36,7 @@ extension TaskView {
             @Bindable var responses = responses
             NumberTextField(
                 "", // ???
-                value: $responses[numericResponseFor: task.id],
+                value: $responses[responseFor: task.id].numberValue,
                 allowsDecimalEntry: { () -> Bool in
                     switch numberKind {
                     case .integer:
@@ -51,9 +51,9 @@ extension TaskView {
         @ViewBuilder
         private func slider(bounds: ClosedRange<Double>, stepValue: Double) -> some View {
             let binding = Binding<Double> {
-                responses[numericResponseFor: task.id] ?? 0
+                responses[responseFor: task.id].numberValue ?? 0
             } set: { newValue in
-                responses[numericResponseFor: task.id] = newValue
+                responses[responseFor: task.id].numberValue = newValue
             }
             VStack {
                 Text(binding.wrappedValue, format: .number)

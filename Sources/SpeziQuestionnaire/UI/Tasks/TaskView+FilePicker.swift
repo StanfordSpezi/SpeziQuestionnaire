@@ -21,10 +21,10 @@ struct FileAttachmentQuestionView: View {
     
     private var attachments: [QuestionnaireResponses.CollectedAttachment] {
         get {
-            responses[fileAttachmentsFor: task.id]
+            responses[responseFor: task.id].attachmentsValue ?? []
         }
         nonmutating set {
-            responses[fileAttachmentsFor: task.id] = newValue
+            responses[responseFor: task.id].attachmentsValue = newValue
         }
     }
     

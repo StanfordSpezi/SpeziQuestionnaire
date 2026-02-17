@@ -29,23 +29,31 @@ extension Questionnaire {
                     id: "2",
                     title: "Single-Choice Question",
                     subtitle: "What's your favourite ice cream flavour?",
-                    kind: .singleChoice(options: [
-                        .init(id: "0", title: "Strawberry"),
-                        .init(id: "1", title: "Mango"),
-                        .init(id: "2", title: "Chocolate")
-                    ])
+                    kind: .choice(.init(
+                        options: [
+                            .init(id: "0", title: "Strawberry"),
+                            .init(id: "1", title: "Mango"),
+                            .init(id: "2", title: "Chocolate")
+                        ],
+                        hasFreeTextOtherOption: true,
+                        allowsMultipleSelection: false
+                    ))
                 ),
                 .init(
                     id: "3",
                     title: "Multiple-Choice Question",
                     subtitle: "Which of the books have you read already?",
-                    kind: .multipleChoice(options: [
-                        .init(id: "0", title: "AGOT"),
-                        .init(id: "1", title: "ACOK"),
-                        .init(id: "2", title: "ASOS"),
-                        .init(id: "3", title: "AFFC"),
-                        .init(id: "4", title: "ADWD")
-                    ])
+                    kind: .choice(.init(
+                        options: [
+                            .init(id: "0", title: "AGOT"),
+                            .init(id: "1", title: "ACOK"),
+                            .init(id: "2", title: "ASOS"),
+                            .init(id: "3", title: "AFFC"),
+                            .init(id: "4", title: "ADWD")
+                        ],
+                        hasFreeTextOtherOption: false,
+                        allowsMultipleSelection: true
+                    ))
                 ),
                 .init(
                     id: "4",
@@ -61,17 +69,17 @@ extension Questionnaire {
                 .init(
                     id: "5",
                     title: "Date Entry",
-                    kind: .dateTime(.init(style: .dateOnly, minDate: nil, maxDate: nil))
+                    kind: .dateTime(.init(style: .dateOnly))
                 ),
                 .init(
                     id: "6",
                     title: "Time Entry",
-                    kind: .dateTime(.init(style: .timeOnly, minDate: nil, maxDate: nil))
+                    kind: .dateTime(.init(style: .timeOnly))
                 ),
                 .init(
                     id: "7",
                     title: "Date&Time Entry",
-                    kind: .dateTime(.init(style: .dateAndTime, minDate: nil, maxDate: nil))
+                    kind: .dateTime(.init(style: .dateAndTime))
                 ),
                 .init(
                     id: "8",
@@ -90,9 +98,7 @@ extension Questionnaire {
                     kind: .numeric(.init(
                         inputMode: .numberPad(.decimal),
                         minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: ""
+                        maximum: 12
                     ))
                 ),
                 .init(
@@ -101,9 +107,7 @@ extension Questionnaire {
                     kind: .numeric(.init(
                         inputMode: .numberPad(.integer),
                         minimum: -5,
-                        maximum: 12,
-                        maxDecimalPlaces: nil,
-                        unit: ""
+                        maximum: 12
                     ))
                 ),
                 .init(
@@ -113,7 +117,6 @@ extension Questionnaire {
                         inputMode: .numberPad(.integer),
                         minimum: -5,
                         maximum: 12,
-                        maxDecimalPlaces: nil,
                         unit: "m/s^2"
                     ))
                 )

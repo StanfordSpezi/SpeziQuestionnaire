@@ -28,44 +28,44 @@ extension Questionnaire {
                 .init(
                     id: "q1",
                     title: "Feeling nervous, anxious, or on edge",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q2",
                     title: "Not being able to stop or control worrying",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q3",
                     title: "Worrying too much about different things",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q4",
                     title: "Trouble relaxing",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q5",
                     title: "Being so restless that it is hard to sit still",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q6",
                     title: "Becoming easily annoyed or irritable",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q7",
                     title: "Feeling afraid, as if something awful might happen",
-                    kind: .singleChoice(options: .gad7Options)
+                    kind: .choice(.init(options: .gad7Options, allowsMultipleSelection: false))
                 )
             ])
         ]
     )
 }
 
-extension [Questionnaire.Task.SCMCOption] {
+extension [Questionnaire.Task.Kind.ChoiceConfig.Option] {
     fileprivate static let gad7Options: Self = [
         .init(id: "0", title: "Not at all"),
         .init(id: "1", title: "Several days"),

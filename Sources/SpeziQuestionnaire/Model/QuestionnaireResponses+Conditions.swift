@@ -40,7 +40,7 @@ extension QuestionnaireResponses {
             case .instructional:
                 return false
             case .boolean:
-                guard let response = self[booleanResponseFor: task.id],
+                guard let response = self[responseFor: task.id].boolValue,
                       case let .bool(value) = value else {
                     return false
                 }
@@ -51,13 +51,17 @@ extension QuestionnaireResponses {
                     // not supported
                     return false
                 }
-            case .singleChoice, .multipleChoice:
+            case .choice:
                 guard case let .SCMCOption(optionId) = value else {
                     return false
                 }
                 switch `operator` {
                 case .equal:
-                    return selectedSCMCOptions.contains(.init(taskId: taskId, optionId: optionId))
+                    let response = self[responseFor: task.id].choiceValue
+                    // TODO can we have a "selection == the open choice option" condition (ie, does FHIR allow this?)?
+                    // DOES FHIR allow the openChoice option in MC scenarios?
+                    return response.selectedOptions.contains { $0.option.id == optionId }
+//                    return selectedSCMCOptions.contains(.init(taskId: taskId, optionId: optionId))
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
                     return false
@@ -68,7 +72,7 @@ extension QuestionnaireResponses {
                 }
                 switch `operator` {
                 case .equal:
-                    return self[freeTextResponseFor: task.id] == value
+                    return self[responseFor: task.id].stringValue == value
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
                     return false
@@ -78,7 +82,7 @@ extension QuestionnaireResponses {
             case .numeric:
                 switch value {
                 case .integer(let value):
-                    guard let response = self[numericResponseFor: task.id].flatMap(Int.init(exactly:)) else {
+                    guard let response = self[responseFor: task.id].numberValue.flatMap(Int.init(exactly:)) else {
                         return false
                     }
                     return switch `operator` {
@@ -94,7 +98,7 @@ extension QuestionnaireResponses {
                         response >= value
                     }
                 case .decimal(let value):
-                    guard let response = self[numericResponseFor: task.id] else {
+                    guard let response = self[responseFor: task.id].numberValue else {
                         return false
                     }
                     return switch `operator` {

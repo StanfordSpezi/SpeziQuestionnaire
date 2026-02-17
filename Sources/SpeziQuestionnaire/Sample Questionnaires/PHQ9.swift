@@ -30,54 +30,54 @@ extension Questionnaire {
                 .init(
                     id: "q1",
                     title: "Little interest or pleasure in doing things",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q2",
                     title: "Feeling down, depressed, or hopeless",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q3",
                     title: "Trouble falling or staying asleep, or sleeping too much",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q4",
                     title: "Feeling tired or having little energy",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q5",
                     title: "Poor appetite or overeating",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q6",
                     title: "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q7",
                     title: "Trouble concentrating on things, such as reading the newspaper or watching television",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q8",
                     title: "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 ),
                 .init(
                     id: "q9",
                     title: "Thoughts that you would be better off dead or of hurting yourself in some way",
-                    kind: .singleChoice(options: .phq9Options)
+                    kind: .choice(.init(options: .phq9Options, allowsMultipleSelection: false))
                 )
             ])
         ]
     )
 }
 
-extension [Questionnaire.Task.SCMCOption] {
+extension [Questionnaire.Task.Kind.ChoiceConfig.Option] {
     fileprivate static let phq9Options: Self = [
         .init(id: "0", title: "Not at all"),
         .init(id: "1", title: "Several days"),

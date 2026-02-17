@@ -9,32 +9,81 @@
 import SwiftUI
 
 
+@available(*, deprecated, renamed: "SimpleChoiceRow")
+typealias SCMCRow = SimpleChoiceRow
+
+
 /// A row in a single/multiple choice picker
-struct SCMCRow: View {
+struct ChoiceRow<AccessoryIfSelected: View>: View {
     @Environment(\.colorScheme) private var colorScheme
-    let option: Questionnaire.Task.SCMCOption
-    @Binding var isSelected: Bool
+//    let option: Questionnaire.Task.Kind.ChoiceConfig.Option
+    private let title: String
+    private let subtitle: String
+    private let isSelected: Bool
+    private let action: @MainActor () -> Void
+    private let accessoryIfSelected: @MainActor () -> AccessoryIfSelected
     
     var body: some View {
         Button {
-            isSelected.toggle()
+            action()
         } label: {
             HStack {
                 VStack(alignment: .leading) {
-                    Text(markdown: option.title)
-                    if !option.subtitle.isEmpty {
-                        Text(markdown: option.subtitle)
+                    Text(markdown: title)
+                    if !subtitle.isEmpty {
+                        Text(markdown: subtitle)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 .foregroundStyle(colorScheme.textLabelForegroundStyle)
                 Spacer()
+                if isSelected {
+                    accessoryIfSelected()
+                }
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .accessibilityHidden(true)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Option: \(option.title), \(isSelected ? "Selected" : "Not Selected")")
+            .accessibilityLabel("Option: \(title), \(isSelected ? "Selected" : "Not Selected")")
         }
+    }
+    
+    init(
+        title: String,
+        subtitle: String,
+        isSelected: Bool,
+        action: @escaping @MainActor () -> Void,
+        @ViewBuilder accessoryIfSelected: @escaping @MainActor () -> AccessoryIfSelected = { EmptyView() }
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.isSelected = isSelected
+        self.action = action
+        self.accessoryIfSelected = accessoryIfSelected
+    }
+}
+
+
+
+struct SimpleChoiceRow: View {
+    private let title: String
+    private let subtitle: String
+    @Binding private var isSelected: Bool
+    
+    var body: some View {
+        ChoiceRow(title: title, subtitle: subtitle, isSelected: isSelected) {
+            isSelected.toggle()
+        }
+    }
+    
+    init(title: String, subtitle: String, isSelected: Binding<Bool>) {
+        self.title = title
+        self.subtitle = subtitle
+        self._isSelected = isSelected
+    }
+    
+    init(option: Questionnaire.Task.Kind.ChoiceConfig.Option, isSelected: Binding<Bool>) {
+        self.init(title: option.title, subtitle: option.subtitle, isSelected: isSelected)
     }
 }

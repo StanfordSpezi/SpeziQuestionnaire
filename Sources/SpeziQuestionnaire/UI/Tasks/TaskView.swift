@@ -60,8 +60,9 @@ struct TaskView<Header: View>: View {
         switch task.kind {
         case .instructional(let text):
             Text(markdown: text)
-        case .singleChoice(let options), .multipleChoice(let options):
-            makeSCMCRows(for: options)
+        case .choice(let config):
+//            makeSCMCRows(for: config.options)
+            ChoiceAnswering(task: task, config: config)
         case .freeText(let config):
             textEditor(for: config)
         case .dateTime(let config):
@@ -70,35 +71,37 @@ struct TaskView<Header: View>: View {
             NumericInputRow(task: task, config: config)
         case .boolean:
             SCMCRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
-                responses[booleanResponseFor: task.id] == true
+                responses[responseFor: task.id].boolValue == true
             } set: { isSelected in
-                responses[booleanResponseFor: task.id] = isSelected ? true : nil
+                responses[responseFor: task.id].boolValue = isSelected ? true : nil
             })
             SCMCRow(option: .init(id: "1", title: "No"), isSelected: Binding {
-                responses[booleanResponseFor: task.id] == false
+                responses[responseFor: task.id].boolValue == false
             } set: { isSelected in
-                responses[booleanResponseFor: task.id] = isSelected ? false : nil
+                responses[responseFor: task.id].boolValue = isSelected ? false : nil
             })
         case .fileAttachment(let config):
             FileAttachmentQuestionView(task: task, config: config)
         }
     }
     
-    private func makeSCMCRows(for options: [Questionnaire.Task.SCMCOption]) -> some View {
-        ForEach(options) { option in
-            SCMCRow(option: option, isSelected: Binding<Bool> {
-                responses[task: task, option: option]
-            } set: {
-                responses[task: task, option: option] = $0
-            })
-        }
-    }
+//    private func makeSCMCRows(for options: [Questionnaire.Task.Kind.ChoiceConfig.Option]) -> some View {
+//        ForEach(options) { option in
+//            SCMCRow(option: option, isSelected: Binding<Bool> {
+//                responses[task: task, option: option]
+//            } set: {
+//                responses[task: task, option: option] = $0
+//            })
+//        }
+//    }
     
     private func textEditor(for config: Questionnaire.Task.Kind.FreeTextConfig) -> some View {
         TextEditor(text: Binding<String> {
-            responses[freeTextResponseFor: task.id] ?? ""
+            responses[responseFor: task.id].stringValue ?? ""
+//            responses[freeTextResponseFor: task.id] ?? ""
         } set: { newValue in
-            responses[freeTextResponseFor: task.id] = newValue
+//            responses[freeTextResponseFor: task.id] = newValue
+            responses[responseFor: task.id].stringValue = newValue
         })
         .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
         .textInputAutocapitalization(config.disableAutocomplete ? .never : nil)

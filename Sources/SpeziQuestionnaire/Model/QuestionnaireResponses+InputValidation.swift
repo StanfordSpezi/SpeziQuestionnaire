@@ -34,12 +34,12 @@ extension QuestionnaireResponses {
         case .boolean:
             // the user cannot provide an invalid response for boolean tasks
             return .ok
-        case .singleChoice(let options), .multipleChoice(let options):
+        case .choice(let config):
             // when we support an `"other" with custom string entry" option, we'll need to validate that the string isn't empty.
             // not a problem for now
             return .ok
         case .freeText(let config):
-            guard let response = self[freeTextResponseFor: task.id] else {
+            guard let response = self[responseFor: task.id].stringValue else {
                 return .ok
             }
             if let minLength = config.minLength, response.count < minLength {
@@ -55,7 +55,7 @@ extension QuestionnaireResponses {
             }
             return .ok
         case .dateTime(let config):
-            guard let response = self[dateTimeResponseFor: task.id] else {
+            guard let response = self[responseFor: task.id].dateValue else {
                 return .ok
             }
             switch config.style {
@@ -77,7 +77,7 @@ extension QuestionnaireResponses {
                 return .ok
             }
         case .numeric(let config):
-            guard let response = self[numericResponseFor: task.id] else {
+            guard let response = self[responseFor: task.id].numberValue else {
                 return .ok
             }
             if let minimum = config.minimum, response < minimum {

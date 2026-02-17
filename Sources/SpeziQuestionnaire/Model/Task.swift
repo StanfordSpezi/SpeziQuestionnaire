@@ -47,20 +47,20 @@ extension Questionnaire.Task {
     public enum Kind: Hashable, Sendable {
         case instructional(String)
         case boolean
-        case singleChoice(options: [SCMCOption])
-        case multipleChoice(options: [SCMCOption])
+        case choice(ChoiceConfig)
         case freeText(FreeTextConfig)
         case dateTime(DateTimeConfig)
         case numeric(NumericTaskConfig)
         case fileAttachment(FileAttachmentConfig)
         
+        /// Configuration of a free-text question.
         public struct FreeTextConfig: Hashable, Sendable {
             public let minLength: Int?
             public let maxLength: Int?
             public let regex: NSRegularExpression?
             public let disableAutocomplete: Bool
             
-            public init(minLength: Int?, maxLength: Int?, regex: NSRegularExpression?, disableAutocomplete: Bool) {
+            public init(minLength: Int? = nil, maxLength: Int? = nil, regex: NSRegularExpression? = nil, disableAutocomplete: Bool = false) {
                 self.minLength = minLength
                 self.maxLength = maxLength
                 self.regex = regex
@@ -68,6 +68,7 @@ extension Questionnaire.Task {
             }
         }
         
+        /// Configuration of a date/time question.
         public struct DateTimeConfig: Hashable, Sendable {
             public enum Style: Hashable, Sendable {
                 case dateOnly
@@ -78,13 +79,14 @@ extension Questionnaire.Task {
             public let minDate: Date?
             public let maxDate: Date?
             
-            public init(style: Style, minDate: Date?, maxDate: Date?) {
+            public init(style: Style, minDate: Date? = nil, maxDate: Date? = nil) {
                 self.style = style
                 self.minDate = minDate
                 self.maxDate = maxDate
             }
         }
         
+        /// Configuration of a number input question.
         public struct NumericTaskConfig: Hashable, Sendable {
             public enum NumberKind: Hashable, Sendable {
                 case integer, decimal
@@ -99,7 +101,7 @@ extension Questionnaire.Task {
             public let maxDecimalPlaces: UInt?
             public let unit: String
             
-            public init(inputMode: InputMode, minimum: Double?, maximum: Double?, maxDecimalPlaces: UInt?, unit: String) {
+            public init(inputMode: InputMode, minimum: Double? = nil, maximum: Double? = nil, maxDecimalPlaces: UInt? = nil, unit: String = "") {
                 self.inputMode = inputMode
                 self.minimum = minimum
                 self.maximum = maximum
@@ -108,31 +110,73 @@ extension Questionnaire.Task {
             }
         }
         
+        /// Configuration of a file selection question.
         public struct FileAttachmentConfig: Hashable, Sendable {
             /// The content types allowed for attachments.
             public let contentTypes: Set<UTType>
             public let maxSize: UInt64?
             public let allowsMultipleSelection: Bool
             
-            public init(contentTypes: Set<UTType>, maxSize: UInt64?, allowsMultipleSelection: Bool) {
+            public init(contentTypes: Set<UTType>, maxSize: UInt64? = nil, allowsMultipleSelection: Bool) {
                 self.contentTypes = contentTypes
                 self.maxSize = maxSize
                 self.allowsMultipleSelection = allowsMultipleSelection
             }
         }
-    }
-    
-    public struct SCMCOption: Hashable, Identifiable, Sendable {
-        public let id: String
-        public let title: String
-        public let subtitle: String
         
-        public init(id: String, title: String, subtitle: String = "") {
-            self.id = id
-            self.title = title
-            self.subtitle = subtitle
+        /// Configuration of a single/multiple choice question.
+        public struct ChoiceConfig: Hashable, Sendable {
+            public struct Option: Hashable, Identifiable, Sendable {
+                public let id: String
+                public let title: String
+                public let subtitle: String
+                
+                public init(id: String, title: String, subtitle: String = "") {
+                    self.id = id
+                    self.title = title
+                    self.subtitle = subtitle
+                }
+            }
+            
+            /// The options the user can select from
+            public let options: [Option]
+            /// Whether the user should be offered an "Other" option where they can enter arbitrary text.
+            public let hasFreeTextOtherOption: Bool
+//            /// The maximum number of items that may be selected.
+//            ///
+//            /// Set this value to `1` to enable single-selection; set it to `nil` to enable unlimited multiple selection.
+//            public let selectionLimit: Int?
+            public let allowsMultipleSelection: Bool
+            public let followUpTasks: [Questionnaire.Task]
+            
+            public init(
+                options: [Option],
+                hasFreeTextOtherOption: Bool = false,
+                allowsMultipleSelection: Bool,
+                followUpTasks: [Questionnaire.Task] = []
+            ) {
+                self.options = options
+                self.hasFreeTextOtherOption = hasFreeTextOtherOption
+                self.allowsMultipleSelection = allowsMultipleSelection
+                self.followUpTasks = followUpTasks
+            }
         }
     }
+}
+
+
+extension Questionnaire.Task.Kind {
+//    public static func singleChoice(options: [ChoiceConfig.Option], hasFreeTextOtherOption: Bool) -> Self {
+//        .choice(.init(options: options, hasFreeTextOtherOption: hasFreeTextOtherOption, selectionLimit: 1))
+//    }
+//    
+//    public static func multipleChoice(
+//        options: [ChoiceConfig.Option],
+//        hasFreeTextOtherOption: Bool,
+//        selectionLimit: Int?
+//    ) -> Self {
+//        .choice(.init(options: options, hasFreeTextOtherOption: hasFreeTextOtherOption, selectionLimit: selectionLimit))
+//    }
 }
 
 

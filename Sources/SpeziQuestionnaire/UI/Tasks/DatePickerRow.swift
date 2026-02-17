@@ -17,14 +17,14 @@ struct DatePickerRow: View {
     
     var body: some View {
         let binding = Binding<Date> {
-            if let response = responses[dateTimeResponseFor: task.id] {
+            if let response = responses[responseFor: task.id].dateValue {
                 // Q // what if this fails?
                 cal.date(from: response)! // swiftlint:disable:this force_unwrapping
             } else {
                 .now
             }
         } set: { newValue in
-            responses[dateTimeResponseFor: task.id] = cal.dateComponents(config.style.components, from: newValue)
+            responses[responseFor: task.id].dateValue = cal.dateComponents(config.style.components, from: newValue)
         }
         DatePicker(label, selection: binding, displayedComponents: components)
             .datePickerStyle(.compact)

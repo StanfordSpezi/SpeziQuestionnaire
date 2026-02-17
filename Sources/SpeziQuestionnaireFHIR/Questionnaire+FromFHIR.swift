@@ -255,7 +255,7 @@ extension ModelsR4.QuestionnaireItem {
             ))
         case .choice, .openChoice:
             let valueSets = context.questionnaire.getContainedValueSets()
-            var options: [SpeziQuestionnaire.Questionnaire.Task.SCMCOption] = []
+            var options: [SpeziQuestionnaire.Questionnaire.Task.Kind.ChoiceConfig.Option] = []
             // If the `QuestionnaireItem` has an `answerValueSet` defined which is a reference to a contained `ValueSet`,
             // search the available `ValueSets`and, if a match is found, convert the options to `ORKTextChoice`
             if let answerValueSetURL = answerValueSet?.value?.url.absoluteString,
@@ -307,22 +307,12 @@ extension ModelsR4.QuestionnaireItem {
                         subtitle: "" // could supply this via an extension
                     ))
                 }
-                if itemType == .openChoice {
-                    // TODO
-//                    throw FHIRConversionError("openChoice questions not yet supported")
-//                    // If the `QuestionnaireItemType` is `open-choice`, allow user to enter in their own free-text answer.
-//                    let otherChoiceText = NSLocalizedString("Other", comment: "")
-//                    let otherChoice = ORKTextChoiceOther.choice(
-//                        withText: otherChoiceText,
-//                        detailText: nil,
-//                        value: otherChoiceText as NSSecureCoding & NSCopying & NSObjectProtocol,
-//                        exclusive: true,
-//                        textViewPlaceholderText: ""
-//                    )
-//                    choices.append(otherChoice)
-                }
             }
-            return (repeats?.value?.bool ?? false) ? .multipleChoice(options: options) : .singleChoice(options: options)
+            return .choice(.init(
+                options: options,
+                hasFreeTextOtherOption: itemType == .openChoice,
+                allowsMultipleSelection: repeats == true
+            ))
         case .attachment:
             return .fileAttachment(.init(
                 contentTypes: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").compactMapIntoSet { ext in
@@ -337,7 +327,7 @@ extension ModelsR4.QuestionnaireItem {
                 }(),
                 // TODO this will likely lead to effectively all such questions NOT allowing multiple selection,
                 // since the `repeats` field is typically not used, and eg the phoenix builder only offers it when you know where to look...
-                allowsMultipleSelection: self.repeats == true
+                allowsMultipleSelection: repeats == true
             ))
         case .reference:
             throw FHIRConversionError("Unsupported question type '\(itemType)'")
