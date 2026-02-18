@@ -13,13 +13,25 @@ public import UniformTypeIdentifiers
 
 
 extension Questionnaire {
+    /// A unit of work the participant is asked to perform as part of the questionnaire (typically a question being asked)
     public struct Task: Hashable, Identifiable, Sendable {
+        /// The task's unique identifier.
+        ///
+        /// - Important: Task identifiers must be unique across all tasks in all sections of the questionnaire.
         public let id: String
+        /// The task's user-displayed title.
         public let title: String
+        /// The task's user-displayed subtitle.
+        ///
+        /// Set this property to an empty string in order to omit the subtitle.
         public let subtitle: String
+        /// A footer text displayed below the task.
         public let footer: String
+        /// The task's kind
         public let kind: Kind
+        /// Whether the user is allowed to skip this task.
         public let isOptional: Bool
+        /// Controls when the task is enabled.
         public let enabledCondition: Condition
         
         public init(
@@ -44,27 +56,41 @@ extension Questionnaire {
 
 
 extension Questionnaire.Task {
+    /// A ``Questionnaire/Task``'s kind, i.e. the definition of what the task actually does.
     public enum Kind: Hashable, Sendable {
+        /// A task that displays instructional text to the user.
         case instructional(String)
+        /// A task that collects a boolean Yes/No response from the user.
         case boolean
-        case choice(ChoiceConfig)
-        case freeText(FreeTextConfig)
-        case dateTime(DateTimeConfig)
-        case numeric(NumericTaskConfig)
-        case fileAttachment(FileAttachmentConfig)
+        /// A task that asks the user to make a single or multiple choice selection, from a list of specified options.
+        ///
+        /// - parameter config: The definition of the choice the user is asked to make.
+        case choice(_ config: ChoiceConfig)
+        /// A task that collects a text response from the user.
+        case freeText(_ config: FreeTextConfig)
+        /// A task that asks the user to select a date and/or time.
+        case dateTime(_ config: DateTimeConfig)
+        /// A task that asks the user for a number.
+        case numeric(_ config: NumericTaskConfig)
+        /// A task that lets the user select photos and other files.
+        case fileAttachment(_ config: FileAttachmentConfig)
         
         /// Configuration of a free-text question.
         public struct FreeTextConfig: Hashable, Sendable {
+            /// The minimum allowed response length.
             public let minLength: Int?
+            /// The maximum allowed response length.
             public let maxLength: Int?
+            /// Response validation regular expression.
             public let regex: NSRegularExpression?
-            public let disableAutocomplete: Bool
+            /// Controls the response text field's autocorrection mode.
+            public let disableAutocorrection: Bool
             
-            public init(minLength: Int? = nil, maxLength: Int? = nil, regex: NSRegularExpression? = nil, disableAutocomplete: Bool = false) {
+            public init(minLength: Int? = nil, maxLength: Int? = nil, regex: NSRegularExpression? = nil, disableAutocorrection: Bool = false) {
                 self.minLength = minLength
                 self.maxLength = maxLength
                 self.regex = regex
-                self.disableAutocomplete = disableAutocomplete
+                self.disableAutocorrection = disableAutocorrection
             }
         }
         
@@ -75,8 +101,11 @@ extension Questionnaire.Task {
                 case timeOnly
                 case dateAndTime
             }
+            /// The date picker's style
             public let style: Style
+            /// The minimum allowed response value.
             public let minValue: DateComponents?
+            /// The maximum allowed response value.
             public let maxValue: DateComponents?
             
             public init(style: Style, minValue: DateComponents? = nil, maxValue: DateComponents? = nil) {
@@ -95,10 +124,15 @@ extension Questionnaire.Task {
                 case numberPad(NumberKind)
                 case slider(stepValue: Double)
             }
+            /// The preferred input mode.
             public let inputMode: InputMode
+            /// The minimum allowed response value.
             public let minimum: Double?
+            /// The maximum allowed response value.
             public let maximum: Double?
+            /// The maximum allowed number of decimal places.
             public let maxDecimalPlaces: UInt?
+            /// The unit of the quantity being asked for.
             public let unit: String
             
             public init(inputMode: InputMode, minimum: Double? = nil, maximum: Double? = nil, maxDecimalPlaces: UInt? = nil, unit: String = "") {
@@ -114,7 +148,9 @@ extension Questionnaire.Task {
         public struct FileAttachmentConfig: Hashable, Sendable {
             /// The content types allowed for attachments.
             public let contentTypes: Set<UTType>
+            /// The maximum file size allowed per attachment.
             public let maxSize: UInt64?
+            /// Whether the user may select multiple attachments.
             public let allowsMultipleSelection: Bool
             
             public init(contentTypes: Set<UTType>, maxSize: UInt64? = nil, allowsMultipleSelection: Bool) {
@@ -146,7 +182,12 @@ extension Questionnaire.Task {
 //            ///
 //            /// Set this value to `1` to enable single-selection; set it to `nil` to enable unlimited multiple selection.
 //            public let selectionLimit: Int?
+            /// Whether the user is allowed to make multiple choices.
             public let allowsMultipleSelection: Bool
+            /// A list of follow-up tasks.
+            ///
+            /// For every selected option in the choice question, the user will be asked to respond to all of the question's follow-up tasks.
+            /// If the user deselects an option, its associated follow-up task responses will be discarded.
             public let followUpTasks: [Questionnaire.Task]
             
             public init(
@@ -183,25 +224,38 @@ extension Questionnaire.Task.Kind {
             []
         }
     }
-//    public static func singleChoice(options: [ChoiceConfig.Option], hasFreeTextOtherOption: Bool) -> Self {
-//        .choice(.init(options: options, hasFreeTextOtherOption: hasFreeTextOtherOption, selectionLimit: 1))
-//    }
-//    
-//    public static func multipleChoice(
-//        options: [ChoiceConfig.Option],
-//        hasFreeTextOtherOption: Bool,
-//        selectionLimit: Int?
-//    ) -> Self {
-//        .choice(.init(options: options, hasFreeTextOtherOption: hasFreeTextOtherOption, selectionLimit: selectionLimit))
-//    }
 }
 
 
 extension Questionnaire {
-    /// A condition that determines whether a questionnaire task should be enabled.
+    /// Controls when a task should be enabled.
     ///
-    /// Conditions containing invalid ``ComponentPath``s always evaluate to `false`.
-    public indirect enum Condition: Hashable, ExpressibleByNilLiteral, Sendable {
+    /// Conditions allow establishing dependencies between ``Task``s within a ``Questionnaire``,
+    /// and can be used to conditionally ask additional questions, based on e.g. a user's response to some previous task.
+    ///
+    /// A condition belonging to a task may only reference other tasks that precede that task within the questionnaire.
+    /// If a condition references a task that appears after the task to which it belongs, it always evaluates to `false`.
+    ///
+    /// Conditions referencing invalid ``Task``s always evaluate to `false`.
+    ///
+    /// Conditions are evaluated
+    ///
+    /// ## Topics
+    ///
+    /// ### Conditions
+    /// - ``not(_:)``
+    /// - ``any(_:)``
+    /// - ``all(_:)``
+    /// - ``true``
+    /// - ``false``
+    /// - ``hasResponse(taskId:)``
+    /// - ``isMissingResponse(taskId:)``
+    /// - ``responseValueComparison(taskId:operator:value:)``
+    ///
+    /// ### Supporting Types
+    /// - ``ComparisonOperator``
+    /// - ``Value``
+    public indirect enum Condition: Hashable, Sendable {
         /// A condition that always evaluates to `true`.
         case `true`
         /// A condition that always evaluates to `false`.
@@ -216,16 +270,16 @@ extension Questionnaire {
         /// A condition that is satisfied if a response exists for the task at `taskPath`.
         ///
         /// This condition only checks whether a response exists; it does not take the task's optionality into account.
-        /// (Use ``isMissingResponse(taskPath:)`` instead if you need that.)
+        /// (Use ``isMissingResponse(taskId:)`` instead if you need that.)
         ///
         /// - parameter taskId: The id of a task within the questionnaire.
         case hasResponse(taskId: Task.ID)
         
         /// A condition that is satisfied if a response is currently missing for the  task at `taskPath`.
         ///
-        /// - Note: This is not the opposite of ``hasResponse(taskPath:)``.
+        /// - Note: This is not the opposite of ``hasResponse(taskId:)``.
         ///     For an optional task that doesn't have a response, this would evaluate to `false` (because the task isn't required, the response isn't missing),
-        ///     whereas ``hasResponse(taskPath:)`` would also evaluate to `false`, since it only checks for the existence of a response.
+        ///     whereas ``hasResponse(taskId:)`` would also evaluate to `false`, since it only checks for the existence of a response.
         case isMissingResponse(taskId: Task.ID)
         
         /// A condition that compares a task's response to some value.
@@ -242,7 +296,7 @@ extension Questionnaire {
         /// Models https://hl7.org/fhir/valueset-questionnaire-enable-operator.html
         ///
         /// - Note: This enum intentionally does not implement the `exists` and `!=` operations.
-        ///     Use ``Questionnaire/Condition/hasResponse(taskPath:)``, and ``Questionnaire/Condition/not(_:)`` in combination with ``equal`` instead.
+        ///     Use ``Questionnaire/Condition/hasResponse(taskId:)``, and ``Questionnaire/Condition/not(_:)`` in combination with ``equal`` instead.
         public enum ComparisonOperator: Hashable, Sendable {
             /// True if whether at least one answer has a value that is equal to the enableWhen answer
             case equal
@@ -256,6 +310,7 @@ extension Questionnaire {
             case greaterThanOrEqual
         }
         
+        /// Value used in comparison conditions.
         public enum Value: Hashable, Sendable {
             case bool(Bool)
             case integer(Int)
@@ -270,15 +325,19 @@ extension Questionnaire {
         /// Always evaluates to `true`.
         public static let none: Self = .true
         
-        public init(nilLiteral: ()) {
-            self = .none
-        }
-        
+        /// Constructs a condition that is true iff two other conditions are true.
         public static func && (lhs: Self, rhs: Self) -> Self {
             .all([lhs, rhs])
         }
+        
+        /// Constructs a condition that is true iff either of other conditions is true.
         public static func || (lhs: Self, rhs: Self) -> Self {
             .any([lhs, rhs])
+        }
+        
+        /// Negates a condition
+        public static prefix func ! (rhs: Self) -> Self {
+            .not(rhs)
         }
     }
 }

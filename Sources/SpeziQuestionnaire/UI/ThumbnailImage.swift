@@ -11,10 +11,12 @@ import QuickLookThumbnailing
 import SwiftUI
 
 
+/// An `Image` displaying a thumbnail for a file ata `URL`.
 struct FileThumbnail: View {
     @Environment(\.displayScale) private var scale
     private let url: URL
     private let size: CGSize
+    private let representationTypes: QLThumbnailGenerator.Request.RepresentationTypes
     @State private var image: UIImage?
     
     var body: some View {
@@ -29,7 +31,7 @@ struct FileThumbnail: View {
                 fileAt: url,
                 size: size,
                 scale: scale,
-                representationTypes: .all
+                representationTypes: representationTypes
             )
             let generator = QLThumbnailGenerator.shared
             guard let thumbnail = try? await generator.generateBestRepresentation(for: request) else {
@@ -39,8 +41,13 @@ struct FileThumbnail: View {
         }
     }
     
-    init(url: URL, size: CGSize = CGSize(width: 50, height: 50)) {
+    init(
+        url: URL,
+        size: CGSize = CGSize(width: 50, height: 50),
+        representationTypes: QLThumbnailGenerator.Request.RepresentationTypes = .all
+    ) {
         self.url = url
         self.size = size
+        self.representationTypes = representationTypes
     }
 }

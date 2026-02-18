@@ -12,8 +12,32 @@ private import SpeziFoundation
 
 /// A questionnaire.
 ///
-/// Compatible with [FHIR questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
+/// ## Overview
+///
+/// Questionnaires consist of a sequence of ``Section``s, each of which contains a list of ``Task``s.
+/// When using the ``QuestionnaireSheet`` to answer a questionnaire, each section is displayed as a separate page on a `NavigationStack`.
+///
+/// ### Interoperability
+///
+/// The `Questionnaire` type is compatible with  [FHIR R4 questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
+///
+///
+/// ## Topics
+///
+/// ### Initializers
+/// - ``init(metadata:sections:)``
+///
+/// ### Instance Properties
+/// - ``id``
+/// - ``metadata``
+/// - ``sections``
+///
+/// ### Supporting Types
+/// - ``Metadata``
+/// - ``Section``
+/// - ``Task``
 public struct Questionnaire: Hashable, Identifiable, Sendable {
+    /// Questionnaire metadata.
     public let metadata: Metadata
     public let sections: [Section]
     
@@ -45,10 +69,13 @@ public struct Questionnaire: Hashable, Identifiable, Sendable {
 
 extension Questionnaire {
     public struct Metadata: Hashable, Sendable {
+        /// The questionnaire's unique identifier.
         public let id: String
+        /// The questionnaire's identifying URL, if applicable.
         public let url: URL?
+        /// The questionnaire's user-displayed title.
         public let title: String
-        /// Natural-language description of the questionnaire
+        /// Natural-language description of the questionnaire.
         public let explainer: String
         
         public init(id: String, url: URL?, title: String, explainer: String) {
@@ -62,6 +89,7 @@ extension Questionnaire {
 
 
 extension Questionnaire {
+    /// A group of tasks.
     public struct Section: Hashable, Identifiable, Sendable {
         public let id: String
         public var tasks: [Task]
