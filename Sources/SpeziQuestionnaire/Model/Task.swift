@@ -76,13 +76,13 @@ extension Questionnaire.Task {
                 case dateAndTime
             }
             public let style: Style
-            public let minDate: Date?
-            public let maxDate: Date?
+            public let minValue: DateComponents?
+            public let maxValue: DateComponents?
             
-            public init(style: Style, minDate: Date? = nil, maxDate: Date? = nil) {
+            public init(style: Style, minValue: DateComponents? = nil, maxValue: DateComponents? = nil) {
                 self.style = style
-                self.minDate = minDate
-                self.maxDate = maxDate
+                self.minValue = minValue
+                self.maxValue = maxValue
             }
         }
         

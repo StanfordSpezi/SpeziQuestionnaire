@@ -39,7 +39,7 @@ extension QuestionnaireResponses {
             // not a problem for now
             return .ok
         case .freeText(let config):
-            guard let response = self[responseFor: task.id].stringValue else {
+            guard let response = responses[task.id].value.stringValue else {
                 return .ok
             }
             if let minLength = config.minLength, response.count < minLength {
@@ -55,29 +55,56 @@ extension QuestionnaireResponses {
             }
             return .ok
         case .dateTime(let config):
-            guard let response = self[responseFor: task.id].dateValue else {
+            let cal = Calendar.current
+            guard let response = responses[task.id].value.dateValue else {
                 return .ok
             }
             switch config.style {
-            case .timeOnly, .dateOnly:
-                guard let responseDate = Calendar.current.date(from: response) else {
-                    fatalError("WTF")
+            case .timeOnly:
+                let gte = {
+                    response[keyPath: $0 as KeyPath] ?? 0 >= ($1 as DateComponents)[keyPath: $0] ?? 0
                 }
-                fatalError("TODO")
-            case .dateAndTime:
-                guard let responseDate = Calendar.current.date(from: response) else {
-                    fatalError("WTF")
+                if let minValue = config.minValue, !(gte(\.hour, minValue) && gte(\.minute, minValue) && gte(\.second, minValue)) {
+                    let minValueDesc = cal
+                        .date(
+                            bySettingHour: minValue.hour ?? 0,
+                            minute: minValue.minute ?? 0,
+                            second: minValue.second ?? 0,
+                            of: .now
+                        )?
+                        .formatted(date: .omitted, time: .shortened)
+                    return .invalid(message: "Must be after \(minValueDesc ?? minValue.description)")
                 }
-                if let minDate = config.minDate, responseDate < minDate {
+                let lte = {
+                    response[keyPath: $0 as KeyPath] ?? 0 <= ($1 as DateComponents)[keyPath: $0] ?? 0
+                }
+                if let maxValue = config.maxValue, !(lte(\.hour, maxValue) && lte(\.minute, maxValue) && lte(\.second, maxValue)) {
+                    let maxValueDesc = cal
+                        .date(
+                            bySettingHour: maxValue.hour ?? 0,
+                            minute: maxValue.minute ?? 0,
+                            second: maxValue.second ?? 0,
+                            of: .now
+                        )?
+                        .formatted(date: .omitted, time: .shortened)
+                    return .invalid(message: "Must be before \(maxValueDesc ?? maxValue.description)")
+                }
+                return .ok
+            case .dateOnly, .dateAndTime:
+                guard let responseDate = cal.date(from: response) else {
+                    // very likely unreachable
+                    return .invalid(message: "Invalid Input")
+                }
+                if let minDate = config.minValue.flatMap({ cal.date(from: $0) }), responseDate < minDate {
                     return .invalid(message: "Must be after \(minDate.formatted(.dateTime))")
                 }
-                if let maxDate = config.maxDate, responseDate > maxDate {
+                if let maxDate = config.maxValue.flatMap({ cal.date(from: $0) }), responseDate > maxDate {
                     return .invalid(message: "Must be before \(maxDate.formatted(.dateTime))")
                 }
                 return .ok
             }
         case .numeric(let config):
-            guard let response = self[responseFor: task.id].numberValue else {
+            guard let response = responses[task.id].value.numberValue else {
                 return .ok
             }
             if let minimum = config.minimum, response < minimum {

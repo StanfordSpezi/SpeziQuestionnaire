@@ -123,6 +123,7 @@ struct ContentView: View {
         Menu("Pick Predefined Questionnaire") {
             Section {
                 menuButton(title: "Question Kinds Showcase", questionnaire: .testQuestionnaire)
+                menuButton(title: "Follow-Up Tasks", questionnaire: .followUpTasksQuestionnaire)
             }
             Section("Examples") {
                 menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)

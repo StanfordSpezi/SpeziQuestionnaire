@@ -23,7 +23,7 @@ public struct QuestionnaireSheet: View {
     public var body: some View {
         ManagedNavigationStack(path: navigationPath) {
             if let section = questionnaire.sections.first {
-                QuestionnaireSectionView(questionnaire: questionnaire, section: section) { result in
+                QuestionnaireSectionView(questionnaire: questionnaire, section: section, responses: $responses.responses) { result in
                     await resultHandler(result)
                     dismiss()
                 }

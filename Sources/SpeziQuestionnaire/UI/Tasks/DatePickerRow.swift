@@ -11,20 +11,19 @@ import SwiftUI
 
 struct DatePickerRow: View {
     @Environment(\.calendar) private var cal
-    @Environment(QuestionnaireResponses.self) private var responses
-    let task: Questionnaire.Task
     let config: Questionnaire.Task.Kind.DateTimeConfig
+    @Binding var response: DateComponents?
     
     var body: some View {
         let binding = Binding<Date> {
-            if let response = responses[responseFor: task.id].dateValue {
+            if let response = response {
                 // Q // what if this fails?
                 cal.date(from: response)! // swiftlint:disable:this force_unwrapping
             } else {
                 .now
             }
         } set: { newValue in
-            responses[responseFor: task.id].dateValue = cal.dateComponents(config.style.components, from: newValue)
+            response = cal.dateComponents(config.style.components, from: newValue)
         }
         DatePicker(label, selection: binding, displayedComponents: components)
             .datePickerStyle(.compact)
@@ -51,6 +50,20 @@ struct DatePickerRow: View {
             .hourAndMinute
         case .dateAndTime:
             [.date, .hourAndMinute]
+        }
+    }
+}
+
+
+extension Questionnaire.Task.Kind.DateTimeConfig.Style {
+    var components: Set<Calendar.Component> {
+        switch self {
+        case .dateOnly:
+            [.year, .month, .day]
+        case .timeOnly:
+            [.hour, .minute, .second]
+        case .dateAndTime:
+            [.year, .month, .day, .hour, .minute, .second]
         }
     }
 }

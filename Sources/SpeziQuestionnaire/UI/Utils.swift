@@ -22,3 +22,17 @@ extension Text {
         }
     }
 }
+
+
+extension Binding {
+    func withDefault<T>(
+        _ defaultValue: @autoclosure @escaping @Sendable () -> T
+    ) -> Binding<T> where Value == T?, Self: Sendable {
+        Binding<T> {
+            self.wrappedValue ?? defaultValue()
+        } set: { newValue in
+            self.wrappedValue = newValue
+        }
+
+    }
+}

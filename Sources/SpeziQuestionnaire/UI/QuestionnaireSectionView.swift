@@ -12,22 +12,37 @@ import SwiftUI
 
 /// Displays a section of tasks within a questionnaire, as a single page on the navigation stack.
 struct QuestionnaireSectionView: View {
+    private enum Context {
+        case regular(questionnaire: Questionnaire)
+        case answerNestedQuestions(parentTask: Questionnaire.Task, sections: [Questionnaire.Section])
+        
+        var allSections: [Questionnaire.Section] {
+            switch self {
+            case .regular(let questionnaire):
+                questionnaire.sections
+            case .answerNestedQuestions(parentTask: _, let sections):
+                sections
+            }
+        }
+    }
+    
     @Environment(ManagedNavigationStack.Path.self) private var navigationPath
+    @Environment(QuestionnaireResponses.self) private var allResponses
     
-    @Environment(QuestionnaireResponses.self) private var responses
-    
-    let questionnaire: Questionnaire
-    let section: Questionnaire.Section
-    let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
+    private let context: Context
+    private let section: Questionnaire.Section
+    @Binding private var responses: QuestionnaireResponses.Responses
+    private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
     
     var body: some View {
+        @Bindable var allResponses = allResponses
         ScrollViewReader { scrollViewProxy in
             Form {
                 ForEach(section.tasks) { task in
-                    TaskView(section: section, task: task) {
-                        if indicateMissingResponses && responses.isMissingResponse(for: task) {
+                    TaskView(section: section, task: task, response: $responses[task.id]) {
+                        if indicateMissingResponses && allResponses.isMissingResponse(for: task) {
                             Text("Missing Response")
                                 .foregroundStyle(.red)
                         }
@@ -44,21 +59,35 @@ struct QuestionnaireSectionView: View {
                 .buttonStyleGlassProminent()
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
-                .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
+                .tint(!allResponses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
             }
         }
-        .navigationTitle(questionnaire.metadata.title)
+        .navigationTitle(title ?? "")
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                if responses.isComplete(in: section) && questionnaire.nextSection(after: section, using: responses) == nil {
-                    // if we're about to complete the questionnaire, we turn this into a Done button
-                    toolbarDoneButton
-                } else {
-                    CancelButton {
-                        await resultHandler(.cancelled)
-                    }
+            toolbarContent
+        }
+    }
+    
+    private var title: String? {
+        switch context {
+        case .regular(let questionnaire):
+            questionnaire.metadata.title
+        case .answerNestedQuestions:
+            // TODO in this case we need to make it absolutely clear which question and which related context this belongs to!!!!
+            nil
+        }
+    }
+    
+    @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            if allResponses.isComplete(in: section) && allResponses.nextSection(after: section, in: context.allSections) == nil {
+                // if we're about to complete the questionnaire, we turn this into a Done button
+                toolbarDoneButton
+            } else {
+                CancelButton {
+                    await resultHandler(.cancelled)
                 }
             }
         }
@@ -67,13 +96,13 @@ struct QuestionnaireSectionView: View {
     @ViewBuilder private var toolbarDoneButton: some View {
         if #available(iOS 26, *) {
             AsyncButton(role: .confirm) {
-                await resultHandler(.success(responses))
+                await resultHandler(.success(allResponses))
             } label: {
                 Text("Submit")
             }
         } else {
             AsyncButton {
-                await resultHandler(.success(responses))
+                await resultHandler(.success(allResponses))
             } label: {
                 Label("Submis", systemImage: "checkmark")
             }
@@ -81,24 +110,66 @@ struct QuestionnaireSectionView: View {
         }
     }
     
+    private init(
+        context: Context,
+        section: Questionnaire.Section,
+        responses: Binding<QuestionnaireResponses.Responses>,
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
+    ) {
+        self.context = context
+        self.section = section
+        self._responses = responses
+        self.resultHandler = resultHandler
+    }
+    
+    init(
+        questionnaire: Questionnaire,
+        section: Questionnaire.Section,
+        responses: Binding<QuestionnaireResponses.Responses>,
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
+    ) {
+        self.init(
+            context: .regular(questionnaire: questionnaire),
+            section: section,
+            responses: responses,
+            resultHandler: resultHandler
+        )
+    }
+    
+    init(
+        nestedQuestionsFor parentTask: Questionnaire.Task,
+        sections: [Questionnaire.Section],
+        responses: Binding<QuestionnaireResponses.Responses>,
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void
+    ) {
+        self.init(
+            context: .answerNestedQuestions(parentTask: parentTask, sections: sections),
+            section: sections[0],
+            responses: responses,
+            resultHandler: resultHandler
+        )
+    }
+    
+    
     private func advance(using scrollViewProxy: ScrollViewProxy) async {
-        if let problematicTask = responses.firstTaskPreventingCompletion(of: section) {
+        if let problematicTask = allResponses.firstTaskPreventingCompletion(of: section) {
             indicateMissingResponses = true
             withAnimation {
                 // IDEA can we make it that when the animation is done, we have the section flash in red for a short moment?
                 scrollViewProxy.scrollTo(problematicTask.id)
             }
-        } else if let nextSection = questionnaire.nextSection(after: section, using: responses) {
+        } else if let nextSection = allResponses.nextSection(after: section, in: context.allSections) {
             navigationPath.append {
-                QuestionnaireSectionView(
-                    questionnaire: questionnaire,
+                Self(
+                    context: context,
                     section: nextSection,
+                    responses: $responses,
                     resultHandler: resultHandler
                 )
             }
             indicateMissingResponses = false
         } else {
-            await resultHandler(.success(responses))
+            await resultHandler(.success(allResponses))
         }
     }
 }

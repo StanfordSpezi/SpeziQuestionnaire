@@ -36,6 +36,7 @@ extension ModelsR4.QuestionnaireResponse {
             self.questionnaire = FHIRPrimitive(Canonical(url))
         }
         var items: [QuestionnaireResponseItem] = []
+        dump(other.responses)
         // TODO
 //        for (taskId, optionIds) in other.selectedSCMCOptions.grouped(by: \.taskId).mapValues({ $0.map(\.optionId) }) {
 //            guard let task = other.questionnaire.task(withId: taskId) else {

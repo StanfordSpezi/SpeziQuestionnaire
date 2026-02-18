@@ -78,15 +78,15 @@ extension QuestionnaireItem {
     }
     
     /// The minimum value for a date answer.
-    /// - Returns: An optional `Date` containing the minimum date allowed.
-    var minDateValue: Date? {
-        dateMinMaxValue(url1: SupportedExtensions.minValue, url2: SupportedExtensions.dateMinValue)
+    /// - Returns: An optional `DateComponents` containing the minimum date allowed.
+    var minDateValue: DateComponents? {
+        dateMinMaxValue(urls: [SupportedExtensions.minValue, SupportedExtensions.dateMinValue])
     }
     
     /// The maximum value for a date answer.
-    /// - Returns: An optional `Date` containing the maximum date allowed.
-    var maxDateValue: Date? {
-        dateMinMaxValue(url1: SupportedExtensions.maxValue, url2: SupportedExtensions.dateMaxValue)
+    /// - Returns: An optional `DateComponents` containing the maximum date allowed.
+    var maxDateValue: DateComponents? {
+        dateMinMaxValue(urls: [SupportedExtensions.maxValue, SupportedExtensions.dateMaxValue])
     }
     
     /// The maximum number of decimal places for a decimal answer.
@@ -341,30 +341,57 @@ extension QuestionnaireItem {
         }
     }
     
-    private func dateMinMaxValue(url1: String, url2: String) -> Date? {
-        if let maxValueExtension = getExtensionInQuestionnaireItem(url: url1),
-           case let .date(dateValue) = maxValueExtension.value,
-           let maxDateValue = dateValue.value?.asDateAtStartOfDayWithDefaults {
-            return maxDateValue
-        } else if let maxDateValueExtension = getExtensionInQuestionnaireItem(url: url2),
-                  case let .string(dateExpression) = maxDateValueExtension.value,
-                  let maxDateExpression = dateExpression.value?.string {
-            do {
-                return try FHIRPathExpression.evaluate(expression: maxDateExpression)
-            } catch {
-                Self.logger.error("Failed to parse date expression \(maxDateExpression): \(error)")
+//    private func dateMinMaxValue(url1: String, url2: String) -> Date? {
+//        if let maxValueExtension = getExtensionInQuestionnaireItem(url: url1),
+//           case let .date(dateValue) = maxValueExtension.value,
+//           let maxDateValue = dateValue.value?.asDateAtStartOfDayWithDefaults {
+//            return maxDateValue
+//        } else if let maxDateValueExtension = getExtensionInQuestionnaireItem(url: url2),
+//                  case let .string(dateExpression) = maxDateValueExtension.value,
+//                  let maxDateExpression = dateExpression.value?.string {
+//            do {
+//                return try FHIRPathExpression.evaluate(expression: maxDateExpression)
+//            } catch {
+//                Self.logger.error("Failed to parse date expression \(maxDateExpression): \(error)")
+//            }
+//        }
+//        return nil
+//    }
+    
+    private func dateMinMaxValue(urls: [String]) -> DateComponents? {
+        for url in urls {
+            guard let ext = getExtensionInQuestionnaireItem(url: url) else {
+                continue
+            }
+            switch ext.value {
+            case .date(let value):
+                guard let value = value.value else {
+                    continue
+                }
+                return value.dateComponents()
+            case .time(let value):
+                guard let value = value.value else {
+                    continue
+                }
+                return value.dateComponents()
+            case .dateTime(let value):
+                guard let value = value.value else {
+                    continue
+                }
+                return value.dateComponents()
+            case .string(let value):
+                guard let value = value.value?.string else {
+                    continue
+                }
+                if let value = try? FHIRPathExpression.evaluate(expression: value, as: DateComponents.self) {
+                    return value
+                } else {
+                    continue
+                }
+            default:
+                continue
             }
         }
         return nil
-    }
-}
-
-extension FHIRDate {
-    /// Converts a `FHIRDate` to a `Date` with the time set to the start of day in the user's current time zone.
-    /// If either the month or day are not provided, we will assume they are the first.
-    /// - Returns: An optional `Date`
-    var asDateAtStartOfDayWithDefaults: Date? {
-        let dateComponents = DateComponents(year: year, month: Int(month ?? 1), day: Int(day ?? 1))
-        return Calendar.current.date(from: dateComponents).map { Calendar.current.startOfDay(for: $0) }
     }
 }

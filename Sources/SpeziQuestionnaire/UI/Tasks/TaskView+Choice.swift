@@ -15,10 +15,11 @@ extension TaskView {
     struct ChoiceAnswering: View { // TOOD better name!
         let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.ChoiceConfig
+        @Binding var response: QuestionnaireResponses.Response
         
         var body: some View {
             ForEach(config.options) { option in
-                Row(task: task, config: config, option: option)
+                Row(task: task, config: config, option: option, response: $response)
             }
             if config.hasFreeTextOtherOption {
                 // TODO
@@ -31,38 +32,42 @@ extension TaskView {
 extension TaskView.ChoiceAnswering {
     // This needs to be a separate view bc of the sheet presentation
     private struct Row: View {
-        @Environment(QuestionnaireResponses.self) private var responses
-        
         let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.ChoiceConfig
         let option: Questionnaire.Task.Kind.ChoiceConfig.Option
+        @Binding var response: QuestionnaireResponses.Response
         @State private var isShowingFollowUpQuestionsSheet = false
         
-        private var responseStorage: QuestionnaireResponses.ChoiceResponse {
-            get { responses[responseFor: task.id].choiceValue }
-            nonmutating set { responses[responseFor: task.id].choiceValue = newValue }
-        }
+//        private var responseStorage: QuestionnaireResponses.ChoiceResponse {
+//            get {
+//                responses[responseFor: task.id].value.choiceValue
+//            }
+//            nonmutating set {
+//                responses[responseFor: task.id].value.choiceValue = newValue
+//            }
+//        }
         
         var body: some View {
             ChoiceRow(
                 title: option.title,
                 subtitle: option.subtitle,
-                isSelected: responseStorage.didSelect(option: option)
+                isSelected: response.value.choiceValue.didSelect(option: option)
             ) {
-                let oldSelectionState = responseStorage.didSelect(option: option)
+                let oldSelectionState = response.value.choiceValue.didSelect(option: option)
                 if !config.allowsMultipleSelection {
                     if oldSelectionState {
                         // was selected before; we're now deselecting
-                        responseStorage = .init(selectedOptions: [])
+                        response = .init(value: .choice(.init(selectedOptions: [])))
                     } else {
                         // was not selected before; we're now selecting
-                        responseStorage = .init(selectedOptions: [.init(option: option)])
+                        response = .init(value: .choice(.init(selectedOptions: [option])))
                     }
                 } else {
                     if oldSelectionState {
-                        responseStorage.deselect(option: option)
+                        response.value.choiceValue.deselect(option: option)
+                        response.nestedResponses[.choiceOption(option.id)] = nil
                     } else {
-                        responseStorage.select(option: option)
+                        response.value.choiceValue.select(option: option)
                     }
                 }
                 if !oldSelectionState, !config.followUpTasks.isEmpty {
@@ -71,7 +76,28 @@ extension TaskView.ChoiceAnswering {
                 }
             }
             .sheet(isPresented: $isShowingFollowUpQuestionsSheet) {
-                Text(verbatim: "TODO")
+                NavigationStack {
+                    QuestionnaireSectionView(
+                        nestedQuestionsFor: task,
+                        sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)],
+                        responses: $response[nestedResponsesFor: .choiceOption(option.id)]
+                    ) { result in
+                        switch result {
+                        case .success:
+                            isShowingFollowUpQuestionsSheet = false
+                        case .cancelled:
+                            isShowingFollowUpQuestionsSheet = false
+                            // we need to un-select the option and clear out the nested responses
+                            response.value.choiceValue.deselect(option: option)
+                            response.nestedResponses[.choiceOption(option.id)] = nil
+                        }
+                    }
+//                    QuestionnaireSectionView(
+//                        questionnaire: <#T##Questionnaire#>,
+//                        section: <#T##Questionnaire.Section#>,
+//                        resultHandler: <#T##(QuestionnaireSheet.Result) async -> Void#>
+//                    )
+                }
             }
         }
     }

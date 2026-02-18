@@ -11,9 +11,63 @@ import SpeziQuestionnaire
 
 
 extension Questionnaire {
+    static let followUpTasksQuestionnaire = Self(
+        metadata: .init(
+            id: "edu.stanford.SpeziQuestionnaire.test1FollowUp",
+            url: nil,
+            title: "Follow-Up Tasks",
+            explainer: ""
+        ),
+        sections: [
+            .init(id: "sec0", tasks: [
+                .init(
+                    id: "0",
+                    title: "Activity",
+                    kind: .choice(.init(
+                        options: [
+                            .init(id: "0", title: "Running"),
+                            .init(id: "1", title: "Cycling"),
+                            .init(id: "2", title: "Swimming"),
+                        ],
+                        hasFreeTextOtherOption: false,
+                        allowsMultipleSelection: true,
+                        followUpTasks: [
+                            .init(
+                                id: "0",
+                                title: "Frequency",
+                                kind: .choice(.init(
+                                    options: [
+                                        .init(id: "a", title: "Daily"),
+                                        .init(id: "b", title: "Multiple Times per Week"),
+                                        .init(id: "c", title: "Once per Week"),
+                                        .init(id: "d", title: "Every other Week")
+                                    ],
+                                    allowsMultipleSelection: false
+                                ))
+                            ),
+                            .init(
+                                id: "a",
+                                title: "Duration",
+                                kind: .choice(.init(
+                                    options: [
+                                        .init(id: "a", title: "Short"),
+                                        .init(id: "b", title: "Medium"),
+                                        .init(id: "c", title: "Long"),
+                                        .init(id: "d", title: "Very Long")
+                                    ],
+                                    allowsMultipleSelection: false
+                                ))
+                            )
+                        ]
+                    ))
+                )
+            ])
+        ]
+    )
+    
     static let testQuestionnaire = Self(
         metadata: .init(
-            id: "edu.stanford.SpeziQuestionnaire.test",
+            id: "edu.stanford.SpeziQuestionnaire.test0",
             url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaire")!, // swiftlint:disable:this force_unwrapping
             title: "Test Questionnaire",
             explainer: "This is the test questionnaire, whose purpose is testing the questionnaire infrastructure."

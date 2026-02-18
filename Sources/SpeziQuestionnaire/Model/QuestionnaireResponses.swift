@@ -40,6 +40,80 @@ extension QuestionnaireResponses {
         }
     }
     
+    public struct Responses: Hashable, Collection, Sendable {
+        public typealias Storage = [Questionnaire.Task.ID: Response]
+        public typealias Element = Storage.Element
+        public typealias Index = Storage.Index
+        private var storage: Storage = [:]
+        
+        public var startIndex: Index {
+            storage.startIndex
+        }
+        public var endIndex: Index {
+            storage.endIndex
+        }
+        
+        public init() {}
+        
+        public func index(after idx: Index) -> Index {
+            storage.index(after: idx)
+        }
+        
+        public subscript(position: Index) -> Element {
+            storage[position]
+        }
+        
+        public subscript(key: Questionnaire.Task.ID) -> Response {
+            get {
+                storage[key] ?? .init(value: .none)
+            }
+            set {
+                if newValue.value == .none {
+                    storage[key] = nil
+                } else {
+                    storage[key] = newValue
+                }
+            }
+        }
+    }
+    
+    /// A response that was collected for some task within a questionnaire.
+    public struct Response: Hashable, Sendable {
+        public enum Value: Hashable, Sendable {
+            /// The lack of a response
+            case none
+            case string(String)
+            case bool(Bool)
+            case date(DateComponents)
+            case number(Double)
+            case choice(ChoiceResponse)
+            case attachments([CollectedAttachment])
+        }
+        
+        public enum NestedResponseIdentifier: Hashable, Sendable {
+            case choiceOption(Questionnaire.Task.Kind.ChoiceConfig.Option.ID)
+        }
+        
+        /// The response's value.
+        public var value: Value
+        /// Nested responses that were collected for sub-tasks nested within this task.
+        public var nestedResponses: [NestedResponseIdentifier: Responses]
+        
+        init(value: Value, nestedResponses: [NestedResponseIdentifier: Responses] = [:]) {
+            self.value = value
+            self.nestedResponses = nestedResponses
+        }
+        
+        subscript(nestedResponsesFor identifier: NestedResponseIdentifier) -> Responses {
+            get {
+                nestedResponses[identifier] ?? .init()
+            }
+            set {
+                nestedResponses[identifier] = newValue
+            }
+        }
+    }
+    
     public enum ResponseValue: Equatable, Sendable {
         /// The lack of a response
         case none
@@ -52,45 +126,50 @@ extension QuestionnaireResponses {
     }
     
     //@Observable
-    public struct ChoiceResponse: Equatable, Sendable {
+    public struct ChoiceResponse: Hashable, Sendable {
         public typealias Option = Questionnaire.Task.Kind.ChoiceConfig.Option
-        public struct SelectedOption: Equatable, Sendable {
-            let option: Option
-            /// Responses to nested follow-up tasks within this option.
-            var nestedResponses: [Questionnaire.Task.ID: ResponseValue] = [:]
-        }
+//        public struct SelectedOption: Hashable, Sendable {
+//            let option: Option
+//            /// Responses to nested follow-up tasks within this option.
+//            var nestedResponses: [Questionnaire.Task.ID: ResponseValue] = [:]
+//        }
         /// The currently selected options.
-        public private(set) var selectedOptions: [SelectedOption] = []
+        public private(set) var selectedOptions: Set<Option>
         public internal(set) var freeTextOtherResponse: String?
         
+        init(selectedOptions: Set<Option>, freeTextOtherResponse: String? = nil) {
+            self.selectedOptions = selectedOptions
+            self.freeTextOtherResponse = freeTextOtherResponse
+        }
+        
         func didSelect(option: Option) -> Bool {
-            selectedOptions.contains { $0.option == option }
+            selectedOptions.contains(option)
         }
         
         mutating func select(option: Option) {
-            if !selectedOptions.contains(where: { $0.option == option }) {
-                selectedOptions.append(.init(option: option))
+            if !selectedOptions.contains(option) {
+                selectedOptions.insert(option)
             }
         }
         mutating func deselect(option: Option) {
-            selectedOptions.removeAll { $0.option == option }
+            selectedOptions.remove(option)
         }
         
-        subscript(
-            nestedResponsesFor option: Option
-        ) -> [Questionnaire.Task.ID: ResponseValue]? {
-            get {
-                selectedOptions.first { $0.option == option }?.nestedResponses
-            }
-            set {
-                // TODO should this implicitly select the option if it isn't already selected? prob no, right?
-                if let idx = selectedOptions.firstIndex(where: { $0.option == option }) {
-                    selectedOptions[idx].nestedResponses = newValue ?? [:]
-                } else if newValue != nil {
-                    fatalError("Attempted to set nestedResponses for non-selected option '\(option.id)'. That's not allowed.")
-                }
-            }
-        }
+//        subscript(
+//            nestedResponsesFor option: Option
+//        ) -> [Questionnaire.Task.ID: ResponseValue]? {
+//            get {
+//                selectedOptions.first { $0.option == option }?.nestedResponses
+//            }
+//            set {
+//                // TODO should this implicitly select the option if it isn't already selected? prob no, right?
+//                if let idx = selectedOptions.firstIndex(where: { $0.option == option }) {
+//                    selectedOptions[idx].nestedResponses = newValue ?? [:]
+//                } else if newValue != nil {
+//                    fatalError("Attempted to set nestedResponses for non-selected option '\(option.id)'. That's not allowed.")
+//                }
+//            }
+//        }
     }
     
 //    public struct ResponseStorage {
@@ -182,7 +261,37 @@ extension QuestionnaireResponses.ResponseValue {
     /// - Important: Assigning this property will unconditionally turn this `ResponseValue` into a choice question response value,
     ///     regardless of the actual kind of the task to which the response belongs.
     var choiceValue: QuestionnaireResponses.ChoiceResponse {
-        get { if case .choice(let value) = self { value } else { .init() } }
+        get { if case .choice(let value) = self { value } else { .init(selectedOptions: []) } }
+        set { self = .choice(newValue) }
+    }
+    var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? {
+        get { if case .attachments(let value) = self { value } else { nil } }
+        set { self = newValue.map { Self.attachments($0) } ?? .none }
+    }
+}
+
+
+extension QuestionnaireResponses.Response.Value {
+    var boolValue: Bool? {
+        get { if case .bool(let value) = self { value } else { nil } }
+        set { self = newValue.map { Self.bool($0) } ?? .none }
+    }
+    var stringValue: String? {
+        get { if case .string(let value) = self { value } else { nil } }
+        set { self = newValue.map { Self.string($0) } ?? .none }
+    }
+    var dateValue: DateComponents? {
+        get { if case .date(let value) = self { value } else { nil } }
+        set { self = newValue.map { Self.date($0) } ?? .none }
+    }
+    var numberValue: Double? {
+        get { if case .number(let value) = self { value } else { nil } }
+        set { self = newValue.map { Self.number($0) } ?? .none }
+    }
+    /// - Important: Assigning this property will unconditionally turn this `ResponseValue` into a choice question response value,
+    ///     regardless of the actual kind of the task to which the response belongs.
+    var choiceValue: QuestionnaireResponses.ChoiceResponse {
+        get { if case .choice(let value) = self { value } else { .init(selectedOptions: []) } }
         set { self = .choice(newValue) }
     }
     var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? {
@@ -213,15 +322,15 @@ public final class QuestionnaireResponses {
 //    }
     
     
-    @available(*, deprecated)
-    public struct SelectedOption: Hashable {
-        public let taskId: Questionnaire.Task.ID
-        public let optionId: Questionnaire.Task.Kind.ChoiceConfig.Option.ID
-    }
+//    @available(*, deprecated)
+//    public struct SelectedOption: Hashable {
+//        public let taskId: Questionnaire.Task.ID
+//        public let optionId: Questionnaire.Task.Kind.ChoiceConfig.Option.ID
+//    }
     
     public let questionnaire: Questionnaire
     
-    private var responses: [Questionnaire.Task.ID: ResponseValue] = [:]
+    public internal(set) var responses = Responses()
     
 //    @available(*, deprecated)
 //    public private(set) var selectedSCMCOptions = Set<SelectedOption>()
@@ -325,10 +434,10 @@ extension QuestionnaireResponses {
 //            }
 //        }
 //    }
-    subscript(responseFor taskId: Questionnaire.Task.ID) -> ResponseValue {
-        get { responses[taskId] ?? .none }
-        set { responses[taskId] = newValue }
-    }
+//    subscript(responseFor taskId: Questionnaire.Task.ID) -> Response {
+//        get { responses[taskId] ?? .init(value: .none) }
+//        set { responses[taskId] = newValue }
+//    }
 }
 
 
@@ -353,7 +462,7 @@ extension QuestionnaireResponses {
 //        case .fileAttachment:
 //            !fileAttachmentResponses[task.id, default: []].isEmpty
         case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment:
-            self[responseFor: task.id] != .none
+            responses[task.id].value != .none
         }
     }
     
@@ -384,6 +493,22 @@ extension QuestionnaireResponses {
     func firstTaskPreventingCompletion(of section: Questionnaire.Section) -> Questionnaire.Task? {
         section.tasks.first { task in
             isMissingResponse(for: task) || validateResponse(for: task) != .ok
+        }
+    }
+    
+    /// Determines the next section, taking into account the current responses and task conditions.
+    ///
+    /// This function automatically skips empty sections, if e.g. a section doesn't contain any tasks, or all of the section's tasks should be skipped, because of their conditions.
+    func nextSection(
+        after section: Questionnaire.Section,
+        in sections: some Collection<Questionnaire.Section>
+    ) -> Questionnaire.Section? {
+        guard let sectionIdx = sections.firstIndex(of: section) else {
+            return nil
+        }
+        let remainingSections = sections[sectionIdx...].dropFirst()
+        return remainingSections.first { section in
+            section.tasks.contains { evaluate($0.enabledCondition) }
         }
     }
 }

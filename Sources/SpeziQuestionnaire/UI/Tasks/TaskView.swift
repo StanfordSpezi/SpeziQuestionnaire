@@ -10,14 +10,15 @@ import SwiftUI
 
 
 struct TaskView<Header: View>: View {
-    @Environment(QuestionnaireResponses.self) private var responses
+    @Environment(QuestionnaireResponses.self) private var allResponses
     
     let section: Questionnaire.Section
     let task: Questionnaire.Task
+    @Binding var response: QuestionnaireResponses.Response
     @ViewBuilder let header: @MainActor () -> Header
     
     var body: some View {
-        if responses.evaluate(task.enabledCondition) {
+        if allResponses.evaluate(task.enabledCondition) {
             content
         }
     }
@@ -46,7 +47,7 @@ struct TaskView<Header: View>: View {
             if !task.footer.isEmpty {
                 Text(markdown: task.footer)
             }
-            switch responses.validateResponse(for: task) {
+            switch allResponses.validateResponse(for: task) {
             case .ok:
                 EmptyView()
             case .invalid(let message):
@@ -61,65 +62,31 @@ struct TaskView<Header: View>: View {
         case .instructional(let text):
             Text(markdown: text)
         case .choice(let config):
-//            makeSCMCRows(for: config.options)
-            ChoiceAnswering(task: task, config: config)
+            ChoiceAnswering(task: task, config: config, response: $response)
         case .freeText(let config):
-            textEditor(for: config)
+            FreeTextEntry(config: config, response: $response.value.stringValue.withDefault(""))
         case .dateTime(let config):
-            DatePickerRow(task: task, config: config)
+            DatePickerRow(config: config, response: $response.value.dateValue)
         case .numeric(let config):
-            NumericInputRow(task: task, config: config)
+            NumericInputRow(config: config, response: $response.value.numberValue)
         case .boolean:
-            SCMCRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
-                responses[responseFor: task.id].boolValue == true
-            } set: { isSelected in
-                responses[responseFor: task.id].boolValue = isSelected ? true : nil
-            })
-            SCMCRow(option: .init(id: "1", title: "No"), isSelected: Binding {
-                responses[responseFor: task.id].boolValue == false
-            } set: { isSelected in
-                responses[responseFor: task.id].boolValue = isSelected ? false : nil
-            })
+            yesNoRows
         case .fileAttachment(let config):
-            FileAttachmentQuestionView(task: task, config: config)
+            FileAttachmentQuestionView(config: config, attachments: $response.value.attachmentsValue.withDefault([]))
         }
     }
     
-//    private func makeSCMCRows(for options: [Questionnaire.Task.Kind.ChoiceConfig.Option]) -> some View {
-//        ForEach(options) { option in
-//            SCMCRow(option: option, isSelected: Binding<Bool> {
-//                responses[task: task, option: option]
-//            } set: {
-//                responses[task: task, option: option] = $0
-//            })
-//        }
-//    }
-    
-    private func textEditor(for config: Questionnaire.Task.Kind.FreeTextConfig) -> some View {
-        TextEditor(text: Binding<String> {
-            responses[responseFor: task.id].stringValue ?? ""
-//            responses[freeTextResponseFor: task.id] ?? ""
-        } set: { newValue in
-//            responses[freeTextResponseFor: task.id] = newValue
-            responses[responseFor: task.id].stringValue = newValue
+    @ViewBuilder private var yesNoRows: some View {
+        SimpleChoiceRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
+            response.value.boolValue == true
+        } set: { isSelected in
+            response.value.boolValue = isSelected ? true : nil
         })
-        .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
-        .textInputAutocapitalization(config.disableAutocomplete ? .never : nil)
-        .autocorrectionDisabled(config.disableAutocomplete)
-    }
-}
-
-
-extension Questionnaire.Task.Kind.DateTimeConfig.Style {
-    var components: Set<Calendar.Component> {
-        switch self {
-        case .dateOnly:
-            [.year, .month, .day]
-        case .timeOnly:
-            [.hour, .minute, .second]
-        case .dateAndTime:
-            [.year, .month, .day, .hour, .minute, .second]
-        }
+        SimpleChoiceRow(option: .init(id: "1", title: "No"), isSelected: Binding {
+            response.value.boolValue == false
+        } set: { isSelected in
+            response.value.boolValue = isSelected ? false : nil
+        })
     }
 }
 

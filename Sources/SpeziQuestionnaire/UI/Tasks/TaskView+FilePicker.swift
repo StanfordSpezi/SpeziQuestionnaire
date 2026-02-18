@@ -13,20 +13,8 @@ import UniformTypeIdentifiers
 
 
 struct FileAttachmentQuestionView: View {
-    @Environment(QuestionnaireResponses.self) private var responses
-    let task: Questionnaire.Task
     let config: Questionnaire.Task.Kind.FileAttachmentConfig
-    
-//    @State private var collectedAttachments: [QuestionnaireResponses.CollectedAttachment] = []
-    
-    private var attachments: [QuestionnaireResponses.CollectedAttachment] {
-        get {
-            responses[responseFor: task.id].attachmentsValue ?? []
-        }
-        nonmutating set {
-            responses[responseFor: task.id].attachmentsValue = newValue
-        }
-    }
+    @Binding var attachments: [QuestionnaireResponses.CollectedAttachment]
     
     var body: some View {
         ForEach(attachments) { attachment in

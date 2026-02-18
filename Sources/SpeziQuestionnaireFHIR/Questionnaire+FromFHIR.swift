@@ -235,10 +235,8 @@ extension ModelsR4.QuestionnaireItem {
                         fatalError("unreachable")
                     }
                 }(),
-                // NOTE: it's not ideal that we use a `Date` object here, instead of `DateComponents`,
-                // but as long as the FHIR -> Spezi conversion happens in the same time zone where the questionnaire is also being answered, we should be good.
-                minDate: minDateValue,
-                maxDate: maxDateValue
+                minValue: minDateValue,
+                maxValue: maxDateValue
             ))
         case .string, .text, .url:
             return .freeText(.init(
@@ -477,12 +475,5 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
         case .string(let value):
             return .string(try unwrap(value.value?.string))
         }
-    }
-}
-
-
-extension Decimal {
-    fileprivate var doubleValue: Double {
-        NSDecimalNumber(decimal: self).doubleValue
     }
 }

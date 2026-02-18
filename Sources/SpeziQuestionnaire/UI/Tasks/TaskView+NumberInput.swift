@@ -13,9 +13,8 @@ import SwiftUI
 
 extension TaskView {
     struct NumericInputRow: View {
-        @Environment(QuestionnaireResponses.self) private var responses
-        let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.NumericTaskConfig
+        @Binding var response: Double?
         
         var body: some View {
             switch config.inputMode {
@@ -33,10 +32,9 @@ extension TaskView {
         
         @ViewBuilder
         private func numberPad(_ numberKind: Questionnaire.Task.Kind.NumericTaskConfig.NumberKind) -> some View {
-            @Bindable var responses = responses
             NumberTextField(
                 "", // ???
-                value: $responses[responseFor: task.id].numberValue,
+                value: $response,
                 allowsDecimalEntry: { () -> Bool in
                     switch numberKind {
                     case .integer:
@@ -51,9 +49,9 @@ extension TaskView {
         @ViewBuilder
         private func slider(bounds: ClosedRange<Double>, stepValue: Double) -> some View {
             let binding = Binding<Double> {
-                responses[responseFor: task.id].numberValue ?? 0
+                response ?? 0
             } set: { newValue in
-                responses[responseFor: task.id].numberValue = newValue
+                response = newValue
             }
             VStack {
                 Text(binding.wrappedValue, format: .number)
