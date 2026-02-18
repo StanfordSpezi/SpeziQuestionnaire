@@ -6,12 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-public import ModelsR4
-private import OSLog
+import ModelsR4
 private import ResearchKit
-import ResearchKitOnFHIR
-public import ResearchKitSwiftUI
-public import SwiftUI
+private import ResearchKitOnFHIR
+import ResearchKitSwiftUI
+import SwiftUI
 
 
 /// Present a FHIR `Questionnaire` to the user.
@@ -42,23 +41,21 @@ public import SwiftUI
 ///     }
 /// }
 /// ```
-public struct LegacyQuestionnaireView: View {
-    private static let logger = Logger(subsystem: "edu.stanford.spezi.questionnaire", category: "QuestionnaireView")
-
+struct LegacyQuestionnaireView: View {
     private let questionnaire: ModelsR4.Questionnaire
     private let questionnaireResult: @MainActor (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
     private let cancelBehavior: CancelBehavior
     
     
-    public var body: some View {
+    var body: some View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(tasks: task, tintColor: .accentColor, cancelBehavior: cancelBehavior, result: handleResult)
                 .ignoresSafeArea(.container, edges: .bottom)
                 .ignoresSafeArea(.keyboard, edges: .bottom)
                 .interactiveDismissDisabled()
         } else {
-            Text("QUESTIONNAIRE_LOADING_ERROR_MESSAGE", bundle: .module)
+            Text("Questionnaire could not be loaded.")
         }
     }
     
@@ -68,7 +65,7 @@ public struct LegacyQuestionnaireView: View {
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
     ///   - cancelBehavior: The cancel behavior of view. The default setting allows cancellation and asks for confirmation before the view is dismissed.
     ///   - questionnaireResult: Result closure that processes the ``QuestionnaireResult``.
-    public init(
+    init(
         questionnaire: ModelsR4.Questionnaire,
         completionStepMessage: String? = nil,
         cancelBehavior: CancelBehavior = .shouldConfirmCancel,
@@ -110,7 +107,7 @@ public struct LegacyQuestionnaireView: View {
         do {
             return try ORKNavigableOrderedTask(questionnaire: questionnaire, completionStep: completionStep)
         } catch {
-            Self.logger.error("Failed to create ORK task: \(error)")
+            print("Failed to create ORK task: \(error)")
             return nil
         }
     }
@@ -119,7 +116,7 @@ public struct LegacyQuestionnaireView: View {
 
 extension LegacyQuestionnaireView {
     /// The result of a questionnaire.
-    public enum QuestionnaireResult {
+    enum QuestionnaireResult {
         /// The questionnaire was successfully completed with a `QuestionnaireResponse`.
         case completed(ModelsR4.QuestionnaireResponse)
         /// The questionnaire task was cancelled by the user.

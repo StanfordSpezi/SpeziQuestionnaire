@@ -10,6 +10,10 @@
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
 		80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */; };
 		80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E8A2F42349F00827270 /* FHIRQuestionnaires */; };
+		802B4B2E2F464DAD00554747 /* ResearchKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */; };
+		802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B2F2F464DAD00554747 /* ResearchKitUI */; };
+		802B4B322F464DBD00554747 /* ResearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B312F464DBD00554747 /* ResearchKit */; };
+		802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B332F464E4700554747 /* ResearchKitOnFHIR */; };
 		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +55,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */,
+				802B4B2E2F464DAD00554747 /* ResearchKitSwiftUI in Frameworks */,
+				802B4B322F464DBD00554747 /* ResearchKit in Frameworks */,
+				802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */,
+				802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */,
 				80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */,
 				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
@@ -119,6 +127,10 @@
 				803769F62F262FC400FA2F59 /* Spezi */,
 				80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */,
 				80073E8A2F42349F00827270 /* FHIRQuestionnaires */,
+				802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */,
+				802B4B2F2F464DAD00554747 /* ResearchKitUI */,
+				802B4B312F464DBD00554747 /* ResearchKit */,
+				802B4B332F464E4700554747 /* ResearchKitOnFHIR */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -176,6 +188,7 @@
 			packageReferences = (
 				803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */,
 				80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
+				802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -636,6 +649,14 @@
 				minimumVersion = 2.0.7;
 			};
 		};
+		802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordBDHG/ResearchKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.4;
+			};
+		};
 		803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
@@ -659,6 +680,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
 			productName = FHIRQuestionnaires;
+		};
+		802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */;
+			productName = ResearchKitSwiftUI;
+		};
+		802B4B2F2F464DAD00554747 /* ResearchKitUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */;
+			productName = ResearchKitUI;
+		};
+		802B4B312F464DBD00554747 /* ResearchKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */;
+			productName = ResearchKit;
+		};
+		802B4B332F464E4700554747 /* ResearchKitOnFHIR */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
+			productName = ResearchKitOnFHIR;
 		};
 		803769F62F262FC400FA2F59 /* Spezi */ = {
 			isa = XCSwiftPackageProductDependency;
