@@ -22,14 +22,6 @@ extension Decimal {
 
 
 extension FHIRDate {
-//    /// Converts a `FHIRDate` to a `Date` with the time set to the start of day in the user's current time zone.
-//    /// If either the month or day are not provided, we will assume they are the first.
-//    /// - Returns: An optional `Date`
-//    var asDateAtStartOfDayWithDefaults: Date? {
-//        let dateComponents = DateComponents(year: year, month: Int(month ?? 1), day: Int(day ?? 1))
-//        return Calendar.current.date(from: dateComponents).map { Calendar.current.startOfDay(for: $0) }
-//    }
-    
     func dateComponents(missingComponentFallback fallback: Int? = 1) -> DateComponents {
         DateComponents(
             year: self.year,

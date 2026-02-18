@@ -172,8 +172,11 @@ extension QuestionnaireResponses.Response {
                 guard let option = task.kind.choiceOptions.first(where: { $0.id == optionId }) else {
                     throw FHIRConversionError("Unable to find choice option '\(optionId)'")
                 }
+                guard self.value.choiceValue.selectedOptions.contains(option) else {
+                    throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
+                }
                 guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.fhirCoding) }) else {
-                    fatalError("urgh")
+                    throw FHIRConversionError("Unable to find answer for choice option")
                 }
                 answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
             }

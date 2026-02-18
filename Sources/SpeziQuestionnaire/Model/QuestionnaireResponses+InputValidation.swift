@@ -37,7 +37,21 @@ extension QuestionnaireResponses {
         case .choice(let config):
             // when we support an `"other" with custom string entry" option, we'll need to validate that the string isn't empty.
             // not a problem for now
-            return .ok
+            if config.hasFreeTextOtherOption {
+                guard let response = responses[task.id].value.choiceValue.freeTextOtherResponse else {
+                    // this option isn't selected, so we're good
+                    return .ok
+                }
+                guard !response.isEmpty else {
+                    return .invalid(message: "Missing response text for \"Other\" option")
+                }
+                return .ok
+            } else {
+                // NOTE that we intentionally don't validate nested responses here.
+                // it should only be possible to leave the nested response answering sheet,
+                // if either all responses there are valid, or by canceling, in which case the responses there are discarded.
+                return .ok
+            }
         case .freeText(let config):
             guard let response = responses[task.id].value.stringValue else {
                 return .ok

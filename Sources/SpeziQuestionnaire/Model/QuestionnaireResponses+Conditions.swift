@@ -70,7 +70,6 @@ extension QuestionnaireResponses {
                     // TODO can we have a "selection == the open choice option" condition (ie, does FHIR allow this?)?
                     // DOES FHIR allow the openChoice option in MC scenarios?
                     return response.selectedOptions.contains { $0.id == optionId }
-//                    return selectedSCMCOptions.contains(.init(taskId: taskId, optionId: optionId))
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
                     return false

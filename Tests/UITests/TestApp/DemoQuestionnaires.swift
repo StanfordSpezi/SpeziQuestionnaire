@@ -27,7 +27,7 @@ extension Questionnaire {
                         options: [
                             .init(id: "0", title: "Running"),
                             .init(id: "1", title: "Cycling"),
-                            .init(id: "2", title: "Swimming"),
+                            .init(id: "2", title: "Swimming")
                         ],
                         hasFreeTextOtherOption: false,
                         allowsMultipleSelection: true,

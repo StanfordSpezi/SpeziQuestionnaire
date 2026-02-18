@@ -6,17 +6,14 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_types_order
+
 import SwiftUI
-
-
-@available(*, deprecated, renamed: "SimpleChoiceRow")
-typealias SCMCRow = SimpleChoiceRow
 
 
 /// A row in a single/multiple choice picker
 struct ChoiceRow<AccessoryIfSelected: View>: View {
     @Environment(\.colorScheme) private var colorScheme
-//    let option: Questionnaire.Task.Kind.ChoiceConfig.Option
     private let title: String
     private let subtitle: String
     private let isSelected: Bool
@@ -63,7 +60,6 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
         self.accessoryIfSelected = accessoryIfSelected
     }
 }
-
 
 
 struct SimpleChoiceRow: View {

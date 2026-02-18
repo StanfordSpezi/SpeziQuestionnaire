@@ -9,6 +9,12 @@
 import XCTest
 
 
+/*
+ TODO:
+ - test that when you select an MC option w/ follow up questions, and cancel the nested questions, the option gets deselected and the questionnaire as a whole
+     stays in an incomplete state
+ */
+
 class TestAppUITests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()

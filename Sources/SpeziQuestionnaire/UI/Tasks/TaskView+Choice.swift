@@ -6,14 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order
-
 import SpeziViews
 import SwiftUI
 
 
 extension TaskView {
-    struct ChoiceAnswering: View { // TOOD better name!
+    struct ChoiceAnswering: View { // better name?!!
         let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.ChoiceConfig
         @Binding var response: QuestionnaireResponses.Response
@@ -33,7 +31,7 @@ extension TaskView {
 extension TaskView.ChoiceAnswering {
     // This needs to be a separate view bc of the sheet presentation
     private struct Row: View {
-        @Environment(QuestionnaireResponses.self) private var allResponses // name?
+        @Environment(QuestionnaireResponses.self) private var responses
         
         let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.ChoiceConfig
@@ -84,11 +82,19 @@ extension TaskView.ChoiceAnswering {
                             response.value.choiceValue.deselect(option: option)
                             response.nestedResponses[.choiceOption(option.id)] = nil
                         }
+                    } header: {
+                        VStack(alignment: .leading) {
+                            Text("Follow-Up")
+                                .font(.headline)
+                            Text("Please answer the follow-up questions below, for the **'\(option.title)'** option you just selected.")
+                                .font(.subheadline)
+                        }
                     }
+                    .navigationTitle("Follow-Up: \(option.title)")
                 }
                 .interactiveDismissDisabled()
                 .environment(
-                    allResponses.view(
+                    responses.view(
                         appending: QuestionnaireResponses.ResponsePath(taskId: task.id).appending(choiceOption: option.id)
                     )
                 )

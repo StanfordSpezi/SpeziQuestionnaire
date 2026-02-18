@@ -33,6 +33,18 @@ extension Binding {
         } set: { newValue in
             self.wrappedValue = newValue
         }
+    }
+}
 
+
+extension View {
+    @ViewBuilder
+    @_disfavoredOverload
+    nonisolated func navigationTitle(_ title: (some StringProtocol)?) -> some View {
+        if let title {
+            self.navigationTitle(title)
+        } else {
+            self
+        }
     }
 }

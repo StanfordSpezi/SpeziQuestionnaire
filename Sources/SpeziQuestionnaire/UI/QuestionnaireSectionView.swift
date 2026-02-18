@@ -11,10 +11,13 @@ import SwiftUI
 
 
 /// Displays a section of tasks within a questionnaire, as a single page on the navigation stack.
-struct QuestionnaireSectionView: View {
+struct QuestionnaireSectionView<Header: View>: View {
     private enum Context {
         case regular(questionnaire: Questionnaire)
-        case answerNestedQuestions(parentTask: Questionnaire.Task, sections: [Questionnaire.Section])
+        case answerNestedQuestions(
+            parentTask: Questionnaire.Task,
+            sections: [Questionnaire.Section]
+        )
         
         var allSections: [Questionnaire.Section] {
             switch self {
@@ -29,9 +32,9 @@ struct QuestionnaireSectionView: View {
     @Environment(ManagedNavigationStack.Path.self) private var navigationPath
     @Environment(QuestionnaireResponses.self) private var responses
     
+    private let header: Header
     private let context: Context
     private let section: Questionnaire.Section
-//    @Binding private var responses: QuestionnaireResponses.Responses
     private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
@@ -40,6 +43,7 @@ struct QuestionnaireSectionView: View {
         @Bindable var responses = responses
         ScrollViewReader { scrollViewProxy in
             Form {
+                header
                 ForEach(section.tasks) { task in
                     TaskView(section: section, task: task, response: $responses.responses[task.id]) {
                         if indicateMissingResponses && responses.isMissingResponse(for: task) {
@@ -61,9 +65,12 @@ struct QuestionnaireSectionView: View {
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
+                Button("DBG REsponses" as String) {
+                    dump(responses.responses)
+                }
             }
         }
-        .navigationTitle(title ?? "")
+        .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
             toolbarContent
@@ -75,7 +82,6 @@ struct QuestionnaireSectionView: View {
         case .regular(let questionnaire):
             questionnaire.metadata.title
         case .answerNestedQuestions:
-            // TODO in this case we need to make it absolutely clear which question and which related context this belongs to!!!!
             nil
         }
     }
@@ -86,7 +92,7 @@ struct QuestionnaireSectionView: View {
                 // if we're about to complete the questionnaire, we turn this into a Done button
                 toolbarDoneButton
             } else {
-                CancelButton {
+                CancelButton(context: context) {
                     await resultHandler(.cancelled)
                 }
             }
@@ -113,40 +119,40 @@ struct QuestionnaireSectionView: View {
     private init(
         context: Context,
         section: Questionnaire.Section,
-//        responses: Binding<QuestionnaireResponses.Responses>,
-        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void,
+        header: Header
     ) {
         self.context = context
         self.section = section
-//        self._responses = responses
         self.resultHandler = resultHandler
+        self.header = header
     }
     
     init(
         questionnaire: Questionnaire,
         section: Questionnaire.Section,
-//        responses: Binding<QuestionnaireResponses.Responses>,
-        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void,
+        @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
         self.init(
             context: .regular(questionnaire: questionnaire),
             section: section,
-//            responses: responses,
-            resultHandler: resultHandler
+            resultHandler: resultHandler,
+            header: header()
         )
     }
     
     init(
         nestedQuestionsFor parentTask: Questionnaire.Task,
         sections: [Questionnaire.Section],
-//        responses: Binding<QuestionnaireResponses.Responses>,
-        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void
+        resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void,
+        @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
         self.init(
             context: .answerNestedQuestions(parentTask: parentTask, sections: sections),
             section: sections[0],
-//            responses: responses,
-            resultHandler: resultHandler
+            resultHandler: resultHandler,
+            header: header()
         )
     }
     
@@ -160,11 +166,11 @@ struct QuestionnaireSectionView: View {
             }
         } else if let nextSection = responses.nextSection(after: section, in: context.allSections) {
             navigationPath.append {
-                Self(
+                QuestionnaireSectionView(
                     context: context,
                     section: nextSection,
-//                    responses: $responses,
-                    resultHandler: resultHandler
+                    resultHandler: resultHandler,
+                    header: header
                 )
             }
             indicateMissingResponses = false
@@ -177,13 +183,15 @@ struct QuestionnaireSectionView: View {
 
 extension QuestionnaireSectionView {
     private struct CancelButton: View {
-        @State private var showConfirmation = false
+        let context: Context
         let action: @MainActor () async -> Void
+        
+        @State private var showConfirmation = false
         
         var body: some View {
             button
                 .confirmationDialog(
-                    "Cancel Questionnaire",
+                    confirmTitle,
                     isPresented: $showConfirmation,
                     titleVisibility: .visible,
                     actions: {
@@ -191,9 +199,27 @@ extension QuestionnaireSectionView {
                         Button("No", role: .cancel) {}
                     },
                     message: {
-                        Text("Are you sure you want to cancel the questionnaire?\nYour responses will be lost.")
+                        Text(confirmMessage)
                     }
                 )
+        }
+        
+        private var confirmTitle: String {
+            switch context {
+            case .regular:
+                "Cancel Questionnaire"
+            case .answerNestedQuestions:
+                "Discard Nested Responses"
+            }
+        }
+        
+        private var confirmMessage: String {
+            switch context {
+            case .regular:
+                "Are you sure you want to cancel the questionnaire?\nYour responses will be lost."
+            case .answerNestedQuestions:
+                "This will de-select the '' option and "
+            }
         }
         
         @ViewBuilder private var button: some View {

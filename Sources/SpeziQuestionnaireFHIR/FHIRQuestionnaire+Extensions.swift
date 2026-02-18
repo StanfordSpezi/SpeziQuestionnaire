@@ -341,23 +341,6 @@ extension QuestionnaireItem {
         }
     }
     
-//    private func dateMinMaxValue(url1: String, url2: String) -> Date? {
-//        if let maxValueExtension = getExtensionInQuestionnaireItem(url: url1),
-//           case let .date(dateValue) = maxValueExtension.value,
-//           let maxDateValue = dateValue.value?.asDateAtStartOfDayWithDefaults {
-//            return maxDateValue
-//        } else if let maxDateValueExtension = getExtensionInQuestionnaireItem(url: url2),
-//                  case let .string(dateExpression) = maxDateValueExtension.value,
-//                  let maxDateExpression = dateExpression.value?.string {
-//            do {
-//                return try FHIRPathExpression.evaluate(expression: maxDateExpression)
-//            } catch {
-//                Self.logger.error("Failed to parse date expression \(maxDateExpression): \(error)")
-//            }
-//        }
-//        return nil
-//    }
-    
     private func dateMinMaxValue(urls: [String]) -> DateComponents? {
         for url in urls {
             guard let ext = getExtensionInQuestionnaireItem(url: url) else {

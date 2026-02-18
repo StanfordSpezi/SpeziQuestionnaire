@@ -94,7 +94,7 @@ private struct AnswerView: View {
     }
     
     @ViewBuilder
-    private func valueInfo(for value: QuestionnaireResponseItemAnswer.ValueX) -> some View {
+    private func valueInfo(for value: QuestionnaireResponseItemAnswer.ValueX) -> some View { // swiftlint:disable:this cyclomatic_complexity
         switch value {
         case .attachment:
             LabeledContent("Value", value: "(attachment)")

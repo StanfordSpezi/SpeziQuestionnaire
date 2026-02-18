@@ -16,6 +16,12 @@
     "Continue" : {
 
     },
+    "Follow-Up" : {
+
+    },
+    "Follow-Up: %@" : {
+
+    },
     "Missing Response" : {
 
     },
@@ -35,8 +41,12 @@
         }
       }
     },
+    "Please answer the follow-up questions below, for the **'%@'** option you just selected." : {
+
+    },
     "QUESTIONNAIRE_LOADING_ERROR_MESSAGE" : {
       "comment" : "This is a string that is balh",
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
