@@ -24,7 +24,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
-        .package(path: "../ResearchKitOnFHIR"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "3.0.8"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1")
     ] + swiftLintPackage(),
     targets: [
