@@ -74,7 +74,7 @@ extension TaskView.ChoiceAnswering {
                         sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)]
                     ) { result in
                         switch result {
-                        case .success:
+                        case .completed:
                             isShowingFollowUpQuestionsSheet = false
                         case .cancelled:
                             isShowingFollowUpQuestionsSheet = false

@@ -17,8 +17,8 @@ extension TaskView {
         var body: some View {
             TextEditor(text: $response)
                 .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
-                .textInputAutocapitalization(config.disableAutocomplete ? .never : nil)
-                .autocorrectionDisabled(config.disableAutocomplete)
+                .textInputAutocapitalization(config.disableAutocorrection ? .never : nil)
+                .autocorrectionDisabled(config.disableAutocorrection)
         }
     }
 }

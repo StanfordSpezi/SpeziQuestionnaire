@@ -17,11 +17,11 @@ public struct QuestionnaireSheet: View {
     private let questionnaire: Questionnaire
     private let resultHandler: @MainActor (Result) async -> Void
     
-//    @State private var navigationPath = ManagedNavigationStack.Path()
     @State private var responses: QuestionnaireResponses
     
+    @_documentation(visibility: internal)
     public var body: some View {
-        ManagedNavigationStack/*(path: navigationPath)*/ {
+        ManagedNavigationStack {
             if let section = questionnaire.sections.first {
                 QuestionnaireSectionView(questionnaire: questionnaire, section: section) { result in
                     await resultHandler(result)
@@ -58,7 +58,7 @@ extension QuestionnaireSheet {
     /// The result of answering a questionnaire.
     public enum Result {
         /// The user successfully filled out the whole questionnaire.
-        case success(QuestionnaireResponses)
+        case completed(QuestionnaireResponses)
         /// The user cancelled the questionnaire.
         case cancelled
     }

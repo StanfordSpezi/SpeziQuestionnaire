@@ -249,7 +249,7 @@ extension ModelsR4.QuestionnaireItem {
                     }
                 }(),
                 regex: self.validationRegularExpression,
-                disableAutocomplete: itemType == .url
+                disableAutocorrection: itemType == .url
             ))
         case .choice, .openChoice:
             let valueSets = context.questionnaire.getContainedValueSets()

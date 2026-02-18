@@ -65,9 +65,6 @@ struct QuestionnaireSectionView<Header: View>: View {
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
-                Button("DBG REsponses" as String) {
-                    dump(responses.responses)
-                }
             }
         }
         .navigationTitle(title)
@@ -102,13 +99,13 @@ struct QuestionnaireSectionView<Header: View>: View {
     @ViewBuilder private var toolbarDoneButton: some View {
         if #available(iOS 26, *) {
             AsyncButton(role: .confirm) {
-                await resultHandler(.success(responses))
+                await resultHandler(.completed(responses))
             } label: {
                 Text("Submit")
             }
         } else {
             AsyncButton {
-                await resultHandler(.success(responses))
+                await resultHandler(.completed(responses))
             } label: {
                 Label("Submis", systemImage: "checkmark")
             }
@@ -175,7 +172,8 @@ struct QuestionnaireSectionView<Header: View>: View {
             }
             indicateMissingResponses = false
         } else {
-            await resultHandler(.success(responses))
+            // IDEA: have a (cusomizable) "you're done!" confirmation page before dismissing the sheet?
+            await resultHandler(.completed(responses))
         }
     }
 }
@@ -218,7 +216,7 @@ extension QuestionnaireSectionView {
             case .regular:
                 "Are you sure you want to cancel the questionnaire?\nYour responses will be lost."
             case .answerNestedQuestions:
-                "This will de-select the '' option and "
+                "This will de-select the '' option and " // TODO
             }
         }
         

@@ -70,7 +70,7 @@ struct ContentView: View {
         .sheet(item: $activeQuestionnaireNewImpl) { questionnaire in
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
-                case .success(let response):
+                case .completed(let response):
                     do {
                         let fhirResponse = try ModelsR4.QuestionnaireResponse(response)
                         responsesStore.responses.append(fhirResponse)
@@ -122,6 +122,7 @@ struct ContentView: View {
             Section {
                 menuButton(title: "Question Kinds Showcase", questionnaire: .testQuestionnaire)
                 menuButton(title: "Follow-Up Tasks", questionnaire: .followUpTasksQuestionnaire)
+                menuButton(title: "TMP TMP", questionnaire: .tmpTestQ)
             }
             Section("Examples") {
                 menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
@@ -237,3 +238,33 @@ struct ContentView: View {
 
 extension ModelsR4.Questionnaire: @retroactive Identifiable {}
 extension ModelsR4.QuestionnaireResponse: @retroactive Identifiable {}
+
+
+
+extension SpeziQuestionnaire.Questionnaire {
+    static let tmpTestQ = Self(
+        metadata: .init(id: "ididid", url: nil, title: "T", explainer: "E"),
+        sections: [
+            .init(id: "s0", tasks: [
+                .init(
+                    id: "t0",
+                    title: "Yes or No?",
+                    kind: .boolean,
+                    enabledCondition: .responseValueComparison(taskId: "t1", operator: .equal, value: .SCMCOption(id: "green"))
+                ),
+                .init(
+                    id: "t1",
+                    title: "Colour",
+                    kind: .choice(.init(
+                        options: [
+                            .init(id: "red", title: "Red"),
+                            .init(id: "green", title: "Green"),
+                            .init(id: "blue", title: "Blue")
+                        ],
+                        allowsMultipleSelection: false
+                    ))
+                )
+            ])
+        ]
+    )
+}

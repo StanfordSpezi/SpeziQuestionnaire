@@ -117,7 +117,7 @@ extension Questionnaire {
                         minLength: nil,
                         maxLength: nil,
                         regex: try! NSRegularExpression(pattern: #"https?://[a-zA-Z]+\.[a-z]{3}"#), // swiftlint:disable:this force_try
-                        disableAutocomplete: true
+                        disableAutocorrection: true
                     ))
                 ),
                 .init(
