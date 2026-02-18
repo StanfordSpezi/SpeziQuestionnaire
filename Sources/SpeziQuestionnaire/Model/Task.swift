@@ -32,8 +32,16 @@ extension Questionnaire {
         /// Whether the user is allowed to skip this task.
         public let isOptional: Bool
         /// Controls when the task is enabled.
+        ///
+        /// Use ``Questionnaire/Condition/none`` to specify that the task does not have a condition and should always be enabled.
+        ///
+        /// A task's `enabledCondition` can reference other tasks, provided they precede this one in the questionnaire.
+        /// If this is a nested task, the condition is first evaluated in the current nesting scope (i.e., the preceding nested questions, and their responses);
+        /// if it does not evaluate to `true` in this scope, it is evaluated again in the parent scope (where it can access the responses to all preceding tasks as well),
+        /// and if necessary in that scope's parent scope, and so on.
         public let enabledCondition: Condition
         
+        /// Creates a new task.
         public init(
             id: String,
             title: String,
