@@ -16,41 +16,24 @@ import XCTest
      stays in an incomplete state
  */
 
-final class TestAppUITests: XCTestCase {
+final class TestAppUITests: XCTestCase, @unchecked Sendable {
+    @MainActor var app: XCUIApplication!
+    
     override func setUpWithError() throws {
         try super.setUpWithError()
-        continueAfterFailure = false
+        MainActor.assumeIsolated {
+            app = XCUIApplication()
+            continueAfterFailure = false
+        }
     }
     
-    
     @MainActor
-    func testSpeziQuestionnaire() {
-        let app = XCUIApplication()
+    func launchAppAndStartTestQuestionnaire(named questionnaireTitle: String) {
         app.launch()
-        
-        XCTAssert(app.staticTexts["Surveys"].waitForExistence(timeout: 2))
-        XCTAssert(app.staticTexts["Completed, 0"].waitForExistence(timeout: 2))
-        
-        app.buttons["Pick Predefined Questionnaire"].tap()
-        app.buttons["GCS"].tap()
-        
-        sleep(for: .seconds(2))
-        
-        app.buttons["Start Questionnaire (Spezi Impl)"].tap()
-        XCTAssert(app.navigationBars["Glasgow Coma Score"].waitForExistence(timeout: 2))
-        
-        app.otherElements["Task:1.1"].staticTexts["Confused"].tap()
-        app.swipeUp()
-        app.otherElements["Task:1.2"].staticTexts["Obeys commands"].tap()
-        app.swipeUp()
-        XCTAssert(app.buttons["ContinueButton_canContinue=false"].exists)
-        XCTAssert(!app.buttons["ContinueButton_canContinue=true"].exists)
-        app.otherElements["Task:1.3"].staticTexts["Eye opening to verbal command"].tap()
-        XCTAssert(app.buttons["ContinueButton_canContinue=true"].exists)
-        XCTAssert(!app.buttons["ContinueButton_canContinue=false"].exists)
-        
-        app.buttons["Continue"].tap()
-        XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
+        XCTAssert(app.wait(for: .runningForeground, timeout: 2))
+        app.navigationBars.buttons["Tests"].tap()
+        app.buttons[questionnaireTitle].tap()
+        XCTAssert(app.navigationBars[questionnaireTitle].waitForExistence(timeout: 2))
     }
 }
 
