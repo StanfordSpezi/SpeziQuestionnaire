@@ -18,7 +18,7 @@ struct TaskView<Header: View>: View {
     @ViewBuilder let header: @MainActor () -> Header
     
     var body: some View {
-        if allResponses.evaluate(task.enabledCondition) {
+        if allResponses.shouldEnable(task: task) {
             content
         }
     }

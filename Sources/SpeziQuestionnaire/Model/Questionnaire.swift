@@ -48,9 +48,19 @@ public struct Questionnaire: Hashable, Identifiable, Sendable {
     public init(metadata: Metadata, sections: [Section]) {
         self.metadata = metadata
         self.sections = sections
+        validate()
+    }
+}
+
+
+extension Questionnaire {
+    /// Finds the top-level task with the specified id.
+    func task(withId taskId: Task.ID) -> Task? {
+        sections.lazy.flatMap(\.tasks).first { $0.id == taskId }
     }
     
-    public func find(taskId: Task.ID) -> (section: Section, task: Task)? {
+    /// Finds the top-level task with the specified id.
+    func find(taskId: Task.ID) -> (section: Section, task: Task)? {
         for section in sections {
             for task in section.tasks {
                 if task.id == taskId { // swiftlint:disable:this for_where
@@ -61,8 +71,18 @@ public struct Questionnaire: Hashable, Identifiable, Sendable {
         return nil
     }
     
-    public func task(withId taskId: Task.ID) -> Task? {
-        sections.lazy.flatMap(\.tasks).first { $0.id == taskId }
+    func task(at path: some Sequence<Task.ID>) -> Task? {
+        var iterator = path.makeIterator()
+        guard var current = iterator.next().flatMap({ task(withId: $0) }) else {
+            return nil
+        }
+        while let nextId = iterator.next() {
+            guard let nextTask = current.kind.followUpTasks.first(where: { $0.id == nextId }) else {
+                return nil
+            }
+            current = nextTask
+        }
+        return current
     }
 }
 

@@ -6,43 +6,108 @@
 // SPDX-License-Identifier: MIT
 //
 
+private import SpeziFoundation
+
 
 extension QuestionnaireResponses {
-    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
+    private struct ConditionEvalConfig {
+        /// Whether the condition should be limited to only see responses for tasks that precede the one to which the condition belongs.
+        let limitToPreviousTasks: Bool
+        /// Whether the condition, if it evaluated to `false` in the current scope, should be evaluated against in the parent scope, if applicable.
+        ///
+        /// Useful when evaluating a condition in the context of a nested question, if the condition should also be allowed to reference questions from the parent scope.
+        let continueInParentScope: Bool
+    }
+    
+    
+    func shouldEnable(task: Questionnaire.Task) -> Bool {
+        evaluate(
+            task.enabledCondition,
+            for: task,
+            config: .init(limitToPreviousTasks: true, continueInParentScope: true)
+        )
+    }
+    
+    private func evaluate(
+        _ condition: Questionnaire.Condition,
+        for task: Questionnaire.Task,
+        config: ConditionEvalConfig
+    ) -> Bool {
         switch _variant {
         case .root:
-            return self._evaluate(condition)
+            let validTasksForLookup: Set<Questionnaire.Task.ID>
+            let allTopLevelTasks = questionnaire.sections.flatMap(\.tasks)
+            if config.limitToPreviousTasks {
+                guard let taskIdx = allTopLevelTasks.firstIndex(where: { $0.id == task.id }) else {
+                    assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
+                    return false
+                }
+                validTasksForLookup = allTopLevelTasks[..<taskIdx].mapIntoSet(\.id)
+            } else {
+                validTasksForLookup = allTopLevelTasks.mapIntoSet(\.id)
+            }
+            return self._evaluate(condition, validTaskIdsForLookup: validTasksForLookup)
         case let .view(parent, pathFromParent: _):
-            return self._evaluate(condition) || parent.evaluate(condition)
+            let parentTaskPath = self.pathFromRoot.compactMap { component in
+                switch component {
+                case .task(let taskId):
+                    taskId
+                case .choiceOption:
+                    nil
+                }
+            }
+            guard let parentTask = questionnaire.task(at: parentTaskPath) else {
+                assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
+                return false
+            }
+            let validTaskIdsForLookup: Set<Questionnaire.Task.ID>
+            if config.limitToPreviousTasks {
+                guard let taskIdx = parentTask.kind.followUpTasks.firstIndex(of: task) else {
+                    assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
+                    return false
+                }
+                validTaskIdsForLookup = parentTask.kind.followUpTasks[..<taskIdx].mapIntoSet(\.id)
+            } else {
+                validTaskIdsForLookup = parentTask.kind.followUpTasks.mapIntoSet(\.id)
+            }
+            // first, try to evaluate the condition in the current, nested context
+            // ie, we evaluate it against the other, preceding tasks at the current nesting level
+            return self._evaluate(condition, validTaskIdsForLookup: validTaskIdsForLookup)
+                // if that failed, we also try to evaluate it in the parent context, for the preceding tasks.
+                // this will, if needed, recursively go up the chain until it reaches the root level.
+                || (config.continueInParentScope && parent.evaluate(condition, for: parentTask, config: config))
         }
     }
     
-    private func _evaluate(_ condition: Questionnaire.Condition) -> Bool { // swiftlint:disable:this cyclomatic_complexity function_body_length
+    private func _evaluate( // swiftlint:disable:this cyclomatic_complexity function_body_length
+        _ condition: Questionnaire.Condition,
+        validTaskIdsForLookup: Set<Questionnaire.Task.ID>
+    ) -> Bool {
         switch condition {
         case .true:
             return true
         case .false:
             return false
         case .not(let inner):
-            return !evaluate(inner)
+            return !_evaluate(inner, validTaskIdsForLookup: validTaskIdsForLookup)
         case .any(let inner):
-            return inner.contains(where: evaluate)
+            return inner.contains { _evaluate($0, validTaskIdsForLookup: validTaskIdsForLookup) }
         case .all(let inner):
-            return inner.allSatisfy(evaluate)
+            return inner.allSatisfy { _evaluate($0, validTaskIdsForLookup: validTaskIdsForLookup) }
         case .hasResponse(let taskId):
-            return if let task = questionnaire.task(withId: taskId) {
+            return if validTaskIdsForLookup.contains(taskId), let task = questionnaire.task(withId: taskId) {
                 hasResponse(for: task)
             } else {
                 false
             }
         case .isMissingResponse(let taskId):
-            return if let task = questionnaire.task(withId: taskId) {
+            return if validTaskIdsForLookup.contains(taskId), let task = questionnaire.task(withId: taskId) {
                 isMissingResponse(for: task)
             } else {
                 false
             }
         case let .responseValueComparison(taskId, `operator`, value):
-            guard let task = self.questionnaire.task(withId: taskId) else {
+            guard validTaskIdsForLookup.contains(taskId), let task = self.questionnaire.task(withId: taskId) else {
                 return false
             }
             switch task.kind {

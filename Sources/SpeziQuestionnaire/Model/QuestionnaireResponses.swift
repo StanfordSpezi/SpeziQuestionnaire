@@ -114,7 +114,7 @@ extension QuestionnaireResponses {
     
     
     func isMissingResponse(for task: Questionnaire.Task) -> Bool {
-        !task.isOptional && evaluate(task.enabledCondition) && !hasResponse(for: task)
+        !task.isOptional && shouldEnable(task: task) && !hasResponse(for: task)
     }
     
     func isMissingResponses(in section: Questionnaire.Section) -> Bool {
@@ -129,7 +129,7 @@ extension QuestionnaireResponses {
     func isComplete(in section: Questionnaire.Section) -> Bool {
         !isMissingResponses(in: section) && section.tasks.allSatisfy { task in
             // either the task is disabled, or its response is valid.
-            !evaluate(task.enabledCondition) || validateResponse(for: task) == .ok
+            !shouldEnable(task: task) || validateResponse(for: task) == .ok
         }
     }
     
@@ -154,7 +154,7 @@ extension QuestionnaireResponses {
         }
         let remainingSections = sections[sectionIdx...].dropFirst()
         return remainingSections.first { section in
-            section.tasks.contains { evaluate($0.enabledCondition) }
+            section.tasks.contains { shouldEnable(task: $0) }
         }
     }
 }
