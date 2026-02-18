@@ -17,13 +17,13 @@ public struct QuestionnaireSheet: View {
     private let questionnaire: Questionnaire
     private let resultHandler: @MainActor (Result) async -> Void
     
-    @State private var navigationPath = ManagedNavigationStack.Path()
+//    @State private var navigationPath = ManagedNavigationStack.Path()
     @State private var responses: QuestionnaireResponses
     
     public var body: some View {
-        ManagedNavigationStack(path: navigationPath) {
+        ManagedNavigationStack/*(path: navigationPath)*/ {
             if let section = questionnaire.sections.first {
-                QuestionnaireSectionView(questionnaire: questionnaire, section: section, responses: $responses.responses) { result in
+                QuestionnaireSectionView(questionnaire: questionnaire, section: section) { result in
                     await resultHandler(result)
                     dismiss()
                 }

@@ -8,6 +8,7 @@
 
 // swiftlint:disable file_types_order
 
+import SpeziViews
 import SwiftUI
 
 
@@ -32,20 +33,13 @@ extension TaskView {
 extension TaskView.ChoiceAnswering {
     // This needs to be a separate view bc of the sheet presentation
     private struct Row: View {
+        @Environment(QuestionnaireResponses.self) private var allResponses // name?
+        
         let task: Questionnaire.Task
         let config: Questionnaire.Task.Kind.ChoiceConfig
         let option: Questionnaire.Task.Kind.ChoiceConfig.Option
         @Binding var response: QuestionnaireResponses.Response
         @State private var isShowingFollowUpQuestionsSheet = false
-        
-//        private var responseStorage: QuestionnaireResponses.ChoiceResponse {
-//            get {
-//                responses[responseFor: task.id].value.choiceValue
-//            }
-//            nonmutating set {
-//                responses[responseFor: task.id].value.choiceValue = newValue
-//            }
-//        }
         
         var body: some View {
             ChoiceRow(
@@ -76,11 +70,10 @@ extension TaskView.ChoiceAnswering {
                 }
             }
             .sheet(isPresented: $isShowingFollowUpQuestionsSheet) {
-                NavigationStack {
+                ManagedNavigationStack {
                     QuestionnaireSectionView(
                         nestedQuestionsFor: task,
-                        sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)],
-                        responses: $response[nestedResponsesFor: .choiceOption(option.id)]
+                        sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)]
                     ) { result in
                         switch result {
                         case .success:
@@ -92,12 +85,13 @@ extension TaskView.ChoiceAnswering {
                             response.nestedResponses[.choiceOption(option.id)] = nil
                         }
                     }
-//                    QuestionnaireSectionView(
-//                        questionnaire: <#T##Questionnaire#>,
-//                        section: <#T##Questionnaire.Section#>,
-//                        resultHandler: <#T##(QuestionnaireSheet.Result) async -> Void#>
-//                    )
                 }
+                .interactiveDismissDisabled()
+                .environment(
+                    allResponses.view(
+                        appending: QuestionnaireResponses.ResponsePath(taskId: task.id).appending(choiceOption: option.id)
+                    )
+                )
             }
         }
     }

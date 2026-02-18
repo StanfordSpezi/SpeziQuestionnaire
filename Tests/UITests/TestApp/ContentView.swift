@@ -102,9 +102,7 @@ struct ContentView: View {
             }
         }
         .sheet(item: $currentlyShownResponse) { response in
-            NavigationStack {
-                ResponseDetailsView(response: response)
-            }
+            ResponseDetailsSheet(response: response)
         }
     }
     

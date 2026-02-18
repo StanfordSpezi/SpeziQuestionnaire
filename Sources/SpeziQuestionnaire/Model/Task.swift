@@ -166,6 +166,23 @@ extension Questionnaire.Task {
 
 
 extension Questionnaire.Task.Kind {
+    package var followUpTasks: [Questionnaire.Task] {
+        switch self {
+        case .choice(let config):
+            config.followUpTasks
+        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
+            []
+        }
+    }
+    
+    package var choiceOptions: [ChoiceConfig.Option] {
+        switch self {
+        case .choice(let config):
+            config.options
+        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
+            []
+        }
+    }
 //    public static func singleChoice(options: [ChoiceConfig.Option], hasFreeTextOtherOption: Bool) -> Self {
 //        .choice(.init(options: options, hasFreeTextOtherOption: hasFreeTextOtherOption, selectionLimit: 1))
 //    }

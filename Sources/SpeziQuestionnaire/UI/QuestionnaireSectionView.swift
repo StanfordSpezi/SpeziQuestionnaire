@@ -27,22 +27,22 @@ struct QuestionnaireSectionView: View {
     }
     
     @Environment(ManagedNavigationStack.Path.self) private var navigationPath
-    @Environment(QuestionnaireResponses.self) private var allResponses
+    @Environment(QuestionnaireResponses.self) private var responses
     
     private let context: Context
     private let section: Questionnaire.Section
-    @Binding private var responses: QuestionnaireResponses.Responses
+//    @Binding private var responses: QuestionnaireResponses.Responses
     private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
     
     var body: some View {
-        @Bindable var allResponses = allResponses
+        @Bindable var responses = responses
         ScrollViewReader { scrollViewProxy in
             Form {
                 ForEach(section.tasks) { task in
-                    TaskView(section: section, task: task, response: $responses[task.id]) {
-                        if indicateMissingResponses && allResponses.isMissingResponse(for: task) {
+                    TaskView(section: section, task: task, response: $responses.responses[task.id]) {
+                        if indicateMissingResponses && responses.isMissingResponse(for: task) {
                             Text("Missing Response")
                                 .foregroundStyle(.red)
                         }
@@ -59,7 +59,7 @@ struct QuestionnaireSectionView: View {
                 .buttonStyleGlassProminent()
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
-                .tint(!allResponses.isComplete(in: section) ? .some(.gray.secondary) : .none)
+                .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
             }
         }
@@ -82,7 +82,7 @@ struct QuestionnaireSectionView: View {
     
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
-            if allResponses.isComplete(in: section) && allResponses.nextSection(after: section, in: context.allSections) == nil {
+            if responses.isComplete(in: section) && responses.nextSection(after: section, in: context.allSections) == nil {
                 // if we're about to complete the questionnaire, we turn this into a Done button
                 toolbarDoneButton
             } else {
@@ -96,13 +96,13 @@ struct QuestionnaireSectionView: View {
     @ViewBuilder private var toolbarDoneButton: some View {
         if #available(iOS 26, *) {
             AsyncButton(role: .confirm) {
-                await resultHandler(.success(allResponses))
+                await resultHandler(.success(responses))
             } label: {
                 Text("Submit")
             }
         } else {
             AsyncButton {
-                await resultHandler(.success(allResponses))
+                await resultHandler(.success(responses))
             } label: {
                 Label("Submis", systemImage: "checkmark")
             }
@@ -113,25 +113,25 @@ struct QuestionnaireSectionView: View {
     private init(
         context: Context,
         section: Questionnaire.Section,
-        responses: Binding<QuestionnaireResponses.Responses>,
+//        responses: Binding<QuestionnaireResponses.Responses>,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
     ) {
         self.context = context
         self.section = section
-        self._responses = responses
+//        self._responses = responses
         self.resultHandler = resultHandler
     }
     
     init(
         questionnaire: Questionnaire,
         section: Questionnaire.Section,
-        responses: Binding<QuestionnaireResponses.Responses>,
+//        responses: Binding<QuestionnaireResponses.Responses>,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void
     ) {
         self.init(
             context: .regular(questionnaire: questionnaire),
             section: section,
-            responses: responses,
+//            responses: responses,
             resultHandler: resultHandler
         )
     }
@@ -139,37 +139,37 @@ struct QuestionnaireSectionView: View {
     init(
         nestedQuestionsFor parentTask: Questionnaire.Task,
         sections: [Questionnaire.Section],
-        responses: Binding<QuestionnaireResponses.Responses>,
+//        responses: Binding<QuestionnaireResponses.Responses>,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void
     ) {
         self.init(
             context: .answerNestedQuestions(parentTask: parentTask, sections: sections),
             section: sections[0],
-            responses: responses,
+//            responses: responses,
             resultHandler: resultHandler
         )
     }
     
     
     private func advance(using scrollViewProxy: ScrollViewProxy) async {
-        if let problematicTask = allResponses.firstTaskPreventingCompletion(of: section) {
+        if let problematicTask = responses.firstTaskPreventingCompletion(of: section) {
             indicateMissingResponses = true
             withAnimation {
                 // IDEA can we make it that when the animation is done, we have the section flash in red for a short moment?
                 scrollViewProxy.scrollTo(problematicTask.id)
             }
-        } else if let nextSection = allResponses.nextSection(after: section, in: context.allSections) {
+        } else if let nextSection = responses.nextSection(after: section, in: context.allSections) {
             navigationPath.append {
                 Self(
                     context: context,
                     section: nextSection,
-                    responses: $responses,
+//                    responses: $responses,
                     resultHandler: resultHandler
                 )
             }
             indicateMissingResponses = false
         } else {
-            await resultHandler(.success(allResponses))
+            await resultHandler(.success(responses))
         }
     }
 }

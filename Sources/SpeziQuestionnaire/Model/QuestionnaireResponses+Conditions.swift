@@ -8,7 +8,16 @@
 
 
 extension QuestionnaireResponses {
-    func evaluate(_ condition: Questionnaire.Condition) -> Bool { // swiftlint:disable:this cyclomatic_complexity function_body_length
+    func evaluate(_ condition: Questionnaire.Condition) -> Bool {
+        switch _variant {
+        case .root:
+            return self._evaluate(condition)
+        case let .view(parent, pathFromParent: _):
+            return self._evaluate(condition) || parent.evaluate(condition)
+        }
+    }
+    
+    private func _evaluate(_ condition: Questionnaire.Condition) -> Bool { // swiftlint:disable:this cyclomatic_complexity function_body_length
         switch condition {
         case .true:
             return true

@@ -14,7 +14,7 @@ extension Questionnaire {
     static let followUpTasksQuestionnaire = Self(
         metadata: .init(
             id: "edu.stanford.SpeziQuestionnaire.test1FollowUp",
-            url: nil,
+            url: URL(string: "http://spezi.stanford.edu/samples/SampleQuestionnaireFollowUpTasks")!, // swiftlint:disable:this force_unwrapping
             title: "Follow-Up Tasks",
             explainer: ""
         ),
