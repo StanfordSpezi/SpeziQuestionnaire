@@ -41,6 +41,7 @@ extension TaskView.ChoiceAnswering {
         
         var body: some View {
             ChoiceRow(
+                id: option.id,
                 title: option.title,
                 subtitle: option.subtitle,
                 isSelected: response.value.choiceValue.didSelect(option: option)

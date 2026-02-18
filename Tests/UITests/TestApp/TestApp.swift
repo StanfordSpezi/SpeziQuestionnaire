@@ -6,14 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Spezi
 import SwiftUI
 
 
 @main
 struct UITestsApp: App {
-    @UIApplicationDelegateAdaptor(TestAppDelegate.self) var appDelegate
-    
     @State private var responsesStore = ResponsesStore()
     
     var body: some Scene {
@@ -21,7 +18,6 @@ struct UITestsApp: App {
             NavigationStack {
                 ContentView()
             }
-            .spezi(appDelegate)
             .environment(responsesStore)
         }
     }

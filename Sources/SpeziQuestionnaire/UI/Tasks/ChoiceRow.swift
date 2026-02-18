@@ -14,6 +14,8 @@ import SwiftUI
 /// A row in a single/multiple choice picker
 struct ChoiceRow<AccessoryIfSelected: View>: View {
     @Environment(\.colorScheme) private var colorScheme
+    /// The row's identifier; used for the view's UI testing accessibility identifier
+    private var id: String
     private let title: String
     private let subtitle: String
     private let isSelected: Bool
@@ -27,6 +29,7 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text(markdown: title)
+//                        .accessibilityIdentifier("") // ???
                     if !subtitle.isEmpty {
                         Text(markdown: subtitle)
                             .font(.caption)
@@ -43,16 +46,19 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Option: \(title), \(isSelected ? "Selected" : "Not Selected")")
+            .accessibilityIdentifier("Choice:\(id)")
         }
     }
     
     init(
+        id: String,
         title: String,
         subtitle: String,
         isSelected: Bool,
         action: @escaping @MainActor () -> Void,
         @ViewBuilder accessoryIfSelected: @escaping @MainActor () -> AccessoryIfSelected = { EmptyView() }
     ) {
+        self.id = id
         self.title = title
         self.subtitle = subtitle
         self.isSelected = isSelected
@@ -63,23 +69,25 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
 
 
 struct SimpleChoiceRow: View {
+    private let id: String
     private let title: String
     private let subtitle: String
     @Binding private var isSelected: Bool
     
     var body: some View {
-        ChoiceRow(title: title, subtitle: subtitle, isSelected: isSelected) {
+        ChoiceRow(id: id, title: title, subtitle: subtitle, isSelected: isSelected) {
             isSelected.toggle()
         }
     }
     
-    init(title: String, subtitle: String, isSelected: Binding<Bool>) {
+    init(id: String, title: String, subtitle: String, isSelected: Binding<Bool>) {
+        self.id = id
         self.title = title
         self.subtitle = subtitle
         self._isSelected = isSelected
     }
     
     init(option: Questionnaire.Task.Kind.ChoiceConfig.Option, isSelected: Binding<Bool>) {
-        self.init(title: option.title, subtitle: option.subtitle, isSelected: isSelected)
+        self.init(id: option.id, title: option.title, subtitle: option.subtitle, isSelected: isSelected)
     }
 }

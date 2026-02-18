@@ -53,6 +53,9 @@ struct QuestionnaireSectionView<Header: View>: View {
                     }
                     .id(task.id)
                 }
+                // if we're missing responses, we keep the button enabled,
+                // but tapping it won't proceed to the next section, but rather will scroll to the missing question
+                let canContinue = responses.isComplete(in: section)
                 AsyncButton {
                     await advance(using: scrollViewProxy)
                 } label: {
@@ -63,8 +66,11 @@ struct QuestionnaireSectionView<Header: View>: View {
                 .buttonStyleGlassProminent()
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
-                .tint(!responses.isComplete(in: section) ? .some(.gray.secondary) : .none)
+                .tint(!canContinue ? .some(.gray.secondary) : .none)
                 .listRowInsets(EdgeInsets())
+                // awful but we need to communicate this button's state to the UI test,
+                // and bc it is always enabled we have to do this via the identifier...
+                .accessibilityIdentifier("ContinueButton_canContinue=\(canContinue)")
             }
         }
         .navigationTitle(title)

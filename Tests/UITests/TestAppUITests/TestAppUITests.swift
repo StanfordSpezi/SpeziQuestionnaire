@@ -1,11 +1,12 @@
 //
 // This source file is part of the Stanford Spezi open-source project
 //
-// SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
+// SPDX-FileCopyrightText: 2026 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
 // SPDX-License-Identifier: MIT
 //
 
+import SpeziFoundation
 import XCTest
 
 
@@ -15,7 +16,7 @@ import XCTest
      stays in an incomplete state
  */
 
-class TestAppUITests: XCTestCase {
+final class TestAppUITests: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
@@ -23,47 +24,37 @@ class TestAppUITests: XCTestCase {
     
     
     @MainActor
-    func testSpeziQuestionnaire() async throws {
+    func testSpeziQuestionnaire() {
         let app = XCUIApplication()
         app.launch()
         
         XCTAssert(app.staticTexts["Surveys"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["Completed, 0"].waitForExistence(timeout: 2))
         
         app.buttons["Pick Predefined Questionnaire"].tap()
         app.buttons["GCS"].tap()
         
-        try await Task.sleep(for: .seconds(2))
+        sleep(for: .seconds(2))
         
-        XCTAssert(app.buttons["Start Questionnaire"].waitForExistence(timeout: 2))
-        app.buttons["Start Questionnaire"].tap()
+        app.buttons["Start Questionnaire (Spezi Impl)"].tap()
+        XCTAssert(app.navigationBars["Glasgow Coma Score"].waitForExistence(timeout: 2))
         
-        try await Task.sleep(for: .seconds(2))
-        app.buttons["Start Questionnaire"].tap()
-        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
+        app.otherElements["Task:1.1"].staticTexts["Confused"].tap()
+        app.swipeUp()
+        app.otherElements["Task:1.2"].staticTexts["Obeys commands"].tap()
+        app.swipeUp()
+        XCTAssert(app.buttons["ContinueButton_canContinue=false"].exists)
+        XCTAssert(!app.buttons["ContinueButton_canContinue=true"].exists)
+        app.otherElements["Task:1.3"].staticTexts["Eye opening to verbal command"].tap()
+        XCTAssert(app.buttons["ContinueButton_canContinue=true"].exists)
+        XCTAssert(!app.buttons["ContinueButton_canContinue=false"].exists)
         
-        let table = app.tables.element(boundBy: 0)
-        XCTAssertTrue(table.exists)
-        
-        /// Select the "Confused" option on the questionnaire.
-        let cell = table.cells.element(boundBy: 3)
-        XCTAssertTrue(cell.exists)
-        let thirdCellText = cell.staticTexts["Confused"]
-        XCTAssert(thirdCellText.exists)
-        thirdCellText.tap()
-        
-        /// Tap Next to move to the next question
-        app.buttons["Next"].tap()
-        
-        XCTAssert(app.staticTexts["Best motor response"].waitForExistence(timeout: 2))
-        app.buttons["Skip"].tap()
-        
-        XCTAssert(app.staticTexts["Best eye response"].waitForExistence(timeout: 2))
-        app.buttons["Skip"].tap()
-        
-        XCTAssert(app.staticTexts["Completed"].waitForExistence(timeout: 2))
-        app.buttons["Done"].tap()
-        
-        /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
+        app.buttons["Continue"].tap()
+        XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
     }
+}
+
+
+func sleep(for duration: Duration) {
+    usleep(UInt32(duration.timeInterval * 1000000))
 }

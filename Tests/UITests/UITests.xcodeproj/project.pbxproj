@@ -14,7 +14,7 @@
 		802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B2F2F464DAD00554747 /* ResearchKitUI */; };
 		802B4B322F464DBD00554747 /* ResearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B312F464DBD00554747 /* ResearchKit */; };
 		802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B332F464E4700554747 /* ResearchKitOnFHIR */; };
-		803769F72F262FC400FA2F59 /* Spezi in Frameworks */ = {isa = PBXBuildFile; productRef = 803769F62F262FC400FA2F59 /* Spezi */; };
+		802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B362F4657C600554747 /* SpeziFoundation */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +60,6 @@
 				802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */,
 				802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */,
 				80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */,
-				803769F72F262FC400FA2F59 /* Spezi in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +124,6 @@
 			name = TestApp;
 			packageProductDependencies = (
 				2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */,
-				803769F62F262FC400FA2F59 /* Spezi */,
 				80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */,
 				80073E8A2F42349F00827270 /* FHIRQuestionnaires */,
 				802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */,
@@ -186,9 +185,9 @@
 			);
 			mainGroup = 2F6D138928F5F384007C25D6;
 			packageReferences = (
-				803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */,
 				80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
 				802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */,
+				802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -657,12 +656,12 @@
 				minimumVersion = 3.1.4;
 			};
 		};
-		803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */ = {
+		802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StanfordSpezi/Spezi.git";
+			repositoryURL = "https://github.com/StanfordSpezi/SpeziFoundation.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.10.1;
+				minimumVersion = 2.7.3;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -701,10 +700,10 @@
 			package = 80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
 			productName = ResearchKitOnFHIR;
 		};
-		803769F62F262FC400FA2F59 /* Spezi */ = {
+		802B4B362F4657C600554747 /* SpeziFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 803769F52F262FC400FA2F59 /* XCRemoteSwiftPackageReference "Spezi" */;
-			productName = Spezi;
+			package = 802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */;
+			productName = SpeziFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

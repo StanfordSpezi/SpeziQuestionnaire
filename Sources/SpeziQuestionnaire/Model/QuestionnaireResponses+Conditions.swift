@@ -13,7 +13,7 @@ extension QuestionnaireResponses {
     private struct ConditionEvalConfig {
         /// Whether the condition should be limited to only see responses for tasks that precede the one to which the condition belongs.
         let limitToPreviousTasks: Bool
-        /// Whether the condition, if it evaluated to `false` in the current scope, should be evaluated against in the parent scope, if applicable.
+        /// Whether the condition, if it evaluated to `false` in the current scope, should be evaluated again in the parent scope, if available.
         ///
         /// Useful when evaluating a condition in the context of a nested question, if the condition should also be allowed to reference questions from the parent scope.
         let continueInParentScope: Bool

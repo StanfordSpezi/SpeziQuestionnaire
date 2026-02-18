@@ -55,6 +55,8 @@ struct TaskView<Header: View>: View {
                     .foregroundStyle(.red)
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("Task:\(task.id)")
     }
     
     @ViewBuilder private var mainContent: some View {
@@ -77,12 +79,12 @@ struct TaskView<Header: View>: View {
     }
     
     @ViewBuilder private var yesNoRows: some View {
-        SimpleChoiceRow(option: .init(id: "0", title: "Yes"), isSelected: Binding {
+        SimpleChoiceRow(option: .init(id: "true", title: "Yes"), isSelected: Binding {
             response.value.boolValue == true
         } set: { isSelected in
             response.value.boolValue = isSelected ? true : nil
         })
-        SimpleChoiceRow(option: .init(id: "1", title: "No"), isSelected: Binding {
+        SimpleChoiceRow(option: .init(id: "false", title: "No"), isSelected: Binding {
             response.value.boolValue == false
         } set: { isSelected in
             response.value.boolValue = isSelected ? false : nil

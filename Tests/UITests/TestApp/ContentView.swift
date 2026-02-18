@@ -113,6 +113,7 @@ struct ContentView: View {
             Text(responsesStore.responses.count, format: .number)
                 .foregroundStyle(.secondary)
         }
+        .accessibilityLabel("Completed, \(responsesStore.responses.count)")
         predefinedMenu
         fileImporterButton
     }
@@ -238,7 +239,6 @@ struct ContentView: View {
 
 extension ModelsR4.Questionnaire: @retroactive Identifiable {}
 extension ModelsR4.QuestionnaireResponse: @retroactive Identifiable {}
-
 
 
 extension SpeziQuestionnaire.Questionnaire {
