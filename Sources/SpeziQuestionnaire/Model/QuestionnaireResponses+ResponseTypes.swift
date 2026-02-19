@@ -325,7 +325,7 @@ extension QuestionnaireResponses.Response.Value {
                 components.value(for: $0) == nil
             }
         case .number:
-            true
+            false
         case .choice(let choiceResponse):
             choiceResponse.isEmpty
         case .attachments(let attachments):

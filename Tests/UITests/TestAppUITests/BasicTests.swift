@@ -71,6 +71,16 @@ extension TestAppUITests {
     
     
     @MainActor
+    func testSimpleNumberEntry() throws {
+        launchAppAndGoToOtherTest(named: "Simple Number Entry")
+        let navigator = QuestionnaireSheetNavigator(app)
+        XCTAssertFalse(navigator.isContinueButtonEnabled)
+        try navigator.task(withId: "t0").enterValue(12)
+        XCTAssertTrue(navigator.isContinueButtonEnabled)
+    }
+    
+    
+    @MainActor
     func testExternalResponsesObject() {
         launchAppAndGoToOtherTest(named: "External Response Object")
         XCTAssert(app.buttons["Show Questionnaire (1)"].exists)

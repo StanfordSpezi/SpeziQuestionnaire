@@ -26,7 +26,8 @@ let package = Package(
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.8"),
-        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1")
+        .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
+        .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.2")
     ] + swiftLintPackage(),
     targets: [
         .target(
@@ -56,6 +57,9 @@ let package = Package(
         ),
         .target(
             name: "XCTSpeziQuestionnaire",
+            dependencies: [
+                .product(name: "XCTestExtensions", package: "XCTestExtensions")
+            ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")

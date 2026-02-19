@@ -7,6 +7,7 @@
 //
 
 public import XCTest
+private import XCTestExtensions
 
 
 @MainActor
@@ -37,28 +38,20 @@ extension QuestionnaireSheetNavigator {
         app.buttons["Continue"].tap()
     }
     
-    public func returnToPreviousSection() {
-//        print(app.debugDescription)
-//        fatalError()
-        // TODO if this is a sheet (which is is) there might be multiple back buttons!!
-//        app.navigationBars.buttons.matching(identifier: "BackButton").allElementsBoundByIndex.last(where: \.isHittable)?.tap()
+    /// Returns to the previous section.
+    public func returnToPreviousSection(failIfUnableToLocateButton: Bool = true) {
         let buttons = app.otherElements["SpeziQuestionnaireNavStack"]
             .navigationBars
             .buttons
-            .matching(/*.button, */identifier: "BackButton")
+            .matching(identifier: "BackButton")
             .allElementsBoundByIndex
         
-//        let button = app.otherElements["SpeziQuestionnaireNavStack"]
-//            .navigationBars
-//            .matching(.button, identifier: "BackButton")
-//            .allElementsBoundByIndex
-//            .last(where: \.isHittable)
-        for button in buttons {
-            print("BUTTON", button.debugDescription)
-        }
         let button = buttons.last(where: \.isHittable)
         guard let button else {
-            fatalError()
+            if failIfUnableToLocateButton {
+                XCTFail("Unable to find back button")
+            }
+            return
         }
         button.tap()
     }
@@ -97,6 +90,12 @@ extension QuestionnaireSheetNavigator {
             if !didSelectOption(withTitle: title) {
                 task.buttons["Option: \(title), Not Selected"].tap()
             }
+        }
+        
+        public func enterValue(_ value: Double) throws {
+            try task.textFields.firstMatch.enter(
+                value: NumberFormatter.localizedString(from: NSNumber(value: value), number: .decimal)
+            )
         }
     }
 }

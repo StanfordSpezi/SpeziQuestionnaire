@@ -74,7 +74,7 @@ extension TaskView {
 private struct NumberTextField<Value: BinaryFloatingPoint>: View {
     // Note: using a NumberFormatter() instead of the new `FloatingPointFormatStyle<Double>.number` API,
     // because of https://github.com/swiftlang/swift-foundation/issues/135
-    private let formatter = NumberFormatter()
+    @State private var formatter = NumberFormatter()
     
     private let title: String
     private let allowsDecimalEntry: Bool

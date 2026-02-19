@@ -24,6 +24,7 @@ struct TestsPage: View {
     
     private static let questionnaires: [SpeziQuestionnaire.Questionnaire] = [
         // swiftlint:disable force_try
+        .simpleNumberEntry,
         .simpleCondition,
         .crossSectionCondition,
         .nestedQuestionsWithOuterReferenceCondition,
@@ -335,6 +336,14 @@ extension SpeziQuestionnaire.Questionnaire {
                     ]
                 ))
             )
+        ])]
+    )
+    
+    
+    fileprivate static let simpleNumberEntry = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.simpleNumberEntry", url: nil, title: "Simple Number Entry", explainer: ""),
+        sections: [.init(id: "s0", tasks: [
+            .init(id: "t0", title: "Number Entry", kind: .numeric(.init(inputMode: .numberPad(.integer))))
         ])]
     )
 }
