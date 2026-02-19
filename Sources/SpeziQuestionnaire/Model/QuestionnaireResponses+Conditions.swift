@@ -10,44 +10,76 @@ private import SpeziFoundation
 
 
 extension QuestionnaireResponses {
-    private struct ConditionEvalConfig {
+    /// Controls task id lookup behaviour when evaluating a condition.
+    private struct TaskLookupConfig {
         /// Whether the condition should be limited to only see responses for tasks that precede the one to which the condition belongs.
         let limitToPreviousTasks: Bool
-        /// Whether the condition, if it evaluated to `false` in the current scope, should be evaluated again in the parent scope, if available.
-        ///
-        /// Useful when evaluating a condition in the context of a nested question, if the condition should also be allowed to reference questions from the parent scope.
-        let continueInParentScope: Bool
+        /// Whether, if the condition references a task that cannot be found in the current scope, the lookup for this task should continue in the parent scope.
+        let exposeParentScope: Bool
+    }
+    
+    private struct ResolvedTask {
+        /// The task with the resolved id.
+        let task: Questionnaire.Task
+        /// The ``QuestionnaireResponses`` instance whose ``QuestionnaireResponses/responses`` property contains this task's
+        let responses: QuestionnaireResponses
     }
     
     
+    /// Determines whether the task should currently be enabled, based on its ``Questionnaire/Task/enabledCondition``.
     func shouldEnable(task: Questionnaire.Task) -> Bool {
         evaluate(
             task.enabledCondition,
             for: task,
-            config: .init(limitToPreviousTasks: true, continueInParentScope: true)
+            config: .init(limitToPreviousTasks: true, exposeParentScope: true)
         )
     }
+    
     
     private func evaluate(
         _ condition: Questionnaire.Condition,
         for task: Questionnaire.Task,
-        config: ConditionEvalConfig
+        config: TaskLookupConfig
     ) -> Bool {
+        return Self._evaluate(condition) {
+            resolveTaskId(targetTaskId: $0, currentTask: task, using: config)
+        }
+    }
+    
+    
+    /// Looks up a ``Questionnaire/Task``, based on its id, in compliance with a ``TaskLookupConfig``.
+    private func resolveTaskId(
+        targetTaskId: Questionnaire.Task.ID,
+        currentTask: Questionnaire.Task,
+        using config: TaskLookupConfig
+    ) -> ResolvedTask? { // TODO just the id for the currentTask?
+        guard targetTaskId != currentTask.id else {
+            // A condition is never allowed to reference its own task
+            return nil
+        }
         switch _variant {
         case .root:
-            let validTasksForLookup: Set<Questionnaire.Task.ID>
+            // if we're at the root level, we only can look up top-level (i.e., non-nested) tasks.
             let allTopLevelTasks = questionnaire.sections.flatMap(\.tasks)
-            if config.limitToPreviousTasks {
-                guard let taskIdx = allTopLevelTasks.firstIndex(where: { $0.id == task.id }) else {
-                    assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
-                    return false
-                }
-                validTasksForLookup = allTopLevelTasks[..<taskIdx].mapIntoSet(\.id)
-            } else {
-                validTasksForLookup = allTopLevelTasks.mapIntoSet(\.id)
+            guard let curIdx = allTopLevelTasks.firstIndex(where: { $0.id == currentTask.id }) else {
+                // we were unable to find the current task. this should never happen
+                assertionFailure()
+                return nil
             }
-            return self._evaluate(condition, validTaskIdsForLookup: validTasksForLookup)
+            guard let targetIdx = allTopLevelTasks.firstIndex(where: { $0.id == targetTaskId }) else {
+                // we were not able to find the referenced task.
+                // since we're not at the root level, we simply return nil.
+                return nil
+            }
+            if targetIdx < curIdx || !config.limitToPreviousTasks {
+                // the referenced task is ordered before the current task, or we're not limited to earlier tasks. all is well.
+                return .init(task: allTopLevelTasks[targetIdx], responses: self)
+            } else {
+                return nil
+            }
         case let .view(parent, pathFromParent: _):
+            // we're nested somwehere within the questionnaire.
+            // this is a little more tricky now.
             let parentTaskPath = self.pathFromRoot.compactMap { component in
                 switch component {
                 case .task(let taskId):
@@ -57,31 +89,38 @@ extension QuestionnaireResponses {
                 }
             }
             guard let parentTask = questionnaire.task(at: parentTaskPath) else {
-                assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
-                return false
+                assertionFailure("unable to find parent task")
+                return nil
             }
-            let validTaskIdsForLookup: Set<Questionnaire.Task.ID>
-            if config.limitToPreviousTasks {
-                guard let taskIdx = parentTask.kind.followUpTasks.firstIndex(of: task) else {
-                    assertionFailure("Attempted to evaluate condition for invalid task (was unable to find task)")
-                    return false
+            let allTasks = parentTask.kind.followUpTasks
+            guard let curIdx = allTasks.firstIndex(where: { $0.id == currentTask.id }) else {
+                // we were unable to find the current task. this should never happen
+                assertionFailure()
+                return nil
+            }
+            guard let targetIdx = allTasks.firstIndex(where: { $0.id == targetTaskId }) else {
+                // we were unable to find the referenced task at the current level.
+                return if config.exposeParentScope {
+                    parent.resolveTaskId(targetTaskId: targetTaskId, currentTask: parentTask, using: config)
+                } else {
+                    nil
                 }
-                validTaskIdsForLookup = parentTask.kind.followUpTasks[..<taskIdx].mapIntoSet(\.id)
-            } else {
-                validTaskIdsForLookup = parentTask.kind.followUpTasks.mapIntoSet(\.id)
             }
-            // first, try to evaluate the condition in the current, nested context
-            // ie, we evaluate it against the other, preceding tasks at the current nesting level
-            return self._evaluate(condition, validTaskIdsForLookup: validTaskIdsForLookup)
-                // if that failed, we also try to evaluate it in the parent context, for the preceding tasks.
-                // this will, if needed, recursively go up the chain until it reaches the root level.
-                || (config.continueInParentScope && parent.evaluate(condition, for: parentTask, config: config))
+            // we found both the current and the target task, at the current level
+            if targetIdx < curIdx || !config.limitToPreviousTasks {
+                return .init(task: allTasks[targetIdx], responses: self)
+            } else {
+                return nil
+            }
         }
     }
     
-    private func _evaluate( // swiftlint:disable:this cyclomatic_complexity function_body_length
+    
+    /// - parameter condition: The ``Questionnaire/Condition`` that should be evaluated
+    /// - parameter resolveTaskId: A closure that maps a task is to its task. The function uses this to resolve tasks that are referenced by the condition.
+    private static func _evaluate( // swiftlint:disable:this cyclomatic_complexity function_body_length
         _ condition: Questionnaire.Condition,
-        validTaskIdsForLookup: Set<Questionnaire.Task.ID>
+        _ resolveTaskId: (Questionnaire.Task.ID) -> ResolvedTask?
     ) -> Bool {
         switch condition {
         case .true:
@@ -89,27 +128,27 @@ extension QuestionnaireResponses {
         case .false:
             return false
         case .not(let inner):
-            return !_evaluate(inner, validTaskIdsForLookup: validTaskIdsForLookup)
+            return !_evaluate(inner, resolveTaskId)
         case .any(let inner):
-            return inner.contains { _evaluate($0, validTaskIdsForLookup: validTaskIdsForLookup) }
+            return inner.contains { _evaluate($0, resolveTaskId) }
         case .all(let inner):
-            return inner.allSatisfy { _evaluate($0, validTaskIdsForLookup: validTaskIdsForLookup) }
+            return inner.allSatisfy { _evaluate($0, resolveTaskId) }
         case .hasResponse(let taskId):
-            return if validTaskIdsForLookup.contains(taskId), let task = questionnaire.task(withId: taskId) {
-                hasResponse(for: task)
-            } else {
-                false
-            }
-        case .isMissingResponse(let taskId):
-            return if validTaskIdsForLookup.contains(taskId), let task = questionnaire.task(withId: taskId) {
-                isMissingResponse(for: task)
-            } else {
-                false
-            }
-        case let .responseValueComparison(taskId, `operator`, value):
-            guard validTaskIdsForLookup.contains(taskId), let task = self.questionnaire.task(withId: taskId) else {
+            guard let resolved = resolveTaskId(taskId) else {
                 return false
             }
+            return resolved.responses.hasResponse(for: resolved.task)
+        case .isMissingResponse(let taskId):
+            guard let resolved = resolveTaskId(taskId) else {
+                return false
+            }
+            return resolved.responses.isMissingResponse(for: resolved.task)
+        case let .responseValueComparison(taskId, `operator`, value):
+            guard let resolved = resolveTaskId(taskId) else {
+                return false
+            }
+            let task = resolved.task
+            let responses = resolved.responses.responses
             switch task.kind {
             case .instructional:
                 return false
@@ -134,7 +173,7 @@ extension QuestionnaireResponses {
                     let response = responses[task.id].value.choiceValue
                     // TODO can we have a "selection == the open choice option" condition (ie, does FHIR allow this?)?
                     // DOES FHIR allow the openChoice option in MC scenarios?
-                    return response.selectedOptions.contains { $0.id == optionId }
+                    return response.selectedOptions.contains(optionId)
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
                     return false

@@ -71,6 +71,7 @@ extension Questionnaire {
         return nil
     }
     
+    // TOOD should this include/exclude currently disabled tasks?
     func task(at path: some Sequence<Task.ID>) -> Task? {
         var iterator = path.makeIterator()
         guard var current = iterator.next().flatMap({ task(withId: $0) }) else {

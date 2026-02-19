@@ -47,4 +47,14 @@ extension View {
             self
         }
     }
+    
+    @ViewBuilder
+    @_disfavoredOverload
+    nonisolated func navigationSubtitle(_ subtitle: (some StringProtocol)?) -> some View {
+        if let subtitle, #available(iOS 26, *) {
+            self.navigationSubtitle(subtitle)
+        } else {
+            self
+        }
+    }
 }

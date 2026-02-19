@@ -15,6 +15,7 @@ public import UniformTypeIdentifiers
 
 
 extension QuestionnaireResponses {
+    /// Storage container for task responses.
     public struct Responses: Hashable, Collection, Sendable {
         public typealias Storage = [Questionnaire.Task.ID: Response]
         public typealias Element = Storage.Element
@@ -114,7 +115,7 @@ extension QuestionnaireResponses {
         public typealias Option = Questionnaire.Task.Kind.ChoiceConfig.Option
         
         /// The currently selected options.
-        public private(set) var selectedOptions: Set<Option>
+        public private(set) var selectedOptions: Set<Option.ID>
         public internal(set) var freeTextOtherResponse: String?
         
         var isEmpty: Bool {
@@ -137,22 +138,22 @@ extension QuestionnaireResponses {
             }
         }
         
-        init(selectedOptions: Set<Option>, freeTextOtherResponse: String? = nil) {
+        init(selectedOptions: Set<Option.ID>, freeTextOtherResponse: String? = nil) {
             self.selectedOptions = selectedOptions
             self.freeTextOtherResponse = freeTextOtherResponse
         }
         
-        func didSelect(option: Option) -> Bool {
-            selectedOptions.contains(option)
+        func didSelect(_ optionId: Option.ID) -> Bool {
+            selectedOptions.contains(optionId)
         }
         
-        mutating func select(option: Option) {
-            if !selectedOptions.contains(option) {
-                selectedOptions.insert(option)
+        mutating func select(_ optionId: Option.ID) {
+            if !selectedOptions.contains(optionId) {
+                selectedOptions.insert(optionId)
             }
         }
-        mutating func deselect(option: Option) {
-            selectedOptions.remove(option)
+        mutating func deselect(_ optionId: Option.ID) {
+            selectedOptions.remove(optionId)
         }
     }
 }

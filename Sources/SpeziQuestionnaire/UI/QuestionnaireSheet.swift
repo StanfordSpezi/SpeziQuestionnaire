@@ -19,7 +19,7 @@ public struct QuestionnaireSheet: View {
     
     @State private var responses: QuestionnaireResponses
     
-    @_documentation(visibility: internal)
+    @_documentation(visibility: internal) // swiftlint:disable:next attributes
     public var body: some View {
         ManagedNavigationStack {
             if let section = questionnaire.sections.first {
@@ -31,6 +31,7 @@ public struct QuestionnaireSheet: View {
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
             }
         }
+        .accessibilityIdentifier("SpeziQuestionnaireNavStack")
         .interactiveDismissDisabled()
         .environment(responses)
     }
@@ -38,14 +39,18 @@ public struct QuestionnaireSheet: View {
     /// Creates a new `QuestionnaireSheet`
     ///
     /// - parameter questionnaire: The ``Questionnaire`` that should be answered.
+    /// - parameter responses: The ``QuestionnaireResponses`` that should be used when answering the questionnaire.
+    ///     If set to `nil`, a new, empty object will implicitly be created and used.
+    ///     Use this parameter to display or edit existing, previously-collected responses.
     /// - parameter resultHandler: A closure that is invoked when the questionnaire is completed, or cancelled by the user.
     ///     The sheet dismisses itself once this closure has returned.
     public init(
         _ questionnaire: Questionnaire,
+        responses: QuestionnaireResponses? = nil,
         resultHandler: @escaping @MainActor (Result) async -> Void
     ) {
         self.questionnaire = questionnaire
-        self.responses = QuestionnaireResponses(questionnaire: questionnaire)
+        self.responses = responses ?? QuestionnaireResponses(questionnaire: questionnaire)
         self.resultHandler = resultHandler
     }
     

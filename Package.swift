@@ -19,7 +19,8 @@ let package = Package(
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
-        .library(name: "SpeziQuestionnaireFHIR", targets: ["SpeziQuestionnaireFHIR"])
+        .library(name: "SpeziQuestionnaireFHIR", targets: ["SpeziQuestionnaireFHIR"]),
+        .library(name: "XCTSpeziQuestionnaire", targets: ["XCTSpeziQuestionnaire"])
     ],
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
@@ -52,6 +53,13 @@ let package = Package(
                 .enableUpcomingFeature("InternalImportsByDefault")
             ],
             plugins: [] + swiftLintPlugin()
+        ),
+        .target(
+            name: "XCTSpeziQuestionnaire",
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault")
+            ]
         ),
         .testTarget(
             name: "SpeziQuestionnaireTests",

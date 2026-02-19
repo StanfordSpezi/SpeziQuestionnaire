@@ -7,21 +7,61 @@
 //
 
 import XCTest
+import XCTSpeziQuestionnaire
 
 
 extension TestAppUITests {
+    @MainActor
+    func testSimpleCondition() {
+        launchAppAndGoToOtherTest(named: "Simple Condition")
+        let navigator = QuestionnaireSheetNavigator(app)
+        
+        navigator.task(withId: "ice-cream").selectOption(withTitle: "Yes")
+        XCTAssertTrue(navigator.task(withId: "ice-cream-flavor").exists)
+        
+        navigator.task(withId: "ice-cream").selectOption(withTitle: "No")
+        XCTAssertFalse(navigator.task(withId: "ice-cream-flavor").exists)
+    }
+    
+    
+    @MainActor
+    func testCrossSectionCondition() {
+        launchAppAndGoToOtherTest(named: "Cross-Section Condition")
+        let navigator = QuestionnaireSheetNavigator(app)
+        
+        navigator.task(withId: "ice-cream").selectOption(withTitle: "No")
+        navigator.goToNextSection()
+        XCTAssertTrue(app.staticTexts["All Done!"].exists)
+        
+        navigator.returnToPreviousSection()
+        sleep(for: .seconds(1))
+        
+        navigator.task(withId: "ice-cream").selectOption(withTitle: "Yes")
+        navigator.goToNextSection()
+        
+        XCTAssert(navigator.task(withId: "ice-cream-flavor").exists)
+        XCTAssertFalse(navigator.isContinueButtonEnabled)
+        navigator.task(withId: "ice-cream-flavor").selectOption(withTitle: "Mango")
+        XCTAssertTrue(navigator.isContinueButtonEnabled)
+        navigator.goToNextSection()
+        XCTAssertTrue(app.staticTexts["All Done!"].exists)
+    }
+    
+    
     /// Tests the rules that apply when evaluating conditions within a questionnaire,
     /// namely that a condition can only reference tasks that precede the task to which the condition belongs.
     @MainActor
     func testConditionRules() {
         launchAppAndStartTestQuestionnaire(named: "Test Condition Lookup Rules")
+        let navigator = QuestionnaireSheetNavigator(app)
+        
         XCTAssert(app.staticTexts["Section A"].waitForExistence(timeout: 2))
+        XCTAssertFalse(navigator.task(withId: "t1A").exists)
+        navigator.task(withId: "t2A").selectOption(withTitle: "Red")
         XCTAssert(app.otherElements["Task:t1A"].waitForNonExistence(timeout: 2))
-        app.otherElements["Task:t2A"].staticTexts["Red"].tap()
+        navigator.task(withId: "t2A").selectOption(withTitle: "Green")
         XCTAssert(app.otherElements["Task:t1A"].waitForNonExistence(timeout: 2))
-        app.otherElements["Task:t2A"].staticTexts["Green"].tap()
-        XCTAssert(app.otherElements["Task:t1A"].waitForNonExistence(timeout: 2))
-        app.otherElements["Task:t2A"].staticTexts["Blue"].tap()
+        navigator.task(withId: "t2A").selectOption(withTitle: "Blue")
         XCTAssert(app.otherElements["Task:t1A"].waitForNonExistence(timeout: 2))
         
         app.buttons["Continue"].tap()
@@ -29,11 +69,11 @@ extension TestAppUITests {
         XCTAssert(app.staticTexts["Section B"].waitForExistence(timeout: 2))
         
         XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
-        app.otherElements["Task:t1B"].staticTexts["Red"].tap()
+        navigator.task(withId: "t1B").selectOption(withTitle: "Red")
         XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
-        app.otherElements["Task:t1B"].staticTexts["Green"].tap()
+        navigator.task(withId: "t1B").selectOption(withTitle: "Green")
         XCTAssert(app.otherElements["Task:t2B"].waitForExistence(timeout: 2))
-        app.otherElements["Task:t1B"].staticTexts["Blue"].tap()
+        navigator.task(withId: "t1B").selectOption(withTitle: "Blue")
         XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
     }
 }

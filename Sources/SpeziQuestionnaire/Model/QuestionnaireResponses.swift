@@ -11,8 +11,27 @@
 public import Observation
 
 
+/// Stores and manages responses to a questionnaire.
 @Observable
 public final class QuestionnaireResponses {
+    /// The responses object's variant.
+    ///
+    /// There are two kinds of ``QuestionnaireResponses`` instances:
+    /// 1. Root-level:
+    ///     Owns a ``Responses`` object, which contains all responses collected for a questionnaire.
+    /// 2. Nested/Inner-level:
+    ///     Provides a scoped view into another ``QuestionnaireResponses`` instance.
+    ///     In this case, the variant carries, in addition to the parent instance, a ``ResponsesPath`` connecting the current instance to its parent.
+    ///     This is used when dealing with nested questions.
+    ///     For example, a ``QuestionnaireResponses`` in
+    ///
+    /// This approach (of having the root/nested variant) is used to provide a common interface for accessing task responses,
+    /// regardless of whether they are top-level tasks, or nested within some other response.
+    /// In both cases, we can simply inject a ``QuestionnaireResponses`` instance into the SwiftUI view hierarchy,
+    /// and the ``QuestionnaireSectionView`` will be able to work with it.
+    ///
+    /// // TODO WRITE THIS PART
+    /// Additionally, this approach allows us to have the type work correctly with In order to properly work with the Observation framework, and correctly trigger SwiftUI view updates,
     enum Variant {
         /// The root ``QuestionnaireResponses`` instance, which stores all responses.
         case root(Responses)
@@ -20,10 +39,18 @@ public final class QuestionnaireResponses {
         case view(parent: QuestionnaireResponses, pathFromParent: ResponsesPath)
     }
     
+    /// The questionnaire from which these responses were collected.
     public let questionnaire: Questionnaire
     
-    var _variant: Variant { // swiftlint:disable:this identifier_name
+    private(set) var _variant: Variant { // swiftlint:disable:this identifier_name
         didSet {
+            switch (oldValue, _variant) {
+            case (.root, .root), (.view, .view):
+                // ok
+                break
+            case (.root, .view), (.view, .root):
+                preconditionFailure("Detected invalid variant kind change in \(Self.self)")
+            }
             switch _variant {
             case .root(let responses):
                 let sanitized = responses.sanitized() ?? Responses()
@@ -87,7 +114,7 @@ public final class QuestionnaireResponses {
         _variant = .root(Responses())
     }
     
-    init(parent: QuestionnaireResponses, pathFromParent: ResponsesPath) {
+    private init(parent: QuestionnaireResponses, pathFromParent: ResponsesPath) {
         questionnaire = parent.questionnaire
         _variant = .view(parent: parent, pathFromParent: pathFromParent)
     }

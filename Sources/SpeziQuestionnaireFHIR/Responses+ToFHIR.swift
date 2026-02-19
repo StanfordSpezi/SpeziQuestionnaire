@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+// TODO do we need to place responses to tasks contained in a FHIR group in an empty QuestionnaireResponseItem? is it ok if we don't? how does RKoF currently handle this?
 
 private import CryptoKit
 private import Foundation
@@ -148,8 +149,14 @@ extension QuestionnaireResponses.Response {
             }
             responseItem.answer = [.init(value: value)]
         case .choice(let response):
-            responseItem.answer = response.selectedOptions.map { option in
-                QuestionnaireResponseItemAnswer(value: .coding(option.fhirCoding))
+            guard case .choice(let config) = task.kind else {
+                throw FHIRConversionError("Invalid Input")
+            }
+            responseItem.answer = try response.selectedOptions.map { optionId in
+                guard let option = config.options.first(where: { $0.id == optionId }) else {
+                    throw FHIRConversionError("Unable to find option for '\(optionId)'")
+                }
+                return QuestionnaireResponseItemAnswer(value: .coding(option.fhirCoding))
             }
         case .attachments(let responses):
             responseItem.answer = try responses.map { attachment in
@@ -172,7 +179,7 @@ extension QuestionnaireResponses.Response {
                 guard let option = task.kind.choiceOptions.first(where: { $0.id == optionId }) else {
                     throw FHIRConversionError("Unable to find choice option '\(optionId)'")
                 }
-                guard self.value.choiceValue.selectedOptions.contains(option) else {
+                guard self.value.choiceValue.selectedOptions.contains(option.id) else {
                     throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
                 }
                 guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.fhirCoding) }) else {

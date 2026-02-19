@@ -44,26 +44,26 @@ extension TaskView.ChoiceAnswering {
                 id: option.id,
                 title: option.title,
                 subtitle: option.subtitle,
-                isSelected: response.value.choiceValue.didSelect(option: option)
+                isSelected: response.value.choiceValue.didSelect(option.id)
             ) {
-                let oldSelectionState = response.value.choiceValue.didSelect(option: option)
+                let oldSelectionState = response.value.choiceValue.didSelect(option.id)
                 if !config.allowsMultipleSelection {
                     if oldSelectionState {
                         // was selected before; we're now deselecting
                         response = .init(value: .choice(.init(selectedOptions: [])))
                     } else {
                         // was not selected before; we're now selecting
-                        response = .init(value: .choice(.init(selectedOptions: [option])))
+                        response = .init(value: .choice(.init(selectedOptions: [option.id])))
                     }
                 } else {
                     if oldSelectionState {
-                        response.value.choiceValue.deselect(option: option)
+                        response.value.choiceValue.deselect(option.id)
                         response.nestedResponses[.choiceOption(option.id)] = nil
                     } else {
-                        response.value.choiceValue.select(option: option)
+                        response.value.choiceValue.select(option.id)
                     }
                 }
-                if !oldSelectionState, !config.followUpTasks.isEmpty {
+                if !oldSelectionState, config.followUpTasks.contains(where: { responses.shouldEnable(task: $0) }) {
                     // the option wasn't selected before, but is now, and also we have some follow up tasks.
                     isShowingFollowUpQuestionsSheet = true
                 }
@@ -80,7 +80,7 @@ extension TaskView.ChoiceAnswering {
                         case .cancelled:
                             isShowingFollowUpQuestionsSheet = false
                             // we need to un-select the option and clear out the nested responses
-                            response.value.choiceValue.deselect(option: option)
+                            response.value.choiceValue.deselect(option.id)
                             response.nestedResponses[.choiceOption(option.id)] = nil
                         }
                     } header: {
@@ -93,6 +93,7 @@ extension TaskView.ChoiceAnswering {
                     }
                     .navigationTitle("Follow-Up: \(option.title)")
                 }
+                .accessibilityIdentifier("SpeziQuestionnaireNavStack")
                 .interactiveDismissDisabled()
                 .environment(
                     responses.view(

@@ -15,6 +15,7 @@
 		802B4B322F464DBD00554747 /* ResearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B312F464DBD00554747 /* ResearchKit */; };
 		802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B332F464E4700554747 /* ResearchKitOnFHIR */; };
 		802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B362F4657C600554747 /* SpeziFoundation */; };
+		80D6959F2F473B4C0015A557 /* XCTSpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 80D6959E2F473B4C0015A557 /* XCTSpeziQuestionnaire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80D6959F2F473B4C0015A557 /* XCTSpeziQuestionnaire in Frameworks */,
 				802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -704,6 +706,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */;
 			productName = SpeziFoundation;
+		};
+		80D6959E2F473B4C0015A557 /* XCTSpeziQuestionnaire */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XCTSpeziQuestionnaire;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -7,13 +7,8 @@
 //
 
 import XCTest
+import XCTSpeziQuestionnaire
 
-
-/*
- TODO:
- - test that when you select an MC option w/ follow up questions, and cancel the nested questions, the option gets deselected and the questionnaire as a whole
-     stays in an incomplete state
- */
 
 extension TestAppUITests {
     @MainActor
@@ -44,5 +39,65 @@ extension TestAppUITests {
         
         app.buttons["Continue"].tap()
         XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
+    }
+    
+    
+    @MainActor
+    func testSpeziQuestionnaire2() {
+        let app = XCUIApplication()
+        app.launch()
+        
+        XCTAssert(app.staticTexts["Surveys"].waitForExistence(timeout: 2))
+        XCTAssert(app.staticTexts["Completed, 0"].waitForExistence(timeout: 2))
+        
+        app.buttons["Pick Predefined Questionnaire"].tap()
+        app.buttons["GCS"].tap()
+        
+        sleep(for: .seconds(2))
+        
+        app.buttons["Start Questionnaire (Spezi Impl)"].tap()
+        XCTAssert(app.navigationBars["Glasgow Coma Score"].waitForExistence(timeout: 2))
+        
+        let navigator = QuestionnaireSheetNavigator(app)
+        navigator.task(withId: "1.1").selectOption(withTitle: "Confused")
+        navigator.task(withId: "1.2").selectOption(withTitle: "Obeys commands")
+        XCTAssertFalse(navigator.isContinueButtonEnabled)
+        app.swipeUp()
+        navigator.task(withId: "1.3").selectOption(withTitle: "Eye opening to verbal command")
+        XCTAssertTrue(navigator.isContinueButtonEnabled)
+        navigator.goToNextSection()
+        XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
+    }
+    
+    
+    @MainActor
+    func testExternalResponsesObject() {
+        launchAppAndGoToOtherTest(named: "External Response Object")
+        XCTAssert(app.buttons["Show Questionnaire (1)"].exists)
+        XCTAssert(app.buttons["Show Questionnaire (1)"].isEnabled)
+        XCTAssert(app.buttons["Show Questionnaire (2)"].exists)
+        XCTAssertFalse(app.buttons["Show Questionnaire (2)"].isEnabled)
+        
+        app.buttons["Show Questionnaire (1)"].tap()
+        let navigator = QuestionnaireSheetNavigator(app)
+        
+        XCTAssertFalse(navigator.task(withId: "t1").didSelectOption(withTitle: "Strawberry"))
+        XCTAssertFalse(navigator.task(withId: "t1").didSelectOption(withTitle: "Mango"))
+        
+        navigator.task(withId: "t1").selectOption(withTitle: "Mango")
+        XCTAssertFalse(navigator.task(withId: "t1").didSelectOption(withTitle: "Strawberry"))
+        XCTAssertTrue(navigator.task(withId: "t1").didSelectOption(withTitle: "Mango"))
+        
+        navigator.goToNextSection() // will dismiss the questionnaire
+        
+        XCTAssert(app.buttons["Show Questionnaire (1)"].exists)
+        XCTAssert(app.buttons["Show Questionnaire (1)"].isEnabled)
+        XCTAssert(app.buttons["Show Questionnaire (2)"].exists)
+        XCTAssert(app.buttons["Show Questionnaire (2)"].isEnabled)
+        app.buttons["Show Questionnaire (2)"].tap()
+        
+        // we can reuse the navigator
+        XCTAssertTrue(navigator.task(withId: "t1").didSelectOption(withTitle: "Mango"))
+        XCTAssertFalse(navigator.task(withId: "t1").didSelectOption(withTitle: "Strawberry"))
     }
 }

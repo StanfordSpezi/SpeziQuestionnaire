@@ -9,15 +9,14 @@
 import SpeziFoundation
 import XCTest
 
-
 /*
- TODO:
+ IDEAS:
  - test that when you select an MC option w/ follow up questions, and cancel the nested questions, the option gets deselected and the questionnaire as a whole
      stays in an incomplete state
  */
 
 final class TestAppUITests: XCTestCase, @unchecked Sendable {
-    @MainActor var app: XCUIApplication!
+    @MainActor var app: XCUIApplication! // swiftlint:disable:this implicitly_unwrapped_optional
     
     override func setUpWithError() throws {
         try super.setUpWithError()
@@ -34,6 +33,14 @@ final class TestAppUITests: XCTestCase, @unchecked Sendable {
         app.navigationBars.buttons["Tests"].tap()
         app.buttons[questionnaireTitle].tap()
         XCTAssert(app.navigationBars[questionnaireTitle].waitForExistence(timeout: 2))
+    }
+    
+    @MainActor
+    func launchAppAndGoToOtherTest(named testName: String) {
+        app.launch()
+        XCTAssert(app.wait(for: .runningForeground, timeout: 2))
+        app.navigationBars.buttons["Tests"].tap()
+        app.buttons[testName].tap()
     }
 }
 

@@ -74,6 +74,7 @@ struct QuestionnaireSectionView<Header: View>: View {
             }
         }
         .navigationTitle(title)
+//        .navigationSubtitle(<#T##subtitle: Text##Text#>)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
             toolbarContent
@@ -88,6 +89,12 @@ struct QuestionnaireSectionView<Header: View>: View {
             nil
         }
     }
+    
+//    private var subtitle: String? {
+//        switch context {
+//            
+//        }
+//    }
     
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
