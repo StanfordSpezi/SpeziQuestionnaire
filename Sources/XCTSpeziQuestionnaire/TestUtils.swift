@@ -10,10 +10,12 @@ public import XCTest
 private import XCTestExtensions
 
 
+/// Allows controlling a QuestionnaireSheet within a UI test
 @MainActor
 public struct QuestionnaireSheetNavigator {
     private let app: XCUIApplication
     
+    /// Creates a new instance
     public init(_ app: XCUIApplication) {
         self.app = app
     }
@@ -21,6 +23,9 @@ public struct QuestionnaireSheetNavigator {
 
 
 extension QuestionnaireSheetNavigator {
+    /// Whether the "Continue" button is currently in an enabled state.
+    ///
+    /// - Note: if the continue button isn't currently on screen; the behaviour is undefined
     public var isContinueButtonEnabled: Bool {
         // TODO how does this behave if the button is out of view?
         if app.buttons["ContinueButton_canContinue=false"].exists {
@@ -30,6 +35,7 @@ extension QuestionnaireSheetNavigator {
         }
     }
     
+    /// Advances the questionnaire sheet to the next section.
     public func goToNextSection() {
         guard isContinueButtonEnabled else {
             XCTFail("Cannot go to next section; Continue button is disabled")
@@ -56,6 +62,7 @@ extension QuestionnaireSheetNavigator {
         button.tap()
     }
     
+    /// Provides access to operations within the scope of a task
     public func task(withId id: String) -> TaskProxy {
         TaskProxy(navigator: self, taskId: id)
     }
@@ -63,6 +70,7 @@ extension QuestionnaireSheetNavigator {
 
 
 extension QuestionnaireSheetNavigator {
+    /// Provides task-level operations
     @MainActor
     public struct TaskProxy {
         private let navigator: QuestionnaireSheetNavigator
@@ -72,8 +80,9 @@ extension QuestionnaireSheetNavigator {
             navigator.app
         }
         
+        /// Determines whether any UI related to this task currently exists on-screen.
         public var exists: Bool {
-            task.count > 0
+            task.count > 0 // swiftlint:disable:this empty_count
         }
         
         fileprivate init(navigator: QuestionnaireSheetNavigator, taskId: String) {
@@ -82,16 +91,34 @@ extension QuestionnaireSheetNavigator {
             self.task = navigator.app.otherElements.matching(identifier: "Task:\(taskId)")
         }
         
+        /// Determines whether a choice option with the specified title is currently selected.
+        ///
+        /// - Note: Only use this function is the task is in fact a choice task.
         public func didSelectOption(withTitle title: String) -> Bool {
             task.buttons["Option: \(title), Selected"].exists
         }
         
+        /// Selects the choice option with the specified title, unless it is already selected.
+        ///
+        /// - Note: Only use this function is the task is in fact a choice task; otherwise the behaviour is undefined and the function will likely fail
         public func selectOption(withTitle title: String) {
             if !didSelectOption(withTitle: title) {
                 task.buttons["Option: \(title), Not Selected"].tap()
             }
         }
         
+        /// Deselects the choice option with the specified title, if it currently is selected.
+        ///
+        /// - Note: Only use this function is the task is in fact a choice task; otherwise the behaviour is undefined and the function will likely fail
+        public func deselectOption(withTitle title: String) {
+            if didSelectOption(withTitle: title) {
+                task.buttons["Option: \(title), Selected"].tap()
+            }
+        }
+        
+        /// Enters a numeric response value for the task
+        ///
+        /// - Note: Only use this function is the task is in fact a numeric question; otherwise the behaviour is undefined and the function will likely fail
         public func enterValue(_ value: Double) throws {
             try task.textFields.firstMatch.enter(
                 value: NumberFormatter.localizedString(from: NSNumber(value: value), number: .decimal)

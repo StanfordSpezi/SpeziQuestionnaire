@@ -14,6 +14,14 @@ extension QuestionnaireResponses {
         case task(Questionnaire.Task.ID)
         case choiceOption(Questionnaire.Task.Kind.ChoiceConfig.Option.ID)
         
+        fileprivate enum Kind: Equatable {
+            /// A path (component) that, when evaluated, points to a container of multiple responses
+            /// (i.e., a ``QuestionnaireResponses/Responses`` instance).
+            case responsesContainer
+            /// A path (component) that, when evaluated, points to a specific single ``QuestionnaireResponses/Response`` value.
+            case singleResponse
+        }
+        
         public var description: String {
             switch self {
             case .task(let taskId):
@@ -21,14 +29,6 @@ extension QuestionnaireResponses {
             case .choiceOption(let optionId):
                 "choiceOption(\(optionId))"
             }
-        }
-        
-        fileprivate enum Kind: Equatable {
-            /// A path (component) that, when evaluated, points to a container of multiple responses
-            /// (i.e., a ``QuestionnaireResponses/Responses`` instance).
-            case responsesContainer
-            /// A path (component) that, when evaluated, points to a specific single ``QuestionnaireResponses/Response`` value.
-            case singleResponse
         }
     }
     

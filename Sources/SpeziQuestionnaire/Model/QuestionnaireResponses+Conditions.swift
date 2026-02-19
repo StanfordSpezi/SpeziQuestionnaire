@@ -41,19 +41,19 @@ extension QuestionnaireResponses {
         for task: Questionnaire.Task,
         config: TaskLookupConfig
     ) -> Bool {
-        return Self._evaluate(condition) {
-            resolveTaskId(targetTaskId: $0, currentTask: task, using: config)
+        Self._evaluate(condition) {
+            resolveTaskId(targetTaskId: $0, currentTaskId: task.id, using: config)
         }
     }
     
     
     /// Looks up a ``Questionnaire/Task``, based on its id, in compliance with a ``TaskLookupConfig``.
-    private func resolveTaskId(
+    private func resolveTaskId( // swiftlint:disable:this cyclomatic_complexity
         targetTaskId: Questionnaire.Task.ID,
-        currentTask: Questionnaire.Task,
+        currentTaskId: Questionnaire.Task.ID,
         using config: TaskLookupConfig
-    ) -> ResolvedTask? { // TODO just the id for the currentTask?
-        guard targetTaskId != currentTask.id else {
+    ) -> ResolvedTask? {
+        guard targetTaskId != currentTaskId else {
             // A condition is never allowed to reference its own task
             return nil
         }
@@ -61,7 +61,7 @@ extension QuestionnaireResponses {
         case .root:
             // if we're at the root level, we only can look up top-level (i.e., non-nested) tasks.
             let allTopLevelTasks = questionnaire.sections.flatMap(\.tasks)
-            guard let curIdx = allTopLevelTasks.firstIndex(where: { $0.id == currentTask.id }) else {
+            guard let curIdx = allTopLevelTasks.firstIndex(where: { $0.id == currentTaskId }) else {
                 // we were unable to find the current task. this should never happen
                 assertionFailure()
                 return nil
@@ -93,7 +93,7 @@ extension QuestionnaireResponses {
                 return nil
             }
             let allTasks = parentTask.kind.followUpTasks
-            guard let curIdx = allTasks.firstIndex(where: { $0.id == currentTask.id }) else {
+            guard let curIdx = allTasks.firstIndex(where: { $0.id == currentTaskId }) else {
                 // we were unable to find the current task. this should never happen
                 assertionFailure()
                 return nil
@@ -101,7 +101,7 @@ extension QuestionnaireResponses {
             guard let targetIdx = allTasks.firstIndex(where: { $0.id == targetTaskId }) else {
                 // we were unable to find the referenced task at the current level.
                 return if config.exposeParentScope {
-                    parent.resolveTaskId(targetTaskId: targetTaskId, currentTask: parentTask, using: config)
+                    parent.resolveTaskId(targetTaskId: targetTaskId, currentTaskId: parentTask.id, using: config)
                 } else {
                     nil
                 }
@@ -114,8 +114,10 @@ extension QuestionnaireResponses {
             }
         }
     }
-    
-    
+}
+
+
+extension QuestionnaireResponses {
     /// - parameter condition: The ``Questionnaire/Condition`` that should be evaluated
     /// - parameter resolveTaskId: A closure that maps a task is to its task. The function uses this to resolve tasks that are referenced by the condition.
     private static func _evaluate( // swiftlint:disable:this cyclomatic_complexity function_body_length

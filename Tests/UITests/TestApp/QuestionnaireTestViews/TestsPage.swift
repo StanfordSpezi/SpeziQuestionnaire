@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_length
+// swiftlint:disable all
 
 import FHIRQuestionnaires
 import class ModelsR4.Questionnaire

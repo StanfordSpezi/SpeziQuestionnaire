@@ -25,9 +25,7 @@ private struct FHIRConversionError: Error {
 
 extension ModelsR4.QuestionnaireResponse {
     /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
-    public convenience init( // swiftlint:disable:this function_body_length cyclomatic_complexity
-        _ other: SpeziQuestionnaire.QuestionnaireResponses
-    ) throws {
+    public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
         self.init(status: .init(.completed))
         let id = UUID().uuidString
         self.id = id.asFHIRStringPrimitive()
@@ -77,7 +75,9 @@ extension QuestionnaireResponses.Response {
         let task: SpeziQuestionnaire.Questionnaire.Task
     }
     
-    fileprivate func toFHIR(using context: FHIRConversionContext) throws -> QuestionnaireResponseItem? {
+    fileprivate func toFHIR( // swiftlint:disable:this function_body_length cyclomatic_complexity
+        using context: FHIRConversionContext
+    ) throws -> QuestionnaireResponseItem? {
         let task = context.task
         if !nestedResponses.isEmpty, task.kind.followUpTasks.isEmpty {
             throw FHIRConversionError("Unexpectedly found nested responses in task without nested tasks")
@@ -156,7 +156,7 @@ extension QuestionnaireResponses.Response {
                 guard let option = config.options.first(where: { $0.id == optionId }) else {
                     throw FHIRConversionError("Unable to find option for '\(optionId)'")
                 }
-                return QuestionnaireResponseItemAnswer(value: .coding(option.fhirCoding))
+                return QuestionnaireResponseItemAnswer(value: .coding(option.toFHIRCoding()))
             }
         case .attachments(let responses):
             responseItem.answer = try responses.map { attachment in
@@ -182,7 +182,7 @@ extension QuestionnaireResponses.Response {
                 guard self.value.choiceValue.selectedOptions.contains(option.id) else {
                     throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
                 }
-                guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.fhirCoding) }) else {
+                guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.toFHIRCoding()) }) else {
                     throw FHIRConversionError("Unable to find answer for choice option")
                 }
                 answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
@@ -194,17 +194,15 @@ extension QuestionnaireResponses.Response {
 
 
 extension SpeziQuestionnaire.Questionnaire.Task.Kind.ChoiceConfig.Option {
-    var fhirCoding: Coding {
-        if let idx = id.firstIndex(of: ":") {
-            let system = String(id[..<idx])
-            let code = String(id[idx...].dropFirst())
-            return Coding(
-                code: code.asFHIRStringPrimitive(),
+    func toFHIRCoding() -> Coding {
+        if let fhirCoding {
+            Coding(
+                code: fhirCoding.code.asFHIRStringPrimitive(),
                 display: title.asFHIRStringPrimitive(),
-                system: system.asFHIRURIPrimitive()
+                system: fhirCoding.system.asFHIRURIPrimitive()
             )
         } else {
-            return Coding(
+            Coding(
                 code: id.asFHIRStringPrimitive(),
                 display: title.asFHIRStringPrimitive(),
                 system: nil

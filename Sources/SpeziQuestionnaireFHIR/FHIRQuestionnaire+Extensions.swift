@@ -341,7 +341,7 @@ extension QuestionnaireItem {
         }
     }
     
-    private func dateMinMaxValue(urls: [String]) -> DateComponents? {
+    private func dateMinMaxValue(urls: [String]) -> DateComponents? { // swiftlint:disable:this cyclomatic_complexity
         for url in urls {
             guard let ext = getExtensionInQuestionnaireItem(url: url) else {
                 continue
