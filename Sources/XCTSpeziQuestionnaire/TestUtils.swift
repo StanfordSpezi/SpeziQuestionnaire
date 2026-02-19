@@ -27,7 +27,6 @@ extension QuestionnaireSheetNavigator {
     ///
     /// - Note: if the continue button isn't currently on screen; the behaviour is undefined
     public var isContinueButtonEnabled: Bool {
-        // TODO how does this behave if the button is out of view?
         if app.buttons["ContinueButton_canContinue=false"].exists {
             false
         } else {

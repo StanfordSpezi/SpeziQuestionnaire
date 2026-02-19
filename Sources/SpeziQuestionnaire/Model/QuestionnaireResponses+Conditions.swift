@@ -191,8 +191,62 @@ extension QuestionnaireResponses {
                     // not supported
                     return false
                 }
-            case .dateTime:
-                fatalError("TODO")
+            case .dateTime(let config):
+                guard let response = responses[task.id].value.dateValue else {
+                    return false
+                }
+                guard case .date(let expected) = value else {
+                    return false
+                }
+                switch config.style {
+                case .timeOnly:
+                    let response = (response.hour ?? 0, response.minute ?? 0, response.second ?? 0)
+                    let expected = (expected.hour ?? 0, expected.minute ?? 0, expected.second ?? 0)
+                    return switch `operator` {
+                    case .equal:
+                        response == expected
+                    case .greaterThan:
+                        response > expected
+                    case .greaterThanOrEqual:
+                        response >= expected
+                    case .lessThan:
+                        response < expected
+                    case .lessThanOrEqual:
+                        response <= expected
+                    }
+                case .dateOnly:
+                    let response = (response.year ?? 0, response.month ?? 1, response.day ?? 1)
+                    let expected = (expected.year ?? 0, expected.month ?? 1, expected.day ?? 1)
+                    return switch `operator` {
+                    case .equal:
+                        response == expected
+                    case .greaterThan:
+                        response > expected
+                    case .greaterThanOrEqual:
+                        response >= expected
+                    case .lessThan:
+                        response < expected
+                    case .lessThanOrEqual:
+                        response <= expected
+                    }
+                case .dateAndTime:
+                    let cal = Calendar.current
+                    guard let response = cal.date(from: response), let expected = cal.date(from: expected) else {
+                        return false
+                    }
+                    return switch `operator` {
+                    case .equal:
+                        response == expected
+                    case .greaterThan:
+                        response > expected
+                    case .greaterThanOrEqual:
+                        response >= expected
+                    case .lessThan:
+                        response < expected
+                    case .lessThanOrEqual:
+                        response <= expected
+                    }
+                }
             case .numeric:
                 switch value {
                 case .integer(let value):

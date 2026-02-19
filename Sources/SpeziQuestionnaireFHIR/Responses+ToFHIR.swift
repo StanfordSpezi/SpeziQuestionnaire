@@ -6,8 +6,6 @@
 // SPDX-License-Identifier: MIT
 //
 
-// TODO do we need to place responses to tasks contained in a FHIR group in an empty QuestionnaireResponseItem? is it ok if we don't? how does RKoF currently handle this?
-
 private import CryptoKit
 private import Foundation
 public import ModelsR4
@@ -78,6 +76,8 @@ extension QuestionnaireResponses.Response {
     fileprivate func toFHIR( // swiftlint:disable:this function_body_length cyclomatic_complexity
         using context: FHIRConversionContext
     ) throws -> QuestionnaireResponseItem? {
+        // QUESTION do we need to place responses to tasks contained in a FHIR group in an empty QuestionnaireResponseItem?
+        // (RKoF currently doesn't)
         let task = context.task
         if !nestedResponses.isEmpty, task.kind.followUpTasks.isEmpty {
             throw FHIRConversionError("Unexpectedly found nested responses in task without nested tasks")

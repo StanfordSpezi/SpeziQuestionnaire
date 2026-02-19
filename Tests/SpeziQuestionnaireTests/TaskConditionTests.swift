@@ -14,12 +14,6 @@ import Testing
 @Suite
 struct TaskConditionTests {
     @Test
-    func simpleConditionEval() {
-        // TODO
-    }
-    
-    
-    @Test
     func nestedTaskConditionLookup() throws {
         let questionnaire = Questionnaire.nestedTaskConditionLookup
         let rootTask0 = try #require(questionnaire.task(at: ["task0"]))
@@ -28,7 +22,6 @@ struct TaskConditionTests {
         let rootResponses = QuestionnaireResponses(questionnaire: questionnaire)
         #expect(rootResponses.shouldEnable(task: rootTask0))
         #expect(rootResponses.shouldEnable(task: rootTask1))
-//        #expect(!rootResponses.shouldEnable(task: innerTask))
         
         rootResponses.responses[rootTask0.id].value.boolValue = true
         

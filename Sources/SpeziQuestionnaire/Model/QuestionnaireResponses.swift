@@ -30,8 +30,7 @@ public final class QuestionnaireResponses {
     /// In both cases, we can simply inject a ``QuestionnaireResponses`` instance into the SwiftUI view hierarchy,
     /// and the ``QuestionnaireSectionView`` will be able to work with it.
     ///
-    /// // TODO WRITE THIS PART
-    /// Additionally, this approach allows us to have the type work correctly with In order to properly work with the Observation framework, and correctly trigger SwiftUI view updates,
+    /// Additionally, this approach allows us to have the type work correctly with the `Observation` framework, which is required for SwiftUI to properly trigger view updates.
     enum Variant {
         /// The root ``QuestionnaireResponses`` instance, which stores all responses.
         case root(Responses)

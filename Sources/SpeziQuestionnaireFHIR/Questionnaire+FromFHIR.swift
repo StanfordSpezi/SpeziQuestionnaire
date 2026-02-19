@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order todo
+// swiftlint:disable file_types_order
 
 private import Algorithms
 private import Foundation
@@ -121,7 +121,7 @@ extension ModelsR4.QuestionnaireItem {
         }
         let linkId = try getLinkId()
         guard let nestedItems = item, !nestedItems.isEmpty else {
-            // TODO do we want to allow this? be a little more lenient here?
+            // do we want to allow this? be a little more lenient here?
             throw FHIRConversionError("Empty top-level group!")
         }
         let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
@@ -202,8 +202,6 @@ extension ModelsR4.QuestionnaireItem {
         case .boolean:
             return .boolean
         case .decimal, .integer, .quantity:
-            // TODO should we validate that, for integer questions, the min/max/step values are whole numbers?
-            // (no, not the right place here)
             return .numeric(.init(
                 inputMode: {
                     switch self.itemControl {
@@ -264,18 +262,16 @@ extension ModelsR4.QuestionnaireItem {
                     }
                     return false
                 }
+                // should we look at more than just the first here?
                 guard let answerOptions = valueSet?.compose?.include.first?.concept else {
-                    // TODO why the early return here?
-//                    return choices
-                    fatalError("TODO")
+                    throw FHIRConversionError("Unable to find answer options")
                 }
                 
                 for option in answerOptions {
                     guard let display = option.display?.value?.string,
                           let code = option.code.value?.string,
                           let system = valueSet?.compose?.include.first?.system?.value?.url else {
-                        fatalError("TODO does this happen?")
-                        continue
+                        throw FHIRConversionError("Invalid Concept in answer option")
                     }
                     options.append(.init(
                         id: code,
@@ -288,9 +284,7 @@ extension ModelsR4.QuestionnaireItem {
                 // If the `QuestionnaireItem` has `answerOptions` defined instead, extract these options
                 // and convert them to `ORKTextChoice`
                 guard let answerOptions = answerOption else {
-                    // TODO why the early return here?
-                    //                    return choices
-                                        fatalError("TODO")
+                    throw FHIRConversionError("Missing answerOption")
                 }
                 for option in answerOptions {
                     switch option.value {
@@ -328,7 +322,7 @@ extension ModelsR4.QuestionnaireItem {
                         nil
                     }
                 }(),
-                // TODO this will likely lead to effectively all such questions NOT allowing multiple selection,
+                // ISSUE this will likely lead to effectively all such questions NOT allowing multiple selection,
                 // since the `repeats` field is typically not used, and eg the phoenix builder only offers it when you know where to look...
                 allowsMultipleSelection: repeats == true
             ))
@@ -473,8 +467,8 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
         case .integer(let value):
             return .integer(Int(try unwrap(value.value?.integer)))
         case .quantity(let value):
-            // ISSUE: we might need to convert units here? (if the condition uses a different unit than the quesion (which is allowed (i think))
-            fatalError("TODO")
+            // ISSUE: we might need to convert units here? (if the condition uses a different unit than the question
+            throw FHIRConversionError("Quantity values are not yet supported in comparisons")
         case .reference(let value):
             throw FHIRConversionError("Unsupported comparison value '\(value)'")
         case .string(let value):
