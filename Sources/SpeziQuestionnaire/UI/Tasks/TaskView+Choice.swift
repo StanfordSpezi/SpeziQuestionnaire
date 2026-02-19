@@ -43,7 +43,6 @@ extension TaskView {
                     TextField("", text: $response.value.choiceValue.freeTextOtherResponse.withDefault(""), prompt: Text(verbatim: "…"))
                         .textFieldStyle(.roundedBorder)
                 }
-
             }
         }
     }

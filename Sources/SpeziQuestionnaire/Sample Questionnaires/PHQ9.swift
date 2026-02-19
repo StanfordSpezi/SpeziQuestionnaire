@@ -112,6 +112,6 @@ extension [Questionnaire.Task.Kind.ChoiceConfig.Option] {
                 system: URL(string: "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9")!,
                 code: "Nearly every day"
             )
-        ),
+        )
     ]
 }
