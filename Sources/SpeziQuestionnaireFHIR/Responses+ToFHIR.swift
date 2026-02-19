@@ -158,6 +158,10 @@ extension QuestionnaireResponses.Response {
                 }
                 return QuestionnaireResponseItemAnswer(value: .coding(option.toFHIRCoding()))
             }
+            if let otherText = response.freeTextOtherResponse {
+                // SAFETY: we just assigned a non-nil value above
+                responseItem.answer!.append(.init(value: .string(otherText.asFHIRStringPrimitive()))) // swiftlint:disable:this force_unwrapping
+            }
         case .attachments(let responses):
             responseItem.answer = try responses.map { attachment in
                 let data = try Data(contentsOf: attachment.url)

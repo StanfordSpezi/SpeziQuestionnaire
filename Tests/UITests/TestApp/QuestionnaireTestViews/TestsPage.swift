@@ -9,7 +9,7 @@
 // swiftlint:disable all
 
 import FHIRQuestionnaires
-import class ModelsR4.Questionnaire
+import ModelsR4
 import SpeziQuestionnaire
 import SpeziQuestionnaireFHIR
 import SwiftUI
@@ -28,6 +28,7 @@ struct TestsPage: View {
         .simpleCondition,
         .crossSectionCondition,
         .nestedQuestionsWithOuterReferenceCondition,
+        .openChoice,
         .testAllInputKinds,
         .nestedQuestionsWithInnerReferenceConditions
         // swiftlint:enable force_try
@@ -54,8 +55,9 @@ struct TestsPage: View {
         .sheet(item: $activeQuestionnaire) { questionnaire in
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
-                case .completed:
+                case .completed(let responses):
                     lastResult = .success
+                    printResponses(responses)
                 case .cancelled:
                     lastResult = .cancelled
                 }
@@ -69,34 +71,17 @@ struct TestsPage: View {
         }
     }
     
-//    private var predefinedMenu: some View {
-//        Menu("Pick Predefined Questionnaire") {
-//            Section {
-//                menuButton(title: "Question Kinds Showcase", questionnaire: .testQuestionnaire)
-//                menuButton(title: "Follow-Up Tasks", questionnaire: .followUpTasksQuestionnaire)
-//                menuButton(title: "TMP TMP", questionnaire: .tmpTestQ)
-//            }
-//            Section("Examples") {
-//                menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
-//                menuButton(title: "Multiple EnableWhen", questionnaire: .multipleEnableWhen)
-//                menuButton(title: "Text Validation Example", questionnaire: .textValidationExample)
-//                menuButton(title: "Contained ValueSet Example", questionnaire: .containedValueSetExample)
-//                menuButton(title: "Number Example", questionnaire: .numberExample)
-//                menuButton(title: "Date/Time Example", questionnaire: .dateTimeExample)
-//                menuButton(title: "Form Example", questionnaire: .formExample)
-//                menuButton(title: "Image Capture Example", questionnaire: .imageCaptureExample)
-//                menuButton(title: "Slider Example", questionnaire: .sliderExample)
-//            }
-//            Section("Research") {
-//                menuButton(title: "PHQ-9 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.phq9)
-//                menuButton(title: "PHQ-9 (FHIR)", questionnaire: ModelsR4.Questionnaire.phq9)
-//                menuButton(title: "GAD-7 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.gad7)
-//                menuButton(title: "GAD-7 (FHIR)", questionnaire: ModelsR4.Questionnaire.gad7)
-//                menuButton(title: "IPSS", questionnaire: .ipss)
-//                menuButton(title: "GCS", questionnaire: .gcs)
-//            }
-//        }
-//    }
+    private func printResponses(_ responses: QuestionnaireResponses) {
+        do {
+            let fhirResponse = try ModelsR4.QuestionnaireResponse(responses)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]
+            let data = try encoder.encode(fhirResponse)
+            print(String(decoding: data, as: UTF8.self))
+        } catch {
+            print("ERROR: \(error)")
+        }
+    }
 }
 
 
@@ -344,6 +329,21 @@ extension SpeziQuestionnaire.Questionnaire {
         metadata: .init(id: "edu.stanford.SpeziQuestionnaire.simpleNumberEntry", url: nil, title: "Simple Number Entry", explainer: ""),
         sections: [.init(id: "s0", tasks: [
             .init(id: "t0", title: "Number Entry", kind: .numeric(.init(inputMode: .numberPad(.integer))))
+        ])]
+    )
+    
+    
+    fileprivate static let openChoice = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.openChoice", url: nil, title: "Open Choice", explainer: ""),
+        sections: [.init(id: "s0", tasks: [
+            .init(id: "t0", title: "What's your favourite ice cream flavour?", kind: .choice(.init(
+                options: [
+                    .init(id: "0", title: "Mango"),
+                    .init(id: "1", title: "Strawberry"),
+                ],
+                hasFreeTextOtherOption: true,
+                allowsMultipleSelection: false
+            )))
         ])]
     )
 }

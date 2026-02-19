@@ -16,6 +16,7 @@ struct QuestionnaireSectionView<Header: View>: View {
         case regular(questionnaire: Questionnaire)
         case answerNestedQuestions(
             parentTask: Questionnaire.Task,
+            selectedOptionTitle: String,
             sections: [Questionnaire.Section]
         )
         
@@ -23,7 +24,7 @@ struct QuestionnaireSectionView<Header: View>: View {
             switch self {
             case .regular(let questionnaire):
                 questionnaire.sections
-            case .answerNestedQuestions(parentTask: _, let sections):
+            case .answerNestedQuestions(parentTask: _, selectedOptionTitle: _, let sections):
                 sections
             }
         }
@@ -154,12 +155,13 @@ struct QuestionnaireSectionView<Header: View>: View {
     
     init(
         nestedQuestionsFor parentTask: Questionnaire.Task,
+        selectedOptionTitle: String,
         sections: [Questionnaire.Section],
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void,
         @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
         self.init(
-            context: .answerNestedQuestions(parentTask: parentTask, sections: sections),
+            context: .answerNestedQuestions(parentTask: parentTask, selectedOptionTitle: selectedOptionTitle, sections: sections),
             section: sections[0],
             resultHandler: resultHandler,
             header: header()
@@ -228,8 +230,8 @@ extension QuestionnaireSectionView {
             switch context {
             case .regular:
                 "Are you sure you want to cancel the questionnaire?\nYour responses will be lost."
-            case .answerNestedQuestions:
-                "This will de-select the '' option and " // TODO
+            case .answerNestedQuestions(parentTask: _, let selectedOptionTitle, sections: _):
+                "This will de-select the '\(selectedOptionTitle)' option and discard all responses below."
             }
         }
         

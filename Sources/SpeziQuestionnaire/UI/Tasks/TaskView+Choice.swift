@@ -21,7 +21,29 @@ extension TaskView {
                 Row(task: task, config: config, option: option, response: $response)
             }
             if config.hasFreeTextOtherOption {
-                // TODO
+                ChoiceRow(
+                    id: "openChoice",
+                    title: "Other",
+                    subtitle: "",
+                    isSelected: response.value.choiceValue.didSelectFreeTextOtherOption
+                ) {
+                    if config.allowsMultipleSelection {
+                        response.value.choiceValue.didSelectFreeTextOtherOption.toggle()
+                    } else {
+                        let oldSelectionState = response.value.choiceValue.didSelectFreeTextOtherOption
+                        if oldSelectionState {
+                            // we just deselected this option
+                            response.value.choiceValue = .init(selectedOptions: [])
+                        } else {
+                            // we just selected it
+                            response.value.choiceValue = .init(selectedOptions: [], freeTextOtherResponse: "")
+                        }
+                    }
+                } accessoryIfSelected: {
+                    TextField("", text: $response.value.choiceValue.freeTextOtherResponse.withDefault(""), prompt: Text(verbatim: "…"))
+                        .textFieldStyle(.roundedBorder)
+                }
+
             }
         }
     }
@@ -72,6 +94,7 @@ extension TaskView.ChoiceAnswering {
                 ManagedNavigationStack {
                     QuestionnaireSectionView(
                         nestedQuestionsFor: task,
+                        selectedOptionTitle: option.title,
                         sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)]
                     ) { result in
                         switch result {

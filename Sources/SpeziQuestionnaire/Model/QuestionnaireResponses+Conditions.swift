@@ -173,8 +173,8 @@ extension QuestionnaireResponses {
                 switch `operator` {
                 case .equal:
                     let response = responses[task.id].value.choiceValue
-                    // TODO can we have a "selection == the open choice option" condition (ie, does FHIR allow this?)?
-                    // DOES FHIR allow the openChoice option in MC scenarios?
+                    // QUESTION can we have a "selection == the open choice option" condition (ie, does FHIR allow this?)?
+                    // Does FHIR allow the openChoice option in MC scenarios?
                     return response.selectedOptions.contains(optionId)
                 case .lessThan, .greaterThan, .lessThanOrEqual, .greaterThanOrEqual:
                     // not supported
