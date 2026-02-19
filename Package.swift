@@ -73,6 +73,7 @@ let package = Package(
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR")
             ],
+            resources: [.process("Resources")],
             plugins: [] + swiftLintPlugin()
         )
     ]

@@ -81,11 +81,7 @@ struct ContentView: View {
                     do {
                         let fhirResponse = try ModelsR4.QuestionnaireResponse(response)
                         responsesStore.responses.append(fhirResponse)
-                        let encoder = JSONEncoder()
-                        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes]
-                        let data = try encoder.encode(fhirResponse)
-                        let string = String(decoding: data, as: UTF8.self)
-                        print(string)
+                        try printFhirResponse(fhirResponse)
                     } catch {
                         print("\(error)")
                     }
@@ -102,6 +98,7 @@ struct ContentView: View {
                 switch result {
                 case .completed(let response):
                     responsesStore.responses.append(response)
+                    try? printFhirResponse(response)
                 default:
                     break
                 }
@@ -239,6 +236,14 @@ struct ContentView: View {
         let data = try Data(contentsOf: url)
         let fhirQuestionnaire = try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: data)
         return try WrappedQuestionnaire(r4: fhirQuestionnaire)
+    }
+    
+    private func printFhirResponse(_ response: ModelsR4.QuestionnaireResponse) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]
+        let data = try encoder.encode(response)
+        let string = String(decoding: data, as: UTF8.self)
+        print(string)
     }
 }
 

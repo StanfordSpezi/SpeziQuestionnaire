@@ -1,0 +1,177 @@
+{
+  "authored" : "2026-02-19T22:11:25.427680969+01:00",
+  "id" : "413D2217-FB54-42F1-90B9-85BA79FD9613",
+  "item" : [
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "92a6518b-61dd-442c-8082-09c3457daada"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "bbf31b7d-ea50-45bf-88a9-5c5c21466ce8"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "6616bfe1-d22f-488f-8ba6-0695cf19f634"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "fee4378b-c67a-4bf3-d99f-e94092207ee2"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "ff78ee6d-a8ad-4d7b-80e1-2894dca64065"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "50a6fdb1-d90c-416a-86a8-bf07602b701c"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "ba4c8cee-f422-4a8a-8abc-e4418d8a87d1"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "055647aa-77aa-4877-81ae-40a2f08b8c5e"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "784f7a2c-6ec8-414b-caa4-b59f1e8a6a1c"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "016e5729-7381-455d-b888-38e9e4365fa8"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "99e55082-b818-44c7-878b-8da477b300cc"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "a39e0c58-32a5-4ace-9980-e42363ae898d"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "df1d2dcd-5087-4120-86b1-ca811498c655"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "7d376d7b-4167-49b3-8600-683af1534e77"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "e5208b21-21d1-4f88-8c22-0580d4457172"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "96ee1662-9b70-4f72-8f48-08ee91252d49"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "a713aac6-c812-46e7-896c-ab9209d197fc"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "ed1856e6-5ba3-4ca2-85d3-1ff744ff492e"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "7e2609d6-2b29-4d70-8cbb-69f60d985876"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : false
+        }
+      ],
+      "linkId" : "a7ea3c2f-2f87-4fe3-811e-fe3c85a7c1b1"
+    },
+    {
+      "answer" : [
+        {
+          "valueBoolean" : true
+        }
+      ],
+      "linkId" : "1ce40499-9d9c-4f91-e7c5-da0986503406"
+    }
+  ],
+  "questionnaire" : "https://myheartcounts.stanford.edu/fhir/survey/dietScore",
+  "resourceType" : "QuestionnaireResponse",
+  "status" : "completed"
+}

@@ -50,27 +50,29 @@ struct TaskConditionTests {
 extension Questionnaire {
     fileprivate static let nestedTaskConditionLookup = Self(
         metadata: .init(id: "", url: nil, title: "", explainer: ""),
-        sections: [.init(id: "", tasks: [
-            .init(id: "task0", title: "Task0", kind: .boolean),
-            .init(
-                id: "task1",
-                title: "Exercise Preferences",
-                kind: .choice(.init(
-                    options: [
-                        .init(id: "running", title: "Running"),
-                        .init(id: "cycling", title: "Cycling")
-                    ],
-                    allowsMultipleSelection: true,
-                    followUpTasks: [
-                        .init(
-                            id: "joy",
-                            title: "Do you enjoy this activity?",
-                            kind: .boolean,
-                            enabledCondition: .responseValueComparison(taskId: "task0", operator: .equal, value: .bool(true))
-                        )
-                    ]
-                ))
-            )
-        ])]
+        sections: [
+            .init(id: "", tasks: [
+                .init(id: "task0", title: "Task0", kind: .boolean),
+                .init(
+                    id: "task1",
+                    title: "Exercise Preferences",
+                    kind: .choice(.init(
+                        options: [
+                            .init(id: "running", title: "Running"),
+                            .init(id: "cycling", title: "Cycling")
+                        ],
+                        allowsMultipleSelection: true,
+                        followUpTasks: [
+                            .init(
+                                id: "joy",
+                                title: "Do you enjoy this activity?",
+                                kind: .boolean,
+                                enabledCondition: .responseValueComparison(taskId: "task0", operator: .equal, value: .bool(true))
+                            )
+                        ]
+                    ))
+                )
+            ])
+        ]
     )
 }

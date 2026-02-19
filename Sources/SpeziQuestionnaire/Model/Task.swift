@@ -171,14 +171,30 @@ extension Questionnaire.Task {
         /// Configuration of a single/multiple choice question.
         public struct ChoiceConfig: Hashable, Sendable {
             public struct Option: Hashable, Identifiable, Sendable {
+                public struct FHIRCoding: Hashable, Sendable {
+                    public let system: URL
+                    public let code: String
+                    
+                    public init(system: URL, code: String) {
+                        self.system = system
+                        self.code = code
+                    }
+                }
+                
+                /// The option's identifier.
+                ///
+                /// Option identifiers must be unique within a single task.
                 public let id: String
                 public let title: String
                 public let subtitle: String
+                /// The option's FHIR coding, if it was created from one.
+                public let fhirCoding: FHIRCoding?
                 
-                public init(id: String, title: String, subtitle: String = "") {
+                public init(id: String, title: String, subtitle: String = "", fhirCoding: FHIRCoding? = nil) {
                     self.id = id
                     self.title = title
                     self.subtitle = subtitle
+                    self.fhirCoding = fhirCoding
                 }
             }
             

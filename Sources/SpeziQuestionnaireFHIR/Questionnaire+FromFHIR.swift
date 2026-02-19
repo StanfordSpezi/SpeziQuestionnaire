@@ -273,14 +273,15 @@ extension ModelsR4.QuestionnaireItem {
                 for option in answerOptions {
                     guard let display = option.display?.value?.string,
                           let code = option.code.value?.string,
-                          let system = valueSet?.compose?.include.first?.system?.value?.url.absoluteString else {
+                          let system = valueSet?.compose?.include.first?.system?.value?.url else {
                         fatalError("TODO does this happen?")
                         continue
                     }
                     options.append(.init(
-                        id: "\(system):\(code)", // TODO is this correct?
+                        id: code,
                         title: display,
-                        subtitle: "" // could supply this via an extension
+                        subtitle: "", // could supply this via an extension
+                        fhirCoding: .init(system: system, code: code)
                     ))
                 }
             } else {
@@ -292,18 +293,22 @@ extension ModelsR4.QuestionnaireItem {
                                         fatalError("TODO")
                 }
                 for option in answerOptions {
-                    guard case let .coding(coding) = option.value,
-                          let display = coding.display?.value?.string,
-                          let code = coding.code?.value?.string,
-                          let system = coding.system?.value?.url.absoluteString else {
-                        fatalError("TODO") // TODO does this happen?
-                        continue
+                    switch option.value {
+                    case .coding(let coding):
+                        guard let display = coding.display?.value?.string,
+                              let code = coding.code?.value?.string,
+                              let system = coding.system?.value?.url else {
+                            throw FHIRConversionError("Invalid coding value for answer option")
+                        }
+                        options.append(.init(
+                            id: code,
+                            title: display,
+                            subtitle: "", // could supply this via an extension
+                            fhirCoding: .init(system: system, code: code)
+                        ))
+                    case .date, .integer, .reference, .string, .time:
+                        throw FHIRConversionError("Unsupported chocie option value: \(option.value). Currently, only coding values are supported.")
                     }
-                    options.append(.init(
-                        id: "\(system):\(code)", // TODO is this correct?
-                        title: display,
-                        subtitle: "" // could supply this via an extension
-                    ))
                 }
             }
             return .choice(.init(
