@@ -25,15 +25,24 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
-        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "2.0.8"),
+        .package(url: "https://github.com/StanfordBDHG/FHIRModelsExtensions.git", revision: "da8a582df550bcbcaf61a8922cb6b928efe0fb36"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", revision: "fea85a7ad0380b7fa7493d7737ca91cc2d7a6c92"),
+        .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
+        .package(url: "https://github.com/gonzalezreal/swift-markdown-ui.git", from: "2.4.1"),
         .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.2")
     ] + swiftLintPackage(),
     targets: [
         .target(
             name: "SpeziQuestionnaire",
             dependencies: [
-                .product(name: "SpeziViews", package: "SpeziViews")
+                .product(name: "SpeziViews", package: "SpeziViews"),
+                .product(name: "MarkdownUI", package: "swift-markdown-ui"),
+                // temporsrily until the old impl is removed
+                .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "ResearchKit", package: "ResearchKit"),
+                .product(name: "ResearchKitSwiftUI", package: "ResearchKit"),
+                .product(name: "ResearchKitOnFHIR", package: "ResearchKitOnFHIR")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
@@ -46,7 +55,7 @@ let package = Package(
             dependencies: [
                 "SpeziQuestionnaire",
                 .product(name: "ModelsR4", package: "FHIRModels"),
-                .product(name: "FHIRPathParser", package: "ResearchKitOnFHIR"),
+                .product(name: "FHIRModelsExtensions", package: "FHIRModelsExtensions"),
                 .product(name: "Algorithms", package: "swift-algorithms")
             ],
             swiftSettings: [
@@ -71,7 +80,7 @@ let package = Package(
                 "SpeziQuestionnaire",
                 "SpeziQuestionnaireFHIR",
                 .product(name: "ModelsR4", package: "FHIRModels"),
-                .product(name: "FHIRQuestionnaires", package: "ResearchKitOnFHIR")
+                .product(name: "FHIRQuestionnaires", package: "FHIRModelsExtensions")
             ],
             resources: [.process("Resources")],
             plugins: [] + swiftLintPlugin()

@@ -91,7 +91,7 @@ struct ContentView: View {
             }
         }
         .sheet(item: $activeQuestionnaireOldImpl) { r4Questionnaire in
-            LegacyQuestionnaireView(
+            QuestionnaireView(
                 questionnaire: r4Questionnaire,
                 completionStepMessage: "Completed"
             ) { result in

@@ -6,16 +6,22 @@
 // SPDX-License-Identifier: MIT
 //
 
-import ModelsR4
+public import ModelsR4
 private import ResearchKit
 private import ResearchKitOnFHIR
-import ResearchKitSwiftUI
-import SwiftUI
+public import ResearchKitSwiftUI
+public import SwiftUI
 
 
 /// Present a FHIR `Questionnaire` to the user.
 ///
 /// Note that the ``QuestionnaireView`` does not dismiss itself; the presenting view is responsible for this.
+///
+/// - Important: This type has been deprecated in favor of ``QuestionnaireSheet``.
+///     The difference is that this type uses ResearchKit to display the questionnaire and collect responses,
+///     whereas the new ``QuestionnaireSheet`` uses a custom, SwiftUI-native questionnaire renderer,
+///     which, unlike ResearchKit, is able to match the exact structure, semantics, and defined behaviour of
+///     the FHIR questionnaire being displayed.
 ///
 /// The following example shows how to present a questionnaire:
 /// ```swift
@@ -41,14 +47,14 @@ import SwiftUI
 ///     }
 /// }
 /// ```
-struct LegacyQuestionnaireView: View {
+@available(*, deprecated, renamed: "QuestionnaireSheet")
+public struct QuestionnaireView: View {
     private let questionnaire: ModelsR4.Questionnaire
     private let questionnaireResult: @MainActor (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
     private let cancelBehavior: CancelBehavior
     
-    
-    var body: some View {
+    public var body: some View {
         if let task = createTask(questionnaire: questionnaire) {
             ORKOrderedTaskView(tasks: task, tintColor: .accentColor, cancelBehavior: cancelBehavior, result: handleResult)
                 .ignoresSafeArea(.container, edges: .bottom)
@@ -65,7 +71,7 @@ struct LegacyQuestionnaireView: View {
     ///   - completionStepMessage: Optional completion message that can be appended at the end of the questionnaire.
     ///   - cancelBehavior: The cancel behavior of view. The default setting allows cancellation and asks for confirmation before the view is dismissed.
     ///   - questionnaireResult: Result closure that processes the ``QuestionnaireResult``.
-    init(
+    public init(
         questionnaire: ModelsR4.Questionnaire,
         completionStepMessage: String? = nil,
         cancelBehavior: CancelBehavior = .shouldConfirmCancel,
@@ -114,9 +120,9 @@ struct LegacyQuestionnaireView: View {
 }
 
 
-extension LegacyQuestionnaireView {
+extension QuestionnaireView {
     /// The result of a questionnaire.
-    enum QuestionnaireResult {
+    public enum QuestionnaireResult {
         /// The questionnaire was successfully completed with a `QuestionnaireResponse`.
         case completed(ModelsR4.QuestionnaireResponse)
         /// The questionnaire task was cancelled by the user.

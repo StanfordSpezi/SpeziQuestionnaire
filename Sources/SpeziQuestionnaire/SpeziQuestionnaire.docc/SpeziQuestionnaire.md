@@ -50,7 +50,7 @@ struct GAS7QuestionnaireView: View {
             activeQuestionnaire = .gad7
         }
         .sheet(item: $activeQuestionnaire) { item in
-            QuestionnaireView(questionnaire: item) { result in
+            QuestionnaireSheet(questionnaire: item) { result in
                 switch result {
                 case .completed(let resopnses):
                     // ... save the response to your data store
