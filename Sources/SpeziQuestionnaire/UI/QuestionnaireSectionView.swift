@@ -80,6 +80,7 @@ struct QuestionnaireSectionView<Header: View>: View {
         .toolbar {
             toolbarContent
         }
+        .accessibilityIdentifier("SpeziQuestionnaireSection")
     }
     
     private var title: String? {

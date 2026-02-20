@@ -84,7 +84,11 @@ extension TaskView.ChoiceAnswering {
                         response.value.choiceValue.select(option.id)
                     }
                 }
-                if !oldSelectionState, config.followUpTasks.contains(where: { responses.shouldEnable(task: $0) }) {
+                // we need this bc the condition of the nested task needs to be evaluated in the correct context.
+                let innerResponses = responses.view(
+                    appending: QuestionnaireResponses.ResponsePath(taskId: task.id).appending(choiceOption: option.id)
+                )
+                if !oldSelectionState, config.followUpTasks.contains(where: { innerResponses.shouldEnable(task: $0) }) {
                     // the option wasn't selected before, but is now, and also we have some follow up tasks.
                     isShowingFollowUpQuestionsSheet = true
                 }

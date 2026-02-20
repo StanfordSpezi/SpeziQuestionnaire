@@ -30,7 +30,8 @@ struct TestsPage: View {
         .nestedQuestionsWithOuterReferenceCondition,
         .openChoice,
         .testAllInputKinds,
-        .nestedQuestionsWithInnerReferenceConditions
+        .nestedQuestionsWithInnerReferenceConditions,
+        .followUpQuestionsSkippedIfNoneEnabled
         // swiftlint:enable force_try
     ]
     
@@ -345,5 +346,38 @@ extension SpeziQuestionnaire.Questionnaire {
                 allowsMultipleSelection: false
             )))
         ])]
+    )
+    
+    
+    fileprivate static let followUpQuestionsSkippedIfNoneEnabled = Self(
+        metadata: .init(
+            id: "edu.stanford.SpeziQuestionnaire.followUpQuestionsSkippedIfNoneEnabled",
+            url: nil,
+            title: "Follow-Up Tasks Skipped if None Enabled",
+            explainer: ""
+        ),
+        sections: [
+            .init(id: "s0", tasks: [
+                .init(id: "t0", title: "Yes/No", kind: .boolean),
+                .init(id: "t1", title: "Choice", kind: .choice(.init(
+                    options: [
+                        .init(id: "0", title: "Option 0"),
+                        .init(id: "1", title: "Option 1")
+                    ],
+                    allowsMultipleSelection: true,
+                    followUpTasks: [
+                        .init(
+                            id: "t1.1",
+                            title: "Why?",
+                            kind: .boolean,
+                            enabledCondition: .responseValueComparison(taskId: "t0", operator: .equal, value: .bool(true))
+                        )
+                    ]
+                ))),
+            ]),
+            .init(id: "s1", tasks: [
+                .init(id: "t3", title: "Section 2", kind: .instructional(""))
+            ])
+        ]
     )
 }

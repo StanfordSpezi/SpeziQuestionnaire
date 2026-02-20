@@ -63,7 +63,7 @@ extension QuestionnaireResponses {
             let allTopLevelTasks = questionnaire.sections.flatMap(\.tasks)
             guard let curIdx = allTopLevelTasks.firstIndex(where: { $0.id == currentTaskId }) else {
                 // we were unable to find the current task. this should never happen
-                assertionFailure()
+                assertionFailure("Failed to resolve current task (\(currentTaskId)) in scope consisting of \(allTopLevelTasks.map(\.id))")
                 return nil
             }
             guard let targetIdx = allTopLevelTasks.firstIndex(where: { $0.id == targetTaskId }) else {

@@ -40,7 +40,7 @@ extension QuestionnaireSheetNavigator {
             XCTFail("Cannot go to next section; Continue button is disabled")
             return
         }
-        app.buttons["Continue"].tap()
+        app.buttons.matching(identifier: "Continue").allElementsBoundByIndex.last?.tap()
     }
     
     /// Returns to the previous section.
