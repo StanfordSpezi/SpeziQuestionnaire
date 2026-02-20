@@ -62,9 +62,7 @@ struct TaskView<Header: View>: View {
     @ViewBuilder private var mainContent: some View {
         switch task.kind {
         case .instructional(let text):
-            if !text.isEmpty {
-                Text(markdown: text)
-            }
+            Instructions(text: text)
         case .choice(let config):
             ChoiceAnswering(task: task, config: config, response: $response)
         case .freeText(let config):

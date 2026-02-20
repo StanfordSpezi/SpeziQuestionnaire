@@ -35,6 +35,7 @@ struct QuestionnaireSectionView<Header: View>: View {
     
     private let header: Header
     private let context: Context
+    private let completionStepConfig: CompletionStepConfig
     private let section: Questionnaire.Section
     private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
@@ -131,11 +132,13 @@ struct QuestionnaireSectionView<Header: View>: View {
     private init(
         context: Context,
         section: Questionnaire.Section,
+        completionStepConfig: CompletionStepConfig,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void,
         header: Header
     ) {
         self.context = context
         self.section = section
+        self.completionStepConfig = completionStepConfig
         self.resultHandler = resultHandler
         self.header = header
     }
@@ -143,12 +146,14 @@ struct QuestionnaireSectionView<Header: View>: View {
     init(
         questionnaire: Questionnaire,
         section: Questionnaire.Section,
+        completionStepConfig: CompletionStepConfig,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) async -> Void,
         @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
         self.init(
             context: .regular(questionnaire: questionnaire),
             section: section,
+            completionStepConfig: completionStepConfig,
             resultHandler: resultHandler,
             header: header()
         )
@@ -158,12 +163,14 @@ struct QuestionnaireSectionView<Header: View>: View {
         nestedQuestionsFor parentTask: Questionnaire.Task,
         selectedOptionTitle: String,
         sections: [Questionnaire.Section],
+        completionStepConfig: CompletionStepConfig,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void,
         @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
         self.init(
             context: .answerNestedQuestions(parentTask: parentTask, selectedOptionTitle: selectedOptionTitle, sections: sections),
             section: sections[0],
+            completionStepConfig: completionStepConfig,
             resultHandler: resultHandler,
             header: header()
         )
@@ -182,14 +189,29 @@ struct QuestionnaireSectionView<Header: View>: View {
                 QuestionnaireSectionView(
                     context: context,
                     section: nextSection,
+                    completionStepConfig: completionStepConfig,
                     resultHandler: resultHandler,
                     header: header
                 )
             }
             indicateMissingResponses = false
         } else {
-            // IDEA: have a (cusomizable) "you're done!" confirmation page before dismissing the sheet?
-            await resultHandler(.completed(responses))
+            switch context {
+            case .regular: // we're at root level, and we're done.
+                switch completionStepConfig {
+                case .disable:
+                    await resultHandler(.completed(responses))
+                case .enable:
+                    navigationPath.append {
+                        CompletionPage(title: "Questionnaire Complete", message: nil) {
+                            await resultHandler(.completed(responses))
+                        }
+                    }
+                }
+            case .answerNestedQuestions:
+                // we're done answering nested answers
+                await resultHandler(.completed(responses))
+            }
         }
     }
 }

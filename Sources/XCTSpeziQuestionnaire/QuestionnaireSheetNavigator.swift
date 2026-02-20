@@ -34,6 +34,11 @@ extension QuestionnaireSheetNavigator {
         }
     }
     
+    /// Whether the app currently is at the active questionnaire's completion page.
+    public var isAtCompletionPage: Bool {
+        app.otherElements["SpeziQuestionnaireCompletionPage"].exists
+    }
+    
     /// Advances the questionnaire sheet to the next section.
     public func goToNextSection() {
         guard isContinueButtonEnabled else {

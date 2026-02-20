@@ -44,6 +44,7 @@ extension TaskView {
                     }
                 }()
             )
+            .enableDismissalViaKeyboardAccessory()
         }
         
         @ViewBuilder

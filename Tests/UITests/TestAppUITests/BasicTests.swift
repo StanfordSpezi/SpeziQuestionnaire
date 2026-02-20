@@ -37,7 +37,8 @@ extension TestAppUITests {
         XCTAssert(app.buttons["ContinueButton_canContinue=true"].exists)
         XCTAssert(!app.buttons["ContinueButton_canContinue=false"].exists)
         
-        app.buttons["Continue"].tap()
+        app.buttons["Continue"].tap() // go to continue page
+        app.buttons["Continue"].tap() // dismiss questionnaire
         XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
     }
     
@@ -66,6 +67,8 @@ extension TestAppUITests {
         navigator.task(withId: "1.3").selectOption(withTitle: "Eye opening to verbal command")
         XCTAssertTrue(navigator.isContinueButtonEnabled)
         navigator.goToNextSection()
+        XCTAssert(navigator.isAtCompletionPage)
+        navigator.goToNextSection() // will dismiss the questionnaire
         XCTAssert(app.staticTexts["Completed, 1"].waitForExistence(timeout: 2))
     }
     
@@ -98,6 +101,8 @@ extension TestAppUITests {
         XCTAssertFalse(navigator.task(withId: "t1").didSelectOption(withTitle: "Strawberry"))
         XCTAssertTrue(navigator.task(withId: "t1").didSelectOption(withTitle: "Mango"))
         
+        navigator.goToNextSection()
+        XCTAssert(navigator.isAtCompletionPage)
         navigator.goToNextSection() // will dismiss the questionnaire
         
         XCTAssert(app.buttons["Show Questionnaire (1)"].exists)

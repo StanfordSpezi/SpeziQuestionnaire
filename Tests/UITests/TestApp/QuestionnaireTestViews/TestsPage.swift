@@ -31,7 +31,8 @@ struct TestsPage: View {
         .openChoice,
         .testAllInputKinds,
         .nestedQuestionsWithInnerReferenceConditions,
-        .followUpQuestionsSkippedIfNoneEnabled
+        .followUpQuestionsSkippedIfNoneEnabled,
+        .multilineMarkdownInstructionsText
         // swiftlint:enable force_try
     ]
     
@@ -379,5 +380,27 @@ extension SpeziQuestionnaire.Questionnaire {
                 .init(id: "t3", title: "Section 2", kind: .instructional(""))
             ])
         ]
+    )
+    
+    
+    fileprivate static let multilineMarkdownInstructionsText = Self(
+        metadata: .init(
+            id: "edu.stanford.SpeziQuestionnaire.multilineMarkdownInstructionsText",
+            url: nil,
+            title: "Multi-Line Markdown Instructions Text",
+            explainer: ""
+        ),
+        sections: [.init(id: "s0", tasks: [
+            .init(id: "t0", title: "Instructions Title", kind: .instructional(
+                """
+                Consider doing any of the following to improve your health:
+                - more sleep
+                - less alcohol
+                - no drugs
+                
+                Thanks for your attention!
+                """
+            ))
+        ])]
     )
 }

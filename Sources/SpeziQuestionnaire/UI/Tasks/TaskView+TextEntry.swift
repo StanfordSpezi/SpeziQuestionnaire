@@ -19,6 +19,7 @@ extension TaskView {
                 .frame(minHeight: 100, maxHeight: 372) // starts to scroll once max height is reached
                 .textInputAutocapitalization(config.disableAutocorrection ? .never : nil)
                 .autocorrectionDisabled(config.disableAutocorrection)
+                .enableDismissalViaKeyboardAccessory()
         }
     }
 }

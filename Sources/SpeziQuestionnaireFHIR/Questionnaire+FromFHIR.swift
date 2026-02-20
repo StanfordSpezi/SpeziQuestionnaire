@@ -188,6 +188,9 @@ extension ModelsR4.QuestionnaireItem {
         guard let itemType = type.value else {
             throw FHIRConversionError("QuestionnaireItem is missing 'type'")
         }
+        guard itemControl != "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
+            try toCustomTaskKind(using: context)
+        }
         switch itemType {
         case .group:
             throw FHIRConversionError("Attempted to request '\(SpeziQuestionnaire.Questionnaire.Task.Kind.self)' for questionnaire item of type '\(itemType)'")
@@ -329,6 +332,16 @@ extension ModelsR4.QuestionnaireItem {
         case .reference:
             throw FHIRConversionError("Unsupported question type '\(itemType)'")
         }
+    }
+    
+    
+    private func toCustomTaskKind(
+        using context: ConversionContext
+    ) throws -> Never {
+        guard itemControl == "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
+            throw FHIRConversionError("Invalid item-control for custom task kind")
+        }
+        throw FHIRConversionError("Custom task's aren't supported yet")
     }
 }
 
