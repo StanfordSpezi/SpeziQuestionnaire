@@ -15,6 +15,15 @@ extension QuestionnaireResponses {
         case ok
         /// The response provided for the task is invalid.
         case invalid(message: String)
+        
+        var isInvalid: Bool {
+            switch self {
+            case .ok:
+                false
+            case .invalid:
+                true
+            }
+        }
     }
     
     
@@ -75,33 +84,32 @@ extension QuestionnaireResponses {
             }
             switch config.style {
             case .timeOnly:
-                let gte = {
-                    response[keyPath: $0 as KeyPath] ?? 0 >= ($1 as DateComponents)[keyPath: $0] ?? 0
-                }
-                if let minValue = config.minValue, !(gte(\.hour, minValue) && gte(\.minute, minValue) && gte(\.second, minValue)) {
+                let response = (response.hour ?? 0, response.minute ?? 0, response.second ?? 0)
+                if let minValue = config.minValue.map({ ($0.hour ?? 0, $0.minute ?? 0, $0.second ?? 0) }), !(response >= minValue) {
                     let minValueDesc = cal
                         .date(
-                            bySettingHour: minValue.hour ?? 0,
-                            minute: minValue.minute ?? 0,
-                            second: minValue.second ?? 0,
+                            bySettingHour: minValue.0,
+                            minute: minValue.1,
+                            second: minValue.2,
                             of: .now
                         )?
                         .formatted(date: .omitted, time: .shortened)
-                    return .invalid(message: "Must be after \(minValueDesc ?? minValue.description)")
+                    return .invalid(
+                        message: "Must be after \(minValueDesc ?? (config.minValue ?? .init()).description)" // will never be nil.
+                    )
                 }
-                let lte = {
-                    response[keyPath: $0 as KeyPath] ?? 0 <= ($1 as DateComponents)[keyPath: $0] ?? 0
-                }
-                if let maxValue = config.maxValue, !(lte(\.hour, maxValue) && lte(\.minute, maxValue) && lte(\.second, maxValue)) {
+                if let maxValue = config.maxValue.map({ ($0.hour ?? 0, $0.minute ?? 0, $0.second ?? 0) }), !(response <= maxValue) {
                     let maxValueDesc = cal
                         .date(
-                            bySettingHour: maxValue.hour ?? 0,
-                            minute: maxValue.minute ?? 0,
-                            second: maxValue.second ?? 0,
+                            bySettingHour: maxValue.0,
+                            minute: maxValue.1,
+                            second: maxValue.2,
                             of: .now
                         )?
                         .formatted(date: .omitted, time: .shortened)
-                    return .invalid(message: "Must be before \(maxValueDesc ?? maxValue.description)")
+                    return .invalid(
+                        message: "Must be before \(maxValueDesc ?? (config.maxValue ?? .init()).description)" // will never be nil.
+                    )
                 }
                 return .ok
             case .dateOnly, .dateAndTime:
