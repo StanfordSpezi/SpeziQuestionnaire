@@ -47,7 +47,7 @@ public import SwiftUI
 ///     }
 /// }
 /// ```
-@available(*, deprecated, renamed: "QuestionnaireSheet")
+@available(*, deprecated, renamed: "SpeziQuestionnaire.QuestionnaireSheet")
 public struct QuestionnaireView: View {
     private let questionnaire: ModelsR4.Questionnaire
     private let questionnaireResult: @MainActor (QuestionnaireResult) async -> Void
@@ -116,18 +116,5 @@ public struct QuestionnaireView: View {
             print("Failed to create ORK task: \(error)")
             return nil
         }
-    }
-}
-
-
-extension QuestionnaireView {
-    /// The result of a questionnaire.
-    public enum QuestionnaireResult {
-        /// The questionnaire was successfully completed with a `QuestionnaireResponse`.
-        case completed(ModelsR4.QuestionnaireResponse)
-        /// The questionnaire task was cancelled by the user.
-        case cancelled
-        /// The questionnaire task failed due to an error.
-        case failed(_ error: any Error)
     }
 }
