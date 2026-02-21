@@ -184,3 +184,45 @@ extension QuestionnaireResponses {
         }
     }
 }
+
+
+extension QuestionnaireResponses {
+    /// Removes all responses that were collected for tasks that are currently disabled.
+    ///
+    /// When collecting resopnses to a questionnaire, whether a task `Y` is enabled or disabled can change even after a response has already been collected for that task,
+    /// if the user goes back to a previous task `X` and changes the response there, since `Y`'s ``Questionnaire/Task/enabledCondition`` might depend on the `X`'s response.
+    ///
+    /// While answering a questionnaire, the ``QuestionnaireResponses`` will keep the response collected for task `Y`, even if a change to `X` would mean that `Y` is no longer enabled;
+    /// this ensures that the user doesn't have to re-enter potentially large amounts of data if they (accidentally) change an earlier task's response.
+    ///
+    /// This function goes through the entire questionnaire, in order, re-evaluates each task's ``Questionnaire/Task/enabledCondition``, and removes all responses whose task's
+    /// are no longer enabled.
+    func purgeResponsesToDisabledTasks() {
+        _purgeResponsesToDisabledTasks(questionnaire.sections.lazy.flatMap(\.tasks))
+    }
+    
+    private func _purgeResponsesToDisabledTasks(_ allTasks: some Sequence<Questionnaire.Task>) {
+        for task in allTasks {
+            guard shouldEnable(task: task) else {
+                responses[task.id] = .init(value: .none)
+                continue
+            }
+            if !responses[task.id].nestedResponses.isEmpty && task.kind.followUpTasks.isEmpty {
+                // Found nested responses for a task that doesn't have nested questions
+                responses[task.id].nestedResponses.removeAll()
+            }
+            switch task.kind {
+            case .choice(let config):
+                for option in config.options {
+                    self
+                        .view(appending: ResponsesPath().appending(taskId: task.id).appending(choiceOption: option.id))
+                        ._purgeResponsesToDisabledTasks(task.kind.followUpTasks)
+                }
+            case .instructional:
+                responses[task.id] = .init(value: .none)
+            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
+                break
+            }
+        }
+    }
+}

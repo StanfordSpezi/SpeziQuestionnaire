@@ -32,7 +32,7 @@ extension QuestionnaireResponses {
         
         public init() {}
         
-        private init(_ entries: Storage) {
+        /* private-but-testable */ init(_ entries: Storage) {
             self.storage = entries
         }
         

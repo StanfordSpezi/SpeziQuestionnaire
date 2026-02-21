@@ -58,6 +58,7 @@ public struct QuestionnaireSheet: View {
                     section: section,
                     completionStepConfig: completionStepConfig
                 ) { result in
+                    responses.purgeResponsesToDisabledTasks()
                     await resultHandler(result)
                     dismiss()
                 }
