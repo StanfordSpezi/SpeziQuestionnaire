@@ -35,26 +35,3 @@ extension Binding {
         }
     }
 }
-
-
-extension View {
-    @ViewBuilder
-    @_disfavoredOverload
-    nonisolated func navigationTitle(_ title: (some StringProtocol)?) -> some View {
-        if let title {
-            self.navigationTitle(title)
-        } else {
-            self
-        }
-    }
-    
-    @ViewBuilder
-    @_disfavoredOverload
-    nonisolated func navigationSubtitle(_ subtitle: (some StringProtocol)?) -> some View {
-        if let subtitle, #available(iOS 26, *) {
-            self.navigationSubtitle(subtitle)
-        } else {
-            self
-        }
-    }
-}

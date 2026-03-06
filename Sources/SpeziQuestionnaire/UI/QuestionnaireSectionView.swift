@@ -75,8 +75,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                 .accessibilityIdentifier("ContinueButton_canContinue=\(canContinue)")
             }
         }
-        .navigationTitle(title)
-//        .navigationSubtitle(<#T##subtitle: Text##Text#>)
+        .navigationTitle(titleConfig)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         .toolbar {
             toolbarContent
@@ -84,20 +83,14 @@ struct QuestionnaireSectionView<Header: View>: View {
         .accessibilityIdentifier("SpeziQuestionnaireSection")
     }
     
-    private var title: String? {
+    private var titleConfig: ViewTitleConfig? {
         switch context {
         case .regular(let questionnaire):
-            questionnaire.metadata.title
+            ViewTitleConfig(title: questionnaire.metadata.title, subtitle: section.title)
         case .answerNestedQuestions:
             nil
         }
     }
-    
-//    private var subtitle: String? {
-//        switch context {
-//            
-//        }
-//    }
     
     @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .primaryAction) {
