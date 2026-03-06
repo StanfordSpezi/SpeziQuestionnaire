@@ -125,10 +125,6 @@ extension QuestionnaireResponses {
         _ resolveTaskId: (Questionnaire.Task.ID) -> ResolvedTask?
     ) -> Bool {
         switch condition {
-        case .true:
-            return true
-        case .false:
-            return false
         case .not(let inner):
             return !_evaluate(inner, resolveTaskId)
         case .any(let inner):

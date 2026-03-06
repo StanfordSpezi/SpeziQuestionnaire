@@ -37,8 +37,13 @@ private import SpeziFoundation
 /// - ``Section``
 /// - ``Task``
 public struct Questionnaire: Hashable, Identifiable, Sendable {
+    // NOTE that `Questionnaire` and its related types (Section, Task, etc) currently are **intentionally** not Codable;
+    // the reason being that we will potentially make significant changes to the data structures here, which would break
+    // the decoding of questionnaires encoded with older versions of the package.
+    
     /// Questionnaire metadata.
     public let metadata: Metadata
+    /// The questionnaire's content
     public let sections: [Section]
     
     public var id: String {
@@ -49,6 +54,40 @@ public struct Questionnaire: Hashable, Identifiable, Sendable {
         self.metadata = metadata
         self.sections = sections
         validate()
+    }
+    
+    
+    /// Creates a functionally identical copy of this questionnaire, with all ``Condition``s simplified.
+    func withConditionsSimplified() -> Self {
+        Questionnaire(
+            metadata: metadata,
+            sections: sections.map { section in
+                var section = section
+                section.tasks = section.tasks.map { task in
+                    task.withConditionsSimplified()
+                }
+                return section
+            }
+        )
+    }
+}
+
+
+extension Questionnaire.Task {
+    /// Creates a functionally identical copy of this task, with all ``Condition``s simplified.
+    func withConditionsSimplified() -> Self {
+        var copy = self
+        copy.enabledCondition.simplify()
+        switch copy.kind {
+        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
+            break
+        case .choice(var config):
+            config.followUpTasks = config.followUpTasks.map {
+                $0.withConditionsSimplified()
+            }
+            copy.kind = .choice(config)
+        }
+        return copy
     }
 }
 
@@ -63,7 +102,7 @@ extension Questionnaire {
     func find(taskId: Task.ID) -> (section: Section, task: Task)? {
         for section in sections {
             for task in section.tasks {
-                if task.id == taskId { // swiftlint:disable:this for_where
+                if task.id == taskId {
                     return (section, task)
                 }
             }
@@ -71,7 +110,16 @@ extension Questionnaire {
         return nil
     }
     
-    // TOOD should this include/exclude currently disabled tasks?
+    /// Obtains the (potentially nested) task at the specified path.
+    ///
+    /// If the path contains only a single element, this function behaves identical to ``task(withId:)``  and simply returns the top-level task with the specified identifier.
+    /// If the path contains multiple elements, the nested task reached via the path is returned.
+    /// If the path is invalid, this function returns `nil`.
+    ///
+    /// - Note: This function does not take a task's ``Task/enabledCondition`` into account;
+    ///     it will unconditionally consider all tasks, even if one of the tasks in the path is currently disabled.
+    ///
+    /// - parameter path: A sequence of ``Task`` identifiers.
     func task(at path: some Sequence<Task.ID>) -> Task? {
         var iterator = path.makeIterator()
         guard var current = iterator.next().flatMap({ task(withId: $0) }) else {
@@ -112,12 +160,33 @@ extension Questionnaire {
 extension Questionnaire {
     /// A group of tasks.
     public struct Section: Hashable, Identifiable, Sendable {
-        public let id: String
+        public var id: String
+        public var title: String
         public var tasks: [Task]
         
-        public init(id: String, tasks: [Task]) {
+        /// Creates a `Section`.
+        ///
+        /// - parameter id: The section's identifier. Must be unique among all sections within a ``Questionnaire``.
+        /// - parameter title: The section's display title.
+        /// - parameter enabledCondition: A ``Questionnaire/Condition`` determining whether the section should be enabled.
+        ///     Note that the condition may only reference tasks that precede this section within the questionnaire.
+        ///     If the section's `enabledCondition` evaluates to `true`, but all of the section's task ``Questionnaire/Task/enabledCondition``s evaluate to `false`, the section will be skipped entirely.
+        /// - parameter tasks: The section's ``Questionnaire/Task``s.
+        ///     Note that if a section does not contain any tasks, it may be skipped unconditionally by the ``QuestionnaireSheet``.
+        public init(
+            id: String,
+            title: String = "", // swiftlint:disable:this function_default_parameter_at_end
+            enabledCondition: Condition = .none, // swiftlint:disable:this function_default_parameter_at_end
+            tasks: [Task]
+        ) {
             self.id = id
-            self.tasks = tasks
+            self.title = title
+            // we don't actually support section-level conditions, so instead we simply propagate the condition down into the tasks
+            self.tasks = tasks.map { task in
+                var task = task
+                task.enabledCondition = task.enabledCondition && enabledCondition
+                return task
+            }
         }
     }
 }

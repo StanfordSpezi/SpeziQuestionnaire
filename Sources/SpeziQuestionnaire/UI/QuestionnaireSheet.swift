@@ -86,7 +86,7 @@ public struct QuestionnaireSheet: View {
         completionStepConfig: CompletionStepConfig = .enable,
         resultHandler: @escaping @MainActor (Result) async -> Void
     ) {
-        self.questionnaire = questionnaire
+        self.questionnaire = questionnaire.withConditionsSimplified()
         self.completionStepConfig = completionStepConfig
         self.responses = responses ?? QuestionnaireResponses(questionnaire: questionnaire)
         self.resultHandler = resultHandler

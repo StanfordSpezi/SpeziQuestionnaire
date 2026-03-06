@@ -9,6 +9,7 @@
 // swiftlint:disable nesting function_default_parameter_at_end
 
 public import Foundation
+private import SpeziFoundation
 public import UniformTypeIdentifiers
 
 
@@ -18,19 +19,19 @@ extension Questionnaire {
         /// The task's unique identifier.
         ///
         /// - Important: Task identifiers must be unique across all tasks in all sections of the questionnaire.
-        public let id: String
+        public var id: String
         /// The task's user-displayed title.
-        public let title: String
+        public var title: String
         /// The task's user-displayed subtitle.
         ///
         /// Set this property to an empty string in order to omit the subtitle.
-        public let subtitle: String
+        public var subtitle: String
         /// A footer text displayed below the task.
-        public let footer: String
+        public var footer: String
         /// The task's kind
-        public let kind: Kind
+        public var kind: Kind
         /// Whether the user is allowed to skip this task.
-        public let isOptional: Bool
+        public var isOptional: Bool
         /// Controls when the task is enabled.
         ///
         /// Use ``Questionnaire/Condition/none`` to specify that the task does not have a condition and should always be enabled.
@@ -39,7 +40,7 @@ extension Questionnaire {
         /// If this is a nested task, the condition is first evaluated in the current nesting scope (i.e., the preceding nested questions, and their responses);
         /// if it does not evaluate to `true` in this scope, it is evaluated again in the parent scope (where it can access the responses to all preceding tasks as well),
         /// and if necessary in that scope's parent scope, and so on.
-        public let enabledCondition: Condition
+        public var enabledCondition: Condition
         
         /// Creates a new task.
         public init(
@@ -199,20 +200,20 @@ extension Questionnaire.Task {
             }
             
             /// The options the user can select from
-            public let options: [Option]
+            public var options: [Option]
             /// Whether the user should be offered an "Other" option where they can enter arbitrary text.
-            public let hasFreeTextOtherOption: Bool
+            public var hasFreeTextOtherOption: Bool
 //            /// The maximum number of items that may be selected.
 //            ///
 //            /// Set this value to `1` to enable single-selection; set it to `nil` to enable unlimited multiple selection.
 //            public let selectionLimit: Int?
             /// Whether the user is allowed to make multiple choices.
-            public let allowsMultipleSelection: Bool
+            public var allowsMultipleSelection: Bool
             /// A list of follow-up tasks.
             ///
             /// For every selected option in the choice question, the user will be asked to respond to all of the question's follow-up tasks.
             /// If the user deselects an option, its associated follow-up task responses will be discarded.
-            public let followUpTasks: [Questionnaire.Task]
+            public var followUpTasks: [Questionnaire.Task]
             
             public init(
                 options: [Option],
@@ -279,16 +280,18 @@ extension Questionnaire {
     /// ### Supporting Types
     /// - ``ComparisonOperator``
     /// - ``Value``
-    public indirect enum Condition: Hashable, Sendable {
-        /// A condition that always evaluates to `true`.
-        case `true`
-        /// A condition that always evaluates to `false`.
-        case `false`
+    public indirect enum Condition: Hashable, ExpressibleByBooleanLiteral, Sendable {
         /// A condition that is satisfied if `nested` is not satisfied.
         case not(_ nested: Condition)
+        
         /// A condition that is satisfied if any of its contained conditions are satisfied..
+        ///
+        /// If there are no nested conditions, `any` evaluates to `false`.
         case any([Condition])
+        
         /// A condition that is satisfied if all of its contained conditions are satisfied.
+        ///
+        /// If there are no nested conditions, `all` evaluates to `true`.
         case all([Condition])
         
         /// A condition that is satisfied if a response exists for the task at `taskPath`.
@@ -347,7 +350,14 @@ extension Questionnaire {
         /// The lack of a condition.
         ///
         /// Always evaluates to `true`.
-        public static let none: Self = .true
+        public static var none: Self {
+            true
+        }
+        
+        /// Creates a ``Condition`` that always evaluates to the specified boolean value.
+        public init(booleanLiteral value: Bool) {
+            self = value ? .all([]) : .any([])
+        }
         
         /// Constructs a condition that is true iff two other conditions are true.
         public static func && (lhs: Self, rhs: Self) -> Self {
@@ -362,6 +372,51 @@ extension Questionnaire {
         /// Negates a condition
         public static prefix func ! (rhs: Self) -> Self {
             .not(rhs)
+        }
+    }
+}
+
+
+extension Questionnaire.Condition {
+    mutating func simplify() {
+        self = self.simplified()
+    }
+    
+    func simplified() -> Self {
+        switch self {
+        case .not(let inner):
+            switch inner.simplified() {
+            case .not(let inner):
+                return inner
+            case true:
+                return false
+            case false:
+                return true
+            case let inner:
+                return .not(inner)
+            }
+        case .any(let inner):
+            let inner = inner.mapIntoSet { $0.simplified() }
+            if inner.isEmpty {
+                return false
+            } else if inner.contains(true) {
+                return true
+            } else {
+                return .any(Array(inner))
+            }
+        case .all(let inner):
+            let inner = inner.mapIntoSet { $0.simplified() }
+            if inner.isEmpty {
+                return true
+            } else if inner.contains(false) {
+                return false
+            } else if inner == [true] {
+                return true
+            } else {
+                return .all(Array(inner))
+            }
+        case .hasResponse, .isMissingResponse, .responseValueComparison:
+            return self
         }
     }
 }

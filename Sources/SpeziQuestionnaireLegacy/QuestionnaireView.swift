@@ -47,8 +47,7 @@ public import SwiftUI
 ///     }
 /// }
 /// ```
-@available(*, deprecated, renamed: "SpeziQuestionnaire.QuestionnaireSheet")
-public struct QuestionnaireView: View {
+public struct QuestionnaireView: View { // @available(*, deprecated, renamed: "SpeziQuestionnaire.QuestionnaireSheet")
     private let questionnaire: ModelsR4.Questionnaire
     private let questionnaireResult: @MainActor (QuestionnaireResult) async -> Void
     private let completionStepMessage: String?
