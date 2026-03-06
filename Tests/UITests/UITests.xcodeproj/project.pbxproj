@@ -647,7 +647,7 @@
 			repositoryURL = "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.7;
+				minimumVersion = "3.0.0-beta.1";
 			};
 		};
 		802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */ = {
