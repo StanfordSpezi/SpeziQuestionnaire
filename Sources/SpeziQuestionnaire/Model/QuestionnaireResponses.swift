@@ -189,7 +189,7 @@ extension QuestionnaireResponses {
 extension QuestionnaireResponses {
     /// Removes all responses that were collected for tasks that are currently disabled.
     ///
-    /// When collecting resopnses to a questionnaire, whether a task `Y` is enabled or disabled can change even after a response has already been collected for that task,
+    /// When collecting responses to a questionnaire, whether a task `Y` is enabled or disabled can change even after a response has already been collected for that task,
     /// if the user goes back to a previous task `X` and changes the response there, since `Y`'s ``Questionnaire/Task/enabledCondition`` might depend on the `X`'s response.
     ///
     /// While answering a questionnaire, the ``QuestionnaireResponses`` will keep the response collected for task `Y`, even if a change to `X` would mean that `Y` is no longer enabled;

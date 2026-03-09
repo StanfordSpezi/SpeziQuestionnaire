@@ -30,7 +30,7 @@ public import SwiftUI
 ///         .sheet(item: $activeQuestionnaire) { item in
 ///             QuestionnaireSheet(questionnaire: item) { result in
 ///                 switch result {
-///                 case .completed(let resopnses):
+///                 case .completed(let responses):
 ///                     // ... save the response to your data store
 ///                 case .cancelled:
 ///                     break
