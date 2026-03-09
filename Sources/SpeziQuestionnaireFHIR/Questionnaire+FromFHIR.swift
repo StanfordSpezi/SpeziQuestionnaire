@@ -448,9 +448,8 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
         case .boolean(let value):
             return .bool(try unwrap(value.value?.bool))
         case .coding(let value):
-            let system = try unwrap(value.system?.value?.url).absoluteString
             let code = try unwrap(value.code?.value?.string)
-            return .SCMCOption(id: "\(system):\(code)")
+            return .SCMCOption(id: code)
         case .date(let value):
             let date = try unwrap(value.value)
             return .date(DateComponents(
