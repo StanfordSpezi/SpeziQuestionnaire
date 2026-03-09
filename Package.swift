@@ -49,9 +49,7 @@ let package = Package(
         ),
         .target(
             name: "SpeziQuestionnaireCatalog",
-            dependencies: [
-                "SpeziQuestionnaire",
-            ],
+            dependencies: ["SpeziQuestionnaire"],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")

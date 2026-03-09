@@ -8,7 +8,6 @@
 
 // swiftlint:disable missing_docs file_types_order all
 
-
 public import CoreTransferable
 public import Foundation
 public import UniformTypeIdentifiers

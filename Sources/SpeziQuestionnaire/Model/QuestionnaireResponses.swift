@@ -120,7 +120,7 @@ public final class QuestionnaireResponses {
     
     
     func view(appending path: ResponsesPath) -> Self {
-        Self(parent: self.root, pathFromParent: path)
+        Self(parent: self, pathFromParent: path)
     }
 }
 

@@ -101,8 +101,8 @@ struct FilePicker: View {
         if shouldEnable(.image) || shouldEnable(.video) {
             takePhotoButton
             selectPhotosButton
+            Divider()
         }
-        Divider()
         importFileButton
     }
     
