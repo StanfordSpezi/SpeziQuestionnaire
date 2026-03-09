@@ -57,7 +57,9 @@ struct FilePicker: View {
         .photosPicker(
             isPresented: $isShowingPhotosPicker,
             selection: $selectedPhotos,
-            maxSelectionCount: nil,
+            // Issue (here and below) what if the user already has selected an image, and is now also opening the file picker?
+            // in a single-selection scenario, we'd either need to remove the image, or disable the file picker.
+            maxSelectionCount: allowMultipleSelection ? nil : 1,
             selectionBehavior: .default,
             matching: .any(of: Array {
                 if shouldEnable(.movie) {
