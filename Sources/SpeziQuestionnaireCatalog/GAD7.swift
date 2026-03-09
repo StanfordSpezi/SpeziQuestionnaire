@@ -25,7 +25,7 @@ extension Questionnaire {
                 .init(
                     id: "instructions",
                     title: "",
-                    kind: .instructional("Over the **last 2 weeks**, how often have you been bothered by of the following problems?")
+                    kind: .instructional("Over the **last 2 weeks**, how often have you been bothered by the following problems?")
                 ),
                 .init(
                     id: "q1",

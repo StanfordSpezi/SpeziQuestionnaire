@@ -26,7 +26,7 @@ struct FileThumbnail: View {
                     .accessibilityHidden(true)
             }
         }
-        .task {
+        .task(id: url) {
             let request = QLThumbnailGenerator.Request(
                 fileAt: url,
                 size: size,

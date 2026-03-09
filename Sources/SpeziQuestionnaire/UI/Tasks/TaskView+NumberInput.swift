@@ -50,7 +50,7 @@ extension TaskView {
         @ViewBuilder
         private func slider(bounds: ClosedRange<Double>, stepValue: Double) -> some View {
             let binding = Binding<Double> {
-                response ?? 0
+                response ?? bounds.contains(0) ? 0 : bounds.lowerBound
             } set: { newValue in
                 response = newValue
             }

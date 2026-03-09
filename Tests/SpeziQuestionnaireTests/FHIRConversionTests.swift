@@ -63,7 +63,7 @@ struct FHIRConversionTests {
     
     
     @Test(arguments: ["Diet", "PHQ9"])
-    func fhirResponsesStructireVsRKoF(filename: String) throws {
+    func fhirResponsesStructureVsRKoF(filename: String) throws {
         let rkofResultUrl = try #require(Foundation.Bundle.module.url(forResource: "\(filename)_response_rkof", withExtension: "json"))
         let speziResultUrl = try #require(Foundation.Bundle.module.url(forResource: "\(filename)_response_spezi", withExtension: "json"))
         let rkofResponse = try JSONDecoder().decode(ModelsR4.QuestionnaireResponse.self, from: Data(contentsOf: rkofResultUrl))

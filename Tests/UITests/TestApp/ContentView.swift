@@ -39,7 +39,6 @@ struct ContentView: View {
     
     @Environment(ResponsesStore.self) var responsesStore
     
-    @State private var showDetails = false
     @State private var loadedQuestionnaire: WrappedQuestionnaire?
     @State private var showFileImporter = false
     @State private var viewState: ViewState = .idle
@@ -226,14 +225,15 @@ struct ContentView: View {
             Label("Start Questionnaire (ResearchKit Impl)", systemImage: "play.circle")
         }
         .disabled(loadedQuestionnaire.r4 == nil)
-        Button {
-            showDetails = true
-        } label: {
-            Label("Details", systemImage: "info.circle")
-        }
     }
     
     private func importQuestionnaire(from url: URL) throws -> WrappedQuestionnaire {
+        guard url.startAccessingSecurityScopedResource() else {
+            throw NSError(domain: "edu.stanford.SpeziQuestionaire", code: 123)
+        }
+        defer {
+            url.stopAccessingSecurityScopedResource()
+        }
         let data = try Data(contentsOf: url)
         let fhirQuestionnaire = try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: data)
         return try WrappedQuestionnaire(r4: fhirQuestionnaire)
