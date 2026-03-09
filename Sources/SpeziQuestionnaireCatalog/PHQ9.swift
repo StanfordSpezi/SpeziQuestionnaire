@@ -8,7 +8,8 @@
 
 // swiftlint:disable line_length force_unwrapping
 
-import Foundation
+private import Foundation
+public import SpeziQuestionnaire
 
 
 extension Questionnaire {

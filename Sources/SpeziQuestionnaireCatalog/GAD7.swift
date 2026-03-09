@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+public import SpeziQuestionnaire
+
 
 extension Questionnaire {
     /// Generalized Anxiety Disorder 7 Questionnaire

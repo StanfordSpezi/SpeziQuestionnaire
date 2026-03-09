@@ -19,6 +19,7 @@ let package = Package(
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
+        .library(name: "SpeziQuestionnaireCatalog", targets: ["SpeziQuestionnaireCatalog"]),
         .library(name: "SpeziQuestionnaireFHIR", targets: ["SpeziQuestionnaireFHIR"]),
         .library(name: "XCTSpeziQuestionnaire", targets: ["XCTSpeziQuestionnaire"])
     ],
@@ -39,6 +40,17 @@ let package = Package(
                 "SpeziQuestionnaireLegacy",
                 .product(name: "SpeziViews", package: "SpeziViews"),
                 .product(name: "MarkdownUI", package: "swift-markdown-ui")
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault")
+            ],
+            plugins: [] + swiftLintPlugin()
+        ),
+        .target(
+            name: "SpeziQuestionnaireCatalog",
+            dependencies: [
+                "SpeziQuestionnaire",
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
@@ -87,6 +99,7 @@ let package = Package(
             name: "SpeziQuestionnaireTests",
             dependencies: [
                 "SpeziQuestionnaire",
+                "SpeziQuestionnaireCatalog",
                 "SpeziQuestionnaireFHIR",
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "FHIRQuestionnaires", package: "FHIRModelsExtensions")

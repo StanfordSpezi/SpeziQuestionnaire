@@ -10,6 +10,7 @@ import FHIRQuestionnaires
 import Foundation
 import ModelsR4
 @testable import SpeziQuestionnaire
+import SpeziQuestionnaireCatalog
 @testable import SpeziQuestionnaireFHIR
 import Testing
 

@@ -10,6 +10,7 @@ import FHIRQuestionnaires
 import class ModelsR4.Questionnaire
 import class ModelsR4.QuestionnaireResponse
 import SpeziQuestionnaire
+import SpeziQuestionnaireCatalog
 import SpeziQuestionnaireFHIR
 import SpeziViews
 import SwiftUI

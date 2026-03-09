@@ -10,6 +10,7 @@
 		2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 2F2E8EF229E727AF00D439B7 /* SpeziQuestionnaire */; };
 		80073E882F41D37A00827270 /* SpeziQuestionnaireFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E872F41D37A00827270 /* SpeziQuestionnaireFHIR */; };
 		80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */ = {isa = PBXBuildFile; productRef = 80073E8A2F42349F00827270 /* FHIRQuestionnaires */; };
+		80158D6E2F5EF86F00C7BD29 /* SpeziQuestionnaireCatalog in Frameworks */ = {isa = PBXBuildFile; productRef = 80158D6D2F5EF86F00C7BD29 /* SpeziQuestionnaireCatalog */; };
 		802B4B2E2F464DAD00554747 /* ResearchKitSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */; };
 		802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B2F2F464DAD00554747 /* ResearchKitUI */; };
 		802B4B322F464DBD00554747 /* ResearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B312F464DBD00554747 /* ResearchKit */; };
@@ -61,6 +62,7 @@
 				802B4B302F464DAD00554747 /* ResearchKitUI in Frameworks */,
 				802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */,
 				80073E8B2F42349F00827270 /* FHIRQuestionnaires in Frameworks */,
+				80158D6E2F5EF86F00C7BD29 /* SpeziQuestionnaireCatalog in Frameworks */,
 				2F2E8EF329E727AF00D439B7 /* SpeziQuestionnaire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -132,6 +134,7 @@
 				802B4B2F2F464DAD00554747 /* ResearchKitUI */,
 				802B4B312F464DBD00554747 /* ResearchKit */,
 				802B4B332F464E4700554747 /* ResearchKitOnFHIR */,
+				80158D6D2F5EF86F00C7BD29 /* SpeziQuestionnaireCatalog */,
 			);
 			productName = Example;
 			productReference = 2F6D139228F5F384007C25D6 /* TestApp.app */;
@@ -681,6 +684,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */;
 			productName = FHIRQuestionnaires;
+		};
+		80158D6D2F5EF86F00C7BD29 /* SpeziQuestionnaireCatalog */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SpeziQuestionnaireCatalog;
 		};
 		802B4B2D2F464DAD00554747 /* ResearchKitSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
