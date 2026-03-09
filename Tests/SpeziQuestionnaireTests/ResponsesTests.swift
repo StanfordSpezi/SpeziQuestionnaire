@@ -31,7 +31,10 @@ struct ResponsesTests {
                                 options: [.init(id: "o0", title: "")],
                                 allowsMultipleSelection: true,
                                 followUpTasks: [
-                                    .init(id: "t0.0.0", title: "", kind: .boolean)
+                                    .init(id: "t0.0.0", title: "", kind: .choice(.init(
+                                        options: [.init(id: "o0", title: "")],
+                                        allowsMultipleSelection: true
+                                    )))
                                 ]
                             )))
                         ]
@@ -39,6 +42,7 @@ struct ResponsesTests {
                 ])
             ]
         )
+        
         let taskA = try #require(questionnaire.task(at: ["t0"]))
         let taskB = try #require(questionnaire.task(at: ["t0", "t0.0"]))
         let taskC = try #require(questionnaire.task(at: ["t0", "t0.0", "t0.0.0"]))
