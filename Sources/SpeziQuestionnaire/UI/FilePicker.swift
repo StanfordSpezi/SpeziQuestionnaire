@@ -98,7 +98,7 @@ struct FilePicker: View {
     }
     
     @ViewBuilder private var importMenuContents: some View {
-        if shouldEnable(.image) || shouldEnable(.video) {
+        if shouldEnable(.image) || shouldEnable(.movie) {
             takePhotoButton
             selectPhotosButton
             Divider()

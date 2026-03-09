@@ -62,13 +62,13 @@ public struct QuestionnaireSheet: View {
                     await resultHandler(result)
                     dismiss()
                 }
+                .interactiveDismissDisabled()
+                .environment(responses)
             } else {
                 ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
             }
         }
         .accessibilityIdentifier("SpeziQuestionnaireNavStack")
-        .interactiveDismissDisabled()
-        .environment(responses)
     }
     
     /// Creates a new `QuestionnaireSheet`

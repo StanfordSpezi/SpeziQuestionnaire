@@ -16,9 +16,9 @@ struct DatePickerRow: View {
     
     var body: some View {
         let binding = Binding<Date> {
-            if let response = response {
-                // Q // what if this fails?
-                cal.date(from: response)! // swiftlint:disable:this force_unwrapping
+            if let response {
+                // should ideally never fail
+                cal.date(from: response) ?? .now
             } else {
                 .now
             }
