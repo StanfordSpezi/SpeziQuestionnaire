@@ -152,17 +152,26 @@ struct QuestionnaireSectionView<Header: View>: View {
         )
     }
     
+    /// Creates a ``QuestionnaireSectionView`` suitable for answering nested questions.
+    ///
+    /// - parameter parentTask: The ``Questionnaire/Task`` within which the nested questions reside.
+    /// - parameter selectedOptionTitle: The user-displayed title of the option in the `parentTask`, in response to which the nested questions are being asked.
+    /// - parameter tasks: The nested tasks.
+    /// - parameter completionStepConfig: Controls if there should be a completion step once all nested questions have been completed, and what this step should look like.
+    /// - parameter resultHandler: Called when the user taps the "Continue" button after all nested questions have been answered.
+    /// - parameter header: An optional header view that is displayed at the top of the `Form`, above the first task.
     init(
         nestedQuestionsFor parentTask: Questionnaire.Task,
         selectedOptionTitle: String,
-        sections: [Questionnaire.Section],
+        tasks: [Questionnaire.Task],
         completionStepConfig: CompletionStepConfig,
         resultHandler: @escaping @MainActor (QuestionnaireSheet.Result) -> Void,
         @ViewBuilder header: @MainActor () -> Header = { EmptyView() }
     ) {
+        let section = Questionnaire.Section(id: "", tasks: tasks)
         self.init(
-            context: .answerNestedQuestions(parentTask: parentTask, selectedOptionTitle: selectedOptionTitle, sections: sections),
-            section: sections[0],
+            context: .answerNestedQuestions(parentTask: parentTask, selectedOptionTitle: selectedOptionTitle, sections: [section]),
+            section: section,
             completionStepConfig: completionStepConfig,
             resultHandler: resultHandler,
             header: header()

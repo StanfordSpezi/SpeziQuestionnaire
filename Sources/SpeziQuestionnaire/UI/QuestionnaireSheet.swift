@@ -27,8 +27,8 @@ public import SwiftUI
 ///         Button("Answer GAD-7") {
 ///             activeQuestionnaire = .gad7
 ///         }
-///         .sheet(item: $activeQuestionnaire) { item in
-///             QuestionnaireSheet(questionnaire: item) { result in
+///         .sheet(item: $activeQuestionnaire) { questionnaire in
+///             QuestionnaireSheet(questionnaire) { result in
 ///                 switch result {
 ///                 case .completed(let responses):
 ///                     // ... save the response to your data store

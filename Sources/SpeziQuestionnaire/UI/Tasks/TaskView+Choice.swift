@@ -98,7 +98,7 @@ extension TaskView.ChoiceAnswering {
                     QuestionnaireSectionView(
                         nestedQuestionsFor: task,
                         selectedOptionTitle: option.title,
-                        sections: [Questionnaire.Section(id: "0", tasks: config.followUpTasks)],
+                        tasks: config.followUpTasks,
                         completionStepConfig: .disable
                     ) { result in
                         switch result {
