@@ -116,7 +116,7 @@ struct QuestionnaireSectionView<Header: View>: View {
             AsyncButton {
                 await resultHandler(.completed(responses))
             } label: {
-                Label("Submis", systemImage: "checkmark")
+                Label("Submit", systemImage: "checkmark")
             }
             .labelStyle(.iconOnly)
         }

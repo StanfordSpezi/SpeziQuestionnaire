@@ -130,3 +130,25 @@ extension QuestionnaireSheetNavigator {
         }
     }
 }
+
+
+extension QuestionnaireSheetNavigator.TaskProxy {
+    public enum FilePickerMenuOption: String {
+        case takePhoto = "Take Photo"
+        case selectPhoto = "Select Photo"
+        case selectFile = "Select File"
+    }
+    
+    private func openFilePicker() {
+        task.buttons["FilePickerButton"].tap()
+    }
+    
+    public func selectFilePickerOption(_ option: FilePickerMenuOption) {
+        openFilePicker()
+        let button = app.buttons.matching(NSPredicate(format: "label = %@", option.rawValue)).element
+        // even though the button exists right from the beginning, its label sometimes is incorrect initially,
+        // so we need to wait a bit for it to appear properly
+        XCTAssert(button.waitForExistence(timeout: 2))
+        button.tap()
+    }
+}

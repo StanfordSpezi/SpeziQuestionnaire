@@ -10,7 +10,7 @@ import XCTest
 import XCTSpeziQuestionnaire
 
 
-extension TestAppUITests {
+final class BasicTests: TestAppUITests {
     @MainActor
     func testSpeziQuestionnaire() {
         let app = XCUIApplication()

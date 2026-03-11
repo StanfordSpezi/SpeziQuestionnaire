@@ -15,8 +15,8 @@ import XCTest
      stays in an incomplete state
  */
 
-final class TestAppUITests: XCTestCase, @unchecked Sendable {
-    @MainActor var app: XCUIApplication! // swiftlint:disable:this implicitly_unwrapped_optional
+class TestAppUITests: XCTestCase, @unchecked Sendable {
+    @MainActor private(set) var app: XCUIApplication! // swiftlint:disable:this implicitly_unwrapped_optional
     
     override func setUpWithError() throws {
         try super.setUpWithError()

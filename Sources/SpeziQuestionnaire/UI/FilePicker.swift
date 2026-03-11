@@ -19,6 +19,7 @@ struct FilePicker: View {
         case file(URL)
         case photo(PhotosPickerItem)
     }
+    
     @Environment(\.isEnabled) private var isEnabled
     private let enabledTypes: Set<UTType>
     private let allowMultipleSelection: Bool
@@ -40,7 +41,7 @@ struct FilePicker: View {
                 Image(systemName: "plus.circle.fill")
                     .foregroundStyle(.green)
                     .accessibilityHidden(true)
-                Text("Select File")
+                Text(menuTitle)
                 Spacer()
                 Image(systemName: "chevron.up.chevron.down")
                     .foregroundStyle(.secondary)
@@ -50,6 +51,7 @@ struct FilePicker: View {
             .frame(maxHeight: .infinity)
             .padding()
         }
+        .accessibilityIdentifier("FilePickerButton")
         .listRowInsets(EdgeInsets())
         .viewStateAlert(state: $viewState)
         // We need all of these modifiers placed here at the top level, since the buttons that trigger them are in the Menu,
@@ -96,6 +98,28 @@ struct FilePicker: View {
             // if multiple selection is enabled, the binding does not get continuously updated as the selection changes.
             let photos = exchange(&selectedPhotos, with: [])
             selectionHandler(photos.map { .photo($0) })
+        }
+    }
+    
+    private var menuTitle: LocalizedStringResource {
+        if enabledTypes.allSatisfy({ $0.isCompatible(with: .image) }) {
+            if allowMultipleSelection {
+                LocalizedStringResource("Select Images", bundle: .module)
+            } else {
+                LocalizedStringResource("Select Image", bundle: .module)
+            }
+        } else if enabledTypes.allSatisfy({ $0.isCompatible(with: .movie) }) {
+            if allowMultipleSelection {
+                LocalizedStringResource("Select Videos", bundle: .module)
+            } else {
+                LocalizedStringResource("Select Video", bundle: .module)
+            }
+        } else {
+            if allowMultipleSelection {
+                LocalizedStringResource("Select Files", bundle: .module)
+            } else {
+                LocalizedStringResource("Select File", bundle: .module)
+            }
         }
     }
     

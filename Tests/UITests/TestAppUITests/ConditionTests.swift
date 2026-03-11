@@ -10,7 +10,7 @@ import XCTest
 import XCTSpeziQuestionnaire
 
 
-extension TestAppUITests {
+final class ConditionTests: TestAppUITests {
     @MainActor
     func testSimpleCondition() {
         launchAppAndGoToOtherTest(named: "Simple Condition")
@@ -70,6 +70,10 @@ extension TestAppUITests {
         
         XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
         navigator.task(withId: "t1B").selectOption(withTitle: "Red")
+        XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
+        navigator.task(withId: "t1B").selectOption(withTitle: "Green")
+        XCTAssert(app.otherElements["Task:t2B"].waitForExistence(timeout: 2))
+        navigator.task(withId: "t1B").deselectOption(withTitle: "Green")
         XCTAssert(app.otherElements["Task:t2B"].waitForNonExistence(timeout: 2))
         navigator.task(withId: "t1B").selectOption(withTitle: "Green")
         XCTAssert(app.otherElements["Task:t2B"].waitForExistence(timeout: 2))

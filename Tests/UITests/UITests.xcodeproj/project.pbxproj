@@ -16,6 +16,7 @@
 		802B4B322F464DBD00554747 /* ResearchKit in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B312F464DBD00554747 /* ResearchKit */; };
 		802B4B342F464E4700554747 /* ResearchKitOnFHIR in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B332F464E4700554747 /* ResearchKitOnFHIR */; };
 		802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 802B4B362F4657C600554747 /* SpeziFoundation */; };
+		8047A11D2F6193EB0094AAF3 /* XCTestExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 8047A11C2F6193EB0094AAF3 /* XCTestExtensions */; };
 		80D6959F2F473B4C0015A557 /* XCTSpeziQuestionnaire in Frameworks */ = {isa = PBXBuildFile; productRef = 80D6959E2F473B4C0015A557 /* XCTSpeziQuestionnaire */; };
 /* End PBXBuildFile section */
 
@@ -73,6 +74,7 @@
 			files = (
 				80D6959F2F473B4C0015A557 /* XCTSpeziQuestionnaire in Frameworks */,
 				802B4B372F4657C600554747 /* SpeziFoundation in Frameworks */,
+				8047A11D2F6193EB0094AAF3 /* XCTestExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -193,6 +195,7 @@
 				80073E892F42349F00827270 /* XCRemoteSwiftPackageReference "ResearchKitOnFHIR" */,
 				802B4B2C2F464DAD00554747 /* XCRemoteSwiftPackageReference "ResearchKit" */,
 				802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */,
+				8047A11B2F6193EB0094AAF3 /* XCRemoteSwiftPackageReference "XCTestExtensions" */,
 			);
 			productRefGroup = 2F6D139328F5F384007C25D6 /* Products */;
 			projectDirPath = "";
@@ -669,6 +672,14 @@
 				minimumVersion = 2.7.3;
 			};
 		};
+		8047A11B2F6193EB0094AAF3 /* XCRemoteSwiftPackageReference "XCTestExtensions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StanfordBDHG/XCTestExtensions.git";
+			requirement = {
+				branch = "lukas/predicate-utils";
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -713,6 +724,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 802B4B352F4657C600554747 /* XCRemoteSwiftPackageReference "SpeziFoundation" */;
 			productName = SpeziFoundation;
+		};
+		8047A11C2F6193EB0094AAF3 /* XCTestExtensions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8047A11B2F6193EB0094AAF3 /* XCRemoteSwiftPackageReference "XCTestExtensions" */;
+			productName = XCTestExtensions;
 		};
 		80D6959E2F473B4C0015A557 /* XCTSpeziQuestionnaire */ = {
 			isa = XCSwiftPackageProductDependency;

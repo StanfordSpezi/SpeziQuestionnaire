@@ -32,7 +32,8 @@ struct TestsPage: View {
         .testAllInputKinds,
         .nestedQuestionsWithInnerReferenceConditions,
         .followUpQuestionsSkippedIfNoneEnabled,
-        .multilineMarkdownInstructionsText
+        .multilineMarkdownInstructionsText,
+        .fileAttachment
         // swiftlint:enable force_try
     ]
     
@@ -401,6 +402,18 @@ extension SpeziQuestionnaire.Questionnaire {
                 Thanks for your attention!
                 """
             ))
+        ])]
+    )
+    
+    
+    fileprivate static let fileAttachment = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.fileAttachment", url: nil, title: "File Attachment", explainer: ""),
+        sections: [.init(id: "s0", tasks: [
+            .init(id: "t0", title: "Photo Question", kind: .fileAttachment(.init(
+                contentTypes: [.image],
+                maxSize: nil,
+                allowsMultipleSelection: false
+            )))
         ])]
     )
 }

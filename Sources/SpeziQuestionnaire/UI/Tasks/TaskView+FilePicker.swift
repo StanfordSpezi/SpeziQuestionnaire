@@ -37,13 +37,16 @@ struct FileAttachmentQuestionView: View {
                 .frame(width: 36, height: 36, alignment: .center)
             VStack(alignment: .leading) {
                 Text(attachment.filename)
+                    .accessibilityIdentifier("FileAttachmentFilename")
                 if let size = attachment.size {
                     Text(Int64(size), format: .byteCount(style: .file, spellsOutZero: true))
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("FileAttachmentFilesize")
                 }
             }
         }
+        .accessibilityElement(children: .contain)
     }
     
     @concurrent
