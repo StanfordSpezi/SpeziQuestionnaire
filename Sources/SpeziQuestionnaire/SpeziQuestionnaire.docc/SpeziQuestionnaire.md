@@ -16,8 +16,6 @@ Enables apps to display and collect responses from FHIR questionnaires.
 
 The Spezi Questionnaire package enables [FHIR Questionnaires](http://hl7.org/fhir/R4/questionnaire.html) to be displayed in your Spezi application.
 
-Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/ResearchKit) and the [ResearchKitOnFHIR](https://github.com/StanfordBDHG/ResearchKitOnFHIR) package.
-
 @Row {
     @Column {
         @Image(source: "Overview", alt: "Screenshot showing an FHIR Questionnaire rendered using the Questionnaire module."){
@@ -25,7 +23,8 @@ Questionnaires are displayed using [ResearchKit](https://github.com/ResearchKit/
         }
     }
 }
-            
+
+
 ## Setup
 
 You need to add the Spezi Questionnaire Swift package to
@@ -36,41 +35,40 @@ You need to add the Spezi Questionnaire Swift package to
 
 ## Example
 
-In the following example, we create a SwiftUI view with a button that displays a sample questionnaire from the `FHIRQuestionnaires` package using ``QuestionnaireView``.
+In the following example, we create a SwiftUI view with a button that displays a ``QuestionnaireSheet`` for answering the [GAD-7](https://en.wikipedia.org/wiki/Generalized_Anxiety_Disorder_7) questionnaire.
 
 ```swift
-import FHIRQuestionnaires
 import SpeziQuestionnaire
 import SwiftUI
 
 
-struct ExampleQuestionnaireView: View {
-    @State var displayQuestionnaire = false
-
+struct GAS7QuestionnaireView: View {
+    @State var activeQuestionnaire: Questionnaire?
 
     var body: some View {
-        Button("Display Questionnaire") {
-            displayQuestionnaire.toggle()
+        Button("Answer GAD-7") {
+            activeQuestionnaire = .gad7
         }
-            .sheet(isPresented: $displayQuestionnaire) {
-                QuestionnaireView(
-                    questionnaire: Questionnaire.gcs
-                ) { result in
-                    guard case let .completed(response) = result else {
-                        return // user cancelled
-                    }
-
-                    // ... save the FHIR response to your data store
+        .sheet(item: $activeQuestionnaire) { item in
+            QuestionnaireSheet(questionnaire: item) { result in
+                switch result {
+                case .completed(let responses):
+                    // ... save the response to your data store
+                case .cancelled:
+                    break
                 }
             }
+        }
     }
 }
 ```
 
 ## Topics
 
-### Questionnaire
+### Questionnaire Definitions
+- ``Questionnaire``
+- ``QuestionnaireResponses``
 
-- ``QuestionnaireView``
-- ``QuestionnaireResult``
+### UI
+- ``QuestionnaireSheet``
             

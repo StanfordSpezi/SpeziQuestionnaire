@@ -6,20 +6,19 @@
 // SPDX-License-Identifier: MIT
 //
 
-import FHIRQuestionnaires
-import SpeziQuestionnaire
 import SwiftUI
 
 
 @main
 struct UITestsApp: App {
-    @UIApplicationDelegateAdaptor(TestAppDelegate.self) var appDelegate
-    
+    @State private var responsesStore = ResponsesStore()
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .spezi(appDelegate)
+            NavigationStack {
+                ContentView()
+            }
+            .environment(responsesStore)
         }
     }
 }

@@ -1,16 +1,84 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "QUESTIONNAIRE_LOADING_ERROR_MESSAGE" : {
-      "comment" : "This is a string that is balh",
+    "" : {
+
+    },
+    "Are you sure you want to cancel the questionnaire?\nYour responses will be lost." : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Cancel Questionnaire" : {
+
+    },
+    "Continue" : {
+
+    },
+    "Dismiss Keyboard" : {
+
+    },
+    "Follow-Up" : {
+
+    },
+    "Follow-Up: %@" : {
+
+    },
+    "Missing Response" : {
+
+    },
+    "No" : {
+
+    },
+    "Not Yet Implemented" : {
+
+    },
+    "Option: %@, %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questionnaire could not be loaded."
+            "state" : "new",
+            "value" : "Option: %1$@, %2$@"
           }
         }
       }
+    },
+    "Please answer the follow-up questions below, for the **'%@'** option you just selected." : {
+
+    },
+    "Questionnaire Complete" : {
+
+    },
+    "Select File" : {
+
+    },
+    "Select Files" : {
+
+    },
+    "Select Image" : {
+
+    },
+    "Select Images" : {
+
+    },
+    "Select Photo" : {
+
+    },
+    "Select Video" : {
+
+    },
+    "Select Videos" : {
+
+    },
+    "Submit" : {
+
+    },
+    "Take Photo" : {
+
+    },
+    "Yes" : {
+
     }
   },
   "version" : "1.0"

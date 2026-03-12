@@ -1,0 +1,117 @@
+{
+  "authored" : "2026-02-19T22:09:14.800706982+01:00",
+  "id" : "8F6A466D-B907-4D1A-93B8-B6A80BE417F9",
+  "item" : [
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q1"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q2"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q3"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q4"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q5"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q6"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q7"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q8"
+    },
+    {
+      "answer" : [
+        {
+          "valueCoding" : {
+            "code" : "Nearly every day",
+            "display" : "Nearly every day",
+            "system" : "http://hl7.org/fhir/uv/sdc/CodeSystem/CSPHQ9"
+          }
+        }
+      ],
+      "linkId" : "H1/T1/Q9"
+    }
+  ],
+  "questionnaire" : "http://hl7.org/fhir/uv/sdc/Questionnaire/questionnaire-sdc-profile-example-PHQ9",
+  "resourceType" : "QuestionnaireResponse",
+  "status" : "completed"
+}

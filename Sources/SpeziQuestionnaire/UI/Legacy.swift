@@ -6,12 +6,4 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Spezi
-import SwiftUI
-
-
-class TestAppDelegate: SpeziAppDelegate {
-    override var configuration: Configuration {
-        Configuration {}
-    }
-}
+@_exported public import SpeziQuestionnaireLegacy

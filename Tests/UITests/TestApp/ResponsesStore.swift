@@ -6,12 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Spezi
-import SwiftUI
+import class ModelsR4.QuestionnaireResponse
+import Observation
 
 
-class TestAppDelegate: SpeziAppDelegate {
-    override var configuration: Configuration {
-        Configuration {}
-    }
+@Observable
+@MainActor
+final class ResponsesStore {
+    var responses: [QuestionnaireResponse] = []
 }

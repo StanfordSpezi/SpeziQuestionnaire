@@ -109,8 +109,6 @@ only_rules:
   - first_where
   # Prefer flatMap over map followed by reduce([], +).
   - flatmap_over_map_reduce
-  # where clauses are preferred over a single if inside a for.
-  - for_where
   # Force casts should be avoided.
   - force_cast
   # Force tries should be avoided.

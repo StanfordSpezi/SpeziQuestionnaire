@@ -1,96 +1,50 @@
 //
 // This source file is part of the Stanford Spezi open-source project
 //
-// SPDX-FileCopyrightText: 2022 Stanford University and the project authors (see CONTRIBUTORS.md)
+// SPDX-FileCopyrightText: 2026 Stanford University and the project authors (see CONTRIBUTORS.md)
 //
 // SPDX-License-Identifier: MIT
 //
 
+import SpeziFoundation
 import XCTest
 
+/*
+ IDEAS:
+ - test that when you select an MC option w/ follow up questions, and cancel the nested questions, the option gets deselected and the questionnaire as a whole
+     stays in an incomplete state
+ */
 
-class TestAppUITests: XCTestCase {
+class TestAppUITests: XCTestCase, @unchecked Sendable {
+    @MainActor private(set) var app: XCUIApplication! // swiftlint:disable:this implicitly_unwrapped_optional
+    
     override func setUpWithError() throws {
         try super.setUpWithError()
-        continueAfterFailure = false
-    }
-    
-    
-    @MainActor
-    func testSpeziQuestionnaire() async throws {
-        let app = XCUIApplication()
-        app.launch()
-        
-        XCTAssert(app.staticTexts["Surveys"].waitForExistence(timeout: 2))
-        
-        app.buttons["Pick Predefined Questionnaire"].tap()
-        app.buttons["GCS"].tap()
-        
-        try await Task.sleep(for: .seconds(2))
-        
-        XCTAssert(app.buttons["Start Questionnaire"].waitForExistence(timeout: 2))
-        app.buttons["Start Questionnaire"].tap()
-        
-        try await Task.sleep(for: .seconds(2))
-        app.buttons["Start Questionnaire"].tap()
-        XCTAssert(app.tables.staticTexts["Glasgow Coma Score"].waitForExistence(timeout: 2))
-        
-        let table = app.tables.element(boundBy: 0)
-        XCTAssertTrue(table.exists)
-        
-        /// Select the "Confused" option on the questionnaire.
-        let cell = table.cells.element(boundBy: 3)
-        XCTAssertTrue(cell.exists)
-        let thirdCellText = cell.staticTexts["Confused"]
-        XCTAssert(thirdCellText.exists)
-        thirdCellText.tap()
-        
-        /// Tap Next to move to the next question
-        app.buttons["Next"].tap()
-        
-        XCTAssert(app.staticTexts["Best motor response"].waitForExistence(timeout: 2))
-        app.buttons["Skip"].tap()
-        
-        XCTAssert(app.staticTexts["Best eye response"].waitForExistence(timeout: 2))
-        app.buttons["Skip"].tap()
-        
-        XCTAssert(app.staticTexts["Completed"].waitForExistence(timeout: 2))
-        app.buttons["Done"].tap()
-        
-        /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
+        MainActor.assumeIsolated {
+            app = XCUIApplication()
+            continueAfterFailure = false
+        }
     }
     
     @MainActor
-    func testSpeziTimedWalkTest() async throws {
-        let app = XCUIApplication()
+    func launchAppAndStartTestQuestionnaire(named questionnaireTitle: String) {
         app.launch()
-        
-        XCTAssert(app.staticTexts["Timed Walk Test"].waitForExistence(timeout: 2))
-        
-        XCTAssert(app.buttons["Display Walk Test"].waitForExistence(timeout: 2))
-        app.buttons["Display Walk Test"].tap()
-        try await Task.sleep(for: .seconds(2))
-        app.buttons["Display Walk Test"].tap()
-        
-        /// Tap Next to move to the next screen
-        XCTAssert(app.buttons["Next"].waitForExistence(timeout: 2))
-        app.buttons["Next"].tap()
-        
-        /// Tap Start to start the walk test
-        XCTAssert(app.buttons["Start"].waitForExistence(timeout: 2))
-        app.buttons["Start"].tap()
-        
-        /// Wait for walk test to complete
-        sleep(15)
-        
-        XCTAssert(app.staticTexts["42"].waitForExistence(timeout: 2))
-        XCTAssert(app.staticTexts["12 m"].waitForExistence(timeout: 2))
+        XCTAssert(app.wait(for: .runningForeground, timeout: 2))
+        app.navigationBars.buttons["Tests"].tap()
+        app.buttons[questionnaireTitle].tap()
+        XCTAssert(app.navigationBars[questionnaireTitle].waitForExistence(timeout: 2))
+    }
+    
+    @MainActor
+    func launchAppAndGoToOtherTest(named testName: String) {
+        app.launch()
+        XCTAssert(app.wait(for: .runningForeground, timeout: 2))
+        app.navigationBars.buttons["Tests"].tap()
+        app.buttons[testName].tap()
+    }
+}
 
-        XCTAssert(app.buttons["Done"].waitForExistence(timeout: 5))
-        app.buttons["Done"].tap()
-        
-        /// Verify that the number of survey responses increases
-        XCTAssert(app.staticTexts["1"].waitForExistence(timeout: 2))
-    }
+
+func sleep(for duration: Duration) {
+    usleep(UInt32(duration.timeInterval * 1000000))
 }
