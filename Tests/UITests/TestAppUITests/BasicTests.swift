@@ -78,7 +78,9 @@ final class BasicTests: TestAppUITests {
         launchAppAndGoToOtherTest(named: "Simple Number Entry")
         let navigator = QuestionnaireSheetNavigator(app)
         XCTAssertFalse(navigator.isContinueButtonEnabled)
-        try navigator.task(withId: "t0").enterValue(12)
+        try navigator.task(withId: "t0").enterValue(5)
+        XCTAssertFalse(navigator.isContinueButtonEnabled)
+        try navigator.task(withId: "t1").enterValue(7)
         XCTAssertTrue(navigator.isContinueButtonEnabled)
     }
     
