@@ -143,6 +143,7 @@ extension QuestionnaireSheetNavigator.TaskProxy {
         task.buttons["FilePickerButton"].tap()
     }
     
+    /// Opens the task's file picker and selects the specified option.
     public func selectFilePickerOption(_ option: FilePickerMenuOption) {
         openFilePicker()
         let button = app.buttons.matching(NSPredicate(format: "label = %@", option.rawValue)).element

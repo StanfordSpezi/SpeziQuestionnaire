@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable multiline_function_chains
+
 import XCTest
 import XCTestExtensions
 import XCTSpeziQuestionnaire
