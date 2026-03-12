@@ -31,7 +31,7 @@ let package = Package(
         .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui.git", from: "2.4.1"),
-        .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", branch: "lukas/predicate-utils")
+        .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.4")
     ] + swiftLintPackage(),
     targets: [
         .target(
