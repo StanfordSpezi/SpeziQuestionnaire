@@ -163,6 +163,7 @@ private struct Sheet: View {
                     }
                 }
                 .frame(height: 150)
+                .sensoryFeedback(.selection, trigger: selectedRegion)
             }
             .navigationTitle("Annotate Image")
             .navigationBarTitleDisplayMode(.inline)
@@ -222,11 +223,7 @@ extension Sheet {
         
         var body: some View {
             Button {
-                if selectedRegion == region {
-                    selectedRegion = nil
-                } else {
-                    selectedRegion = region
-                }
+                selectedRegion = region
             } label: {
                 HStack {
                     Circle()
