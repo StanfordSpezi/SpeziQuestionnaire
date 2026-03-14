@@ -469,13 +469,11 @@ extension QuestionnaireResponses {
         }
         
         package init(url inputUrl: URL) throws {
-            guard inputUrl.startAccessingSecurityScopedResource() else {
-                throw NSError(domain: "edu.stanford.Spezi", code: 0, userInfo: [
-                    NSLocalizedDescriptionKey: "Unable to access file url"
-                ])
-            }
+            let needsToReleaseScopedResourceThing = inputUrl.startAccessingSecurityScopedResource()
             defer {
-                inputUrl.stopAccessingSecurityScopedResource()
+                if needsToReleaseScopedResourceThing {
+                    inputUrl.stopAccessingSecurityScopedResource()
+                }
             }
             self.filename = inputUrl.lastPathComponent
             self.url = Self.tmpDir

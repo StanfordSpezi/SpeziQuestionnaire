@@ -315,7 +315,6 @@ extension ModelsR4.QuestionnaireItem {
                 allowsMultipleSelection: repeats == true
             ))
         case .attachment:
-            print("ATTACHMENT ITEM CONTROL", itemControl)
             switch itemControl {
             case "annotate-image":
                 let inputImageExts = self.extensions(for: "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task/annotate-image/inputImage")

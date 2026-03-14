@@ -19,6 +19,10 @@ extension TaskView {
         var body: some View {
             ForEach(config.options) { option in
                 Row(task: task, config: config, option: option, response: $response)
+                    .sensoryFeedback(trigger: response.value.choiceValue.selectedOptions) { _, _ in
+                        // we only want this applied to the first row; otherwise we get multiple feedbacks on each selection (one per option)
+                        option == config.options.first ? .selection : nil
+                    }
             }
             if config.hasFreeTextOtherOption {
                 ChoiceRow(
