@@ -40,6 +40,7 @@ struct QuestionnaireSectionView<Header: View>: View {
     private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
+    @State private var viewState: ViewState = .idle
     
     var body: some View {
         @Bindable var responses = responses
@@ -58,7 +59,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 let canContinue = responses.isComplete(in: section)
-                AsyncButton {
+                AsyncButton(state: $viewState) {
                     await advance(using: scrollViewProxy)
                 } label: {
                     Text("Continue")
@@ -107,13 +108,14 @@ struct QuestionnaireSectionView<Header: View>: View {
     
     @ViewBuilder private var toolbarDoneButton: some View {
         if #available(iOS 26, *) {
-            AsyncButton(role: .confirm) {
+            AsyncButton(role: .confirm, state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
+                // TODO the color here is still black in dark mode; but the Continue button at the bottom of the Form is (correctly) white?!!
                 Text("Submit")
             }
         } else {
-            AsyncButton {
+            AsyncButton(state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
                 Label("Submit", systemImage: "checkmark")

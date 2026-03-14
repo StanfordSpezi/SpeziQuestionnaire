@@ -143,7 +143,7 @@ extension QuestionnaireResponses {
                     : .invalid(message: "Limited to \(maxDecimalPlaces) decimal place\(maxDecimalPlaces == 1 ? "" : "s")")
             }
             return .ok
-        case .fileAttachment:
+        case .fileAttachment, .annotateImage:
             return .ok
         }
     }

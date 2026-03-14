@@ -75,6 +75,8 @@ struct TaskView<Header: View>: View {
             yesNoRows
         case .fileAttachment(let config):
             FileAttachmentQuestionView(config: config, attachments: $response.value.attachmentsValue.withDefault([]))
+        case .annotateImage(let config):
+            AnnotateImageView(task: task, config: config, response: $response.value.annotatedImageValue.withDefault(.init()))
         }
     }
     
@@ -93,8 +95,6 @@ struct TaskView<Header: View>: View {
 }
 
 
-extension ColorScheme {
-    var textLabelForegroundStyle: Color {
-        self == .dark ? .white : .black
-    }
-}
+//extension EnvironmentValues {
+//    @Entry var currentTask: Questionnaire.Task? // ???
+//}

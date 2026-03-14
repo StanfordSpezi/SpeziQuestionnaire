@@ -6,8 +6,6 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable all
-
 import FHIRQuestionnaires
 import ModelsR4
 import SpeziQuestionnaire
@@ -18,7 +16,7 @@ import SwiftUI
 struct TestsPage: View {
     private enum LastResult {
         case none
-        case success
+        case success(ModelsR4.QuestionnaireResponse)
         case cancelled
     }
     
@@ -33,9 +31,11 @@ struct TestsPage: View {
         .nestedQuestionsWithInnerReferenceConditions,
         .followUpQuestionsSkippedIfNoneEnabled,
         .multilineMarkdownInstructionsText,
-        .fileAttachment
+        .fileAttachment,
+        .annotateImageTmp
         // swiftlint:enable force_try
     ]
+    
     
     @State private var lastResult: LastResult = .none
     @State private var activeQuestionnaire: SpeziQuestionnaire.Questionnaire?
@@ -59,7 +59,7 @@ struct TestsPage: View {
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
                 case .completed(let responses):
-                    lastResult = .success
+                    lastResult = .success(try! .init(responses))
                     printResponses(responses)
                 case .cancelled:
                     lastResult = .cancelled
@@ -406,7 +406,6 @@ extension SpeziQuestionnaire.Questionnaire {
         ])]
     )
     
-    
     fileprivate static let fileAttachment = Self(
         metadata: .init(id: "edu.stanford.SpeziQuestionnaire.fileAttachment", url: nil, title: "File Attachment", explainer: ""),
         sections: [.init(id: "s0", tasks: [
@@ -416,5 +415,20 @@ extension SpeziQuestionnaire.Questionnaire {
                 allowsMultipleSelection: false
             )))
         ])]
+    )
+    
+    fileprivate static let annotateImageTmp = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.annotateImageDemo", url: nil, title: "Annotate Image", explainer: ""),
+        sections: [
+            .init(id: "s0", tasks: [
+                .init(id: "t0", title: "Annotate Image", kind: .annotateImage(.init(
+                    inputImage: .namedInMainBundle(filename: "legmap.png"),
+                    regions: [
+                        .init(name: "Pain", color: .red),
+                        .init(name: "Stiffness", color: .green)
+                    ]
+                )))
+            ])
+        ]
     )
 }

@@ -11,6 +11,9 @@
 public import CoreTransferable
 public import Foundation
 public import UniformTypeIdentifiers
+public import PencilKit
+public import CoreGraphics
+public import class UIKit.UIImage
 
 
 extension QuestionnaireResponses {
@@ -56,7 +59,7 @@ extension QuestionnaireResponses {
                 storage[key] ?? .init(value: .none)
             }
             set {
-                if newValue.value.isEmpty {
+                if newValue.value.shouldClear {
                     storage[key] = nil
                 } else {
                     storage[key] = newValue
@@ -66,8 +69,19 @@ extension QuestionnaireResponses {
     }
     
     
+    public protocol CustomResponseValueProtocol: Hashable, Sendable, SendableMetatype {
+        init() // TODO is this needed?
+        
+        var isEmpty: Bool { get }
+        
+        var shouldClearResponse: Bool { get }
+        
+//        func summarize(for task: Questionnaire.Task, using runner: LLMRunner) async throws -> String? {
+    }
+    
+    
     /// A response that was collected for some task within a questionnaire.
-    public struct Response: Hashable, Sendable {
+    public struct Response: Hashable, Sendable { // TODO is the Hashability here really needed?
         public enum Value: Hashable, Sendable {
             /// The lack of a response
             case none
@@ -77,6 +91,83 @@ extension QuestionnaireResponses {
             case number(Double)
             case choice(ChoiceResponse)
             case attachments([CollectedAttachment])
+            case custom(any CustomResponseValueProtocol)
+//            case annotatedImage(AnnotatedImage) // TODO we need to model this via one of the FHIR types!!!!
+            
+            public static func == (lhs: Self, rhs: Self) -> Bool {
+                switch lhs {
+                case .none:
+                    return switch rhs {
+                    case .none: true
+                    default: false
+                    }
+                case .string(let lhs):
+                    return switch rhs {
+                    case .string(lhs): true
+                    default: false
+                    }
+                case .bool(let lhs):
+                    return switch rhs {
+                    case .bool(lhs): true
+                    default: false
+                    }
+                case .date(let lhs):
+                    return switch rhs {
+                    case .date(lhs): true
+                    default: false
+                    }
+                case .number(let lhs):
+                    return switch rhs {
+                    case .number(lhs): true
+                    default: false
+                    }
+                case .choice(let lhs):
+                    return switch rhs {
+                    case .choice(lhs): true
+                    default: false
+                    }
+                case .attachments(let lhs):
+                    return switch rhs {
+                    case .attachments(lhs): true
+                    default: false
+                    }
+                case .custom(let lhs):
+                    return switch rhs {
+                    case .custom(let rhs):
+                        lhs.isEqual(to: rhs)
+                    default:
+                        false
+                    }
+                }
+            }
+            
+            public func hash(into hasher: inout Hasher) {
+                switch self {
+                case .none:
+                    hasher.combine(ObjectIdentifier(Never.self))
+                case .string(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .bool(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .date(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .number(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .choice(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .attachments(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .custom(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    value.hash(into: &hasher)
+                }
+            }
         }
         
         public enum NestedResponseIdentifier: Hashable, Sendable {
@@ -97,7 +188,7 @@ extension QuestionnaireResponses {
         }
         
         func sanitized() -> Response? {
-            guard !value.isEmpty else {
+            guard !value.shouldClear else {
                 // NOTE that we intentionally don't check nestedResponses here,
                 // since that is only allowed to be non-empty if value is also not empty
                 return nil
@@ -307,11 +398,23 @@ extension QuestionnaireResponses.Response.Value {
         get { if case .attachments(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.attachments($0) } ?? .none }
     }
+    
+    package var annotatedImageValue: QuestionnaireResponses.AnnotatedImage? {
+        get { self[asCustomTypeA: QuestionnaireResponses.AnnotatedImage.self] }
+        set { self[asCustomTypeA: QuestionnaireResponses.AnnotatedImage.self] = newValue }
+    }
+    
+    package subscript<T: QuestionnaireResponses.CustomResponseValueProtocol>(
+        asCustomTypeA type: T.Type
+    ) -> T? {
+        get { if case .custom(let value) = self { value as? T } else { nil } }
+        set { self = newValue.map { Self.custom($0) } ?? .none }
+    }
 }
 
 
 extension QuestionnaireResponses.Response.Value {
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         switch self {
         case .none:
             true
@@ -329,6 +432,17 @@ extension QuestionnaireResponses.Response.Value {
             choiceResponse.isEmpty
         case .attachments(let attachments):
             attachments.isEmpty
+        case .custom(let value):
+            value.isEmpty
+        }
+    }
+    
+    var shouldClear: Bool {
+        switch self {
+        case .none, .string, .bool, .date, .number, .choice, .attachments:
+            self.isEmpty
+        case .custom(let value):
+            value.shouldClearResponse
         }
     }
 }
@@ -354,7 +468,7 @@ extension QuestionnaireResponses {
             (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
         }
         
-        init(url inputUrl: URL) throws {
+        package init(url inputUrl: URL) throws {
             guard inputUrl.startAccessingSecurityScopedResource() else {
                 throw NSError(domain: "edu.stanford.Spezi", code: 0, userInfo: [
                     NSLocalizedDescriptionKey: "Unable to access file url"
@@ -391,6 +505,84 @@ extension QuestionnaireResponses.CollectedAttachment: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(importedContentType: .item) { input in
             try Self(url: input.file)
+        }
+    }
+}
+
+
+extension QuestionnaireResponses {
+    public struct AnnotatedImage: CustomResponseValueProtocol, Hashable, Sendable { // TODO rename ImageAnnotation? (it only stores the annotation, not the image)
+        public var scaleFactor: Double
+        public var drawing: PKDrawing
+        
+        public var isEmpty: Bool {
+            drawing.strokes.isEmpty
+        }
+        
+        public var shouldClearResponse: Bool {
+            false
+        }
+        
+        public init(drawing: PKDrawing, scaleFactor: Double = 1) {
+            self.drawing = drawing
+            self.scaleFactor = scaleFactor
+        }
+        
+        public init() {
+            self.init(drawing: PKDrawing(), scaleFactor: 1)
+        }
+        
+        public func draw(onto baseImage: UIImage) -> UIImage? {
+            guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+                  let baseCGImage = baseImage.cgImage,
+                  let drawingCGImage = drawing.image(from: drawing.bounds, scale: 1 / scaleFactor).cgImage else {
+                return nil
+            }
+            let ctxBounds = CGRect(
+                origin: .zero,
+                size: CGSize(width: baseCGImage.width, height: baseCGImage.height)
+            )
+            let context = CGContext(
+                data: nil,
+                width: Int(ctxBounds.width),
+                height: Int(ctxBounds.height),
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )!
+            context.draw(baseCGImage, in: ctxBounds)
+            context.draw(drawingCGImage, in: { () -> CGRect in
+                // we need to flip the rect to compensate for the CGContext's flipped coordinate system
+                let rect = drawing.bounds.applying(
+                    CGAffineTransform(scaleX: 1 / scaleFactor, y: 1 / scaleFactor)
+                )
+                return CGRect(
+                    x: rect.origin.x,
+                    y: ctxBounds.height - rect.origin.y - rect.height,
+                    width: rect.width,
+                    height: rect.height
+                )
+            }())
+            return context.makeImage().map { UIImage(cgImage: $0) }
+        }
+    }
+}
+
+
+extension PKDrawing: @retroactive Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(self.bounds)
+        hasher.combine(self.strokes.count)
+    }
+}
+
+extension Equatable {
+    fileprivate func isEqual(to other: Any) -> Bool {
+        if let other = other as? Self {
+            self == other
+        } else {
+            false
         }
     }
 }

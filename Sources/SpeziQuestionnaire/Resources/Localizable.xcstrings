@@ -4,6 +4,12 @@
     "" : {
 
     },
+    "Annotate Image" : {
+
+    },
+    "Answered" : {
+
+    },
     "Are you sure you want to cancel the questionnaire?\nYour responses will be lost." : {
 
     },
@@ -19,10 +25,19 @@
     "Dismiss Keyboard" : {
 
     },
+    "Do you want to remove all annotations?" : {
+
+    },
     "Follow-Up" : {
 
     },
     "Follow-Up: %@" : {
+
+    },
+    "Mark %@" : {
+
+    },
+    "Missing" : {
 
     },
     "Missing Response" : {
@@ -50,6 +65,15 @@
     "Questionnaire Complete" : {
 
     },
+    "Reset" : {
+
+    },
+    "Reset Annotations" : {
+
+    },
+    "Save" : {
+
+    },
     "Select File" : {
 
     },
@@ -75,6 +99,9 @@
 
     },
     "Take Photo" : {
+
+    },
+    "Tap to annotate" : {
 
     },
     "Yes" : {

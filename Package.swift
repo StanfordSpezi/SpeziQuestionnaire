@@ -15,7 +15,7 @@ let package = Package(
     name: "SpeziQuestionnaire",
     defaultLocalization: "en",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v18)
     ],
     products: [
         .library(name: "SpeziQuestionnaire", targets: ["SpeziQuestionnaire"]),
@@ -24,12 +24,13 @@ let package = Package(
         .library(name: "XCTSpeziQuestionnaire", targets: ["XCTSpeziQuestionnaire"])
     ],
     dependencies: [
-        .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.11"),
+        .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", branch: "lukas/canvas-view-changes"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
         .package(url: "https://github.com/StanfordBDHG/FHIRModelsExtensions.git", from: "0.1.0"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "3.0.0-beta.1"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
+        .package(url: "https://github.com/apple/swift-numerics.git", from: "1.1.1"),
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui.git", from: "2.4.1"),
         .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.4")
     ] + swiftLintPackage(),
@@ -39,7 +40,8 @@ let package = Package(
             dependencies: [
                 "SpeziQuestionnaireLegacy",
                 .product(name: "SpeziViews", package: "SpeziViews"),
-                .product(name: "MarkdownUI", package: "swift-markdown-ui")
+                .product(name: "MarkdownUI", package: "swift-markdown-ui"),
+                .product(name: "Numerics", package: "swift-numerics")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),

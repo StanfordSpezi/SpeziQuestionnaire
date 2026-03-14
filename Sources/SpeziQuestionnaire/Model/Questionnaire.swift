@@ -79,7 +79,7 @@ extension Questionnaire.Task {
         var copy = self
         copy.enabledCondition.simplify()
         switch copy.kind {
-        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
+        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment, .annotateImage:
             break
         case .choice(var config):
             config.followUpTasks = config.followUpTasks.map {

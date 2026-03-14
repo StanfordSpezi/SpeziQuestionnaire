@@ -11,6 +11,8 @@
 public import Foundation
 private import SpeziFoundation
 public import UniformTypeIdentifiers
+public import struct SwiftUI.Color
+public import class UIKit.UIImage
 
 
 extension Questionnaire {
@@ -83,6 +85,8 @@ extension Questionnaire.Task {
         case numeric(_ config: NumericTaskConfig)
         /// A task that lets the user select photos and other files.
         case fileAttachment(_ config: FileAttachmentConfig)
+        /// A task that asks the user to annotate an image
+        case annotateImage(_ config: AnnotateImageConfig)
         
         /// Configuration of a free-text question.
         public struct FreeTextConfig: Hashable, Sendable {
@@ -223,6 +227,46 @@ extension Questionnaire.Task {
                 self.followUpTasks = followUpTasks
             }
         }
+        
+        public struct AnnotateImageConfig: Hashable, Sendable {
+            public enum InputImage: Hashable, Sendable {
+                case namedInMainBundle(filename: String)
+                
+                public func image() /*async throws*/ -> UIImage? {
+                    switch self {
+                    case .namedInMainBundle(let filename):
+                        guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
+                              let data = try? Data(contentsOf: url) else {
+                            return nil
+                        }
+                        return UIImage(data: data)
+                    }
+                }
+            }
+            
+            public struct Region: Hashable, Identifiable, Sendable {
+                public let name: String
+                public let color: Color
+                
+                public var id: some Hashable {
+                    name
+                }
+                
+                public init(name: String, color: Color) {
+                    self.name = name
+                    self.color = color
+                }
+            }
+            
+            public let inputImage: InputImage
+            public let regions: [Region]
+            
+            public init(inputImage: InputImage, regions: [Region]) {
+                self.inputImage = inputImage
+                self.regions = regions
+            }
+            
+        }
     }
 }
 
@@ -232,7 +276,7 @@ extension Questionnaire.Task.Kind {
         switch self {
         case .choice(let config):
             config.followUpTasks
-        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
+        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment, .annotateImage:
             []
         }
     }
@@ -241,7 +285,7 @@ extension Questionnaire.Task.Kind {
         switch self {
         case .choice(let config):
             config.options
-        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
+        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment, .annotateImage:
             []
         }
     }
