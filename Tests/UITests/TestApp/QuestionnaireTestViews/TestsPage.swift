@@ -64,6 +64,7 @@ struct TestsPage: View {
                 case .cancelled:
                     lastResult = .cancelled
                 }
+                activeQuestionnaire = nil
             }
         }
     }

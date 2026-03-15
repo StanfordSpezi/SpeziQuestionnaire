@@ -35,6 +35,7 @@ struct TestExternalResponsesObject: View {
                 case .cancelled:
                     self.responses = nil
                 }
+                isPresentingQuestionnaire1 = false
             }
         }
         .sheet(isPresented: $isPresentingQuestionnaire2) {
