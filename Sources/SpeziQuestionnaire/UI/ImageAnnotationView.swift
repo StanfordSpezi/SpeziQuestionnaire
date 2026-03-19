@@ -6,13 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable all
-
+import Numerics
 import PencilKit
 import SpeziViews
 import SwiftUI
 import UIKit
-import Numerics
 
 
 struct ImageAnnotationView: View {
@@ -29,6 +27,7 @@ struct ImageAnnotationView: View {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fit)
+            .accessibilityLabel("Image")
             .overlay {
                 CanvasView(
                     drawing: $drawing,
@@ -43,7 +42,7 @@ struct ImageAnnotationView: View {
             }
             .task {
                 for await canvasSize in canvasSize.stream {
-                    // TODO do we need to take the image scale into account here?
+                    // depending on the image, we might need to take the image scale into account here
                     let scaleX = canvasSize.width / image.size.width
                     let scaleY = canvasSize.height / image.size.height
                     precondition(scaleX.isApproximatelyEqual(to: scaleY), "\(scaleX) vs \(scaleY) (diff: \(scaleX - scaleY))")
