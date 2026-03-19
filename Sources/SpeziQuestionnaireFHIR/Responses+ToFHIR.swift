@@ -9,8 +9,8 @@
 private import CryptoKit
 private import Foundation
 public import ModelsR4
+private import PencilKit
 public import SpeziQuestionnaire
-import PencilKit
 
 
 private struct FHIRConversionError: Error {
@@ -23,7 +23,7 @@ private struct FHIRConversionError: Error {
 
 
 extension SpeziQuestionnaire.QuestionnaireResponses {
-    public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol {
+    public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol { // swiftlint:disable:this type_name
         /// Generates a FHIR R4 [`QuestionnaireResponseItemAnswer`](https://build.fhir.org/questionnaireresponse-definitions.html#QuestionnaireResponse.item.answer) for this custom value.
         ///
         /// - throws: If the response was invalid, or there was some other error turning it into a `ModelsR4.QuestionnaireResponseItemAnswer`.
@@ -84,7 +84,7 @@ extension QuestionnaireResponses.Responses {
 
 
 extension QuestionnaireResponses.Response {
-    fileprivate struct FHIRConversionContext { // TODO also use this for the CustomResponseValue conversion?
+    fileprivate struct FHIRConversionContext { // maybe also use this for the CustomResponseValue conversion?
         let task: SpeziQuestionnaire.Questionnaire.Task
     }
     
@@ -179,12 +179,13 @@ extension QuestionnaireResponses.Response {
             }
         case .attachments(let responses):
             responseItem.answer = try responses.map { attachment in
-                return try .init(attachment)
+                try .init(attachment)
             }
         case .custom(let value):
             typealias CustomFHIRSupportingValue = any QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport
             guard let value = value as? CustomFHIRSupportingValue else {
-                throw FHIRConversionError("""
+                throw FHIRConversionError(
+                    """
                     Encountered custom response value of type '\(type(of: value))', which is missing FHIR support.
                     (Add FHIR support by conforming to '\(CustomFHIRSupportingValue.self)'.)
                     """
@@ -242,8 +243,7 @@ extension QuestionnaireResponseItem {
 }
 
 
-
-extension QuestionnaireResponses.AnnotatedImage: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
+extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
     public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
         let baseImage: UIImage
         switch task.kind {

@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable all
+
 import FHIRQuestionnaires
 import ModelsR4
 import SpeziQuestionnaire

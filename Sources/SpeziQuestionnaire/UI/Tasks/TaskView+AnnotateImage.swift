@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_types_order
+
 import PencilKit
 import SpeziViews
 import SwiftUI
@@ -17,7 +19,7 @@ struct AnnotateImageView: View {
     private let image: UIImage?
     private let task: Questionnaire.Task
     private let config: Questionnaire.Task.Kind.AnnotateImageConfig
-    @Binding private var response: QuestionnaireResponses.AnnotatedImage
+    @Binding private var response: QuestionnaireResponses.ImageAnnotation
     
     @State private var showSheet = false
     
@@ -30,11 +32,13 @@ struct AnnotateImageView: View {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .accessibilityLabel("Image")
                         .frame(height: 100)
                 } else {
                     Image(systemName: "questionmark.square.dashed")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
+                        .accessibilityLabel("Image Missing")
                         .frame(width: 50)
                 }
                 VStack(alignment: .leading) {
@@ -65,7 +69,7 @@ struct AnnotateImageView: View {
     init(
         task: Questionnaire.Task,
         config: Questionnaire.Task.Kind.AnnotateImageConfig,
-        response: Binding<QuestionnaireResponses.AnnotatedImage>
+        response: Binding<QuestionnaireResponses.ImageAnnotation>
     ) {
         self.task = task
         self.config = config
@@ -122,7 +126,7 @@ private struct Sheet: View {
     let task: Questionnaire.Task
     let config: Questionnaire.Task.Kind.AnnotateImageConfig
     let image: UIImage
-    @Binding var response: QuestionnaireResponses.AnnotatedImage
+    @Binding var response: QuestionnaireResponses.ImageAnnotation
     
     @State private var isDrawing = false
     @State private var isShowingToolPicker = false
@@ -130,7 +134,7 @@ private struct Sheet: View {
     @State private var isShowingResetAlert = false
     
     var body: some View {
-        NavigationStack {
+        NavigationStack { // swiftlint:disable:this closure_body_length
             VStack(alignment: .leading) {
                 Group {
                     Text(task.title)
@@ -182,8 +186,7 @@ private struct Sheet: View {
         }
     }
     
-    @available(iOS 26, *)
-    @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
+    @available(iOS 26, *) @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button(role: .destructive) {
                 isShowingResetAlert = true
@@ -205,7 +208,6 @@ private struct Sheet: View {
             } label: {
                 Label("Save", systemImage: "checkmark")
             }
-
         }
     }
 }

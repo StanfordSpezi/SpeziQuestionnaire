@@ -11,8 +11,7 @@ import class UIKit.UIColor
 
 
 private struct ViewFormMatchingBackgroundModifier: ViewModifier {
-    @Environment(\.colorScheme)
-    private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     
     func body(content: Content) -> some View {
         // It seems that this (using background vs backgroundStyle) depending on light/dark mode is what we need to do

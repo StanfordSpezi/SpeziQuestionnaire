@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order
+// swiftlint:disable file_types_order file_length
 
 private import Algorithms
 private import Foundation
@@ -530,7 +530,7 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
             return .decimal(try unwrap(value.value?.decimal.doubleValue))
         case .integer(let value):
             return .integer(Int(try unwrap(value.value?.integer)))
-        case .quantity(let value):
+        case .quantity:
             // ISSUE: we might need to convert units here? (if the condition uses a different unit than the question
             throw FHIRConversionError("Quantity values are not yet supported in comparisons")
         case .reference(let value):

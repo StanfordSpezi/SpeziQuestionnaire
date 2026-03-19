@@ -111,7 +111,7 @@ struct QuestionnaireSectionView<Header: View>: View {
             AsyncButton(role: .confirm, state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
-                // TODO the color here is still black in dark mode; but the Continue button at the bottom of the Form is (correctly) white?!!
+                // ISSUE the color here is still black in dark mode; but the Continue button at the bottom of the Form is (correctly) white?!!
                 Text("Submit")
             }
         } else {

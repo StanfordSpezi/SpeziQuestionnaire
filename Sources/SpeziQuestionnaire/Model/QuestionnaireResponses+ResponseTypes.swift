@@ -6,14 +6,14 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable missing_docs file_types_order all
+// swiftlint:disable missing_docs file_length
 
+private import CoreGraphics
 public import CoreTransferable
 public import Foundation
-public import UniformTypeIdentifiers
 public import PencilKit
-public import CoreGraphics
 public import class UIKit.UIImage
+public import UniformTypeIdentifiers
 
 
 extension QuestionnaireResponses {
@@ -70,18 +70,17 @@ extension QuestionnaireResponses {
     
     
     public protocol CustomResponseValueProtocol: Hashable, Sendable, SendableMetatype {
-        init() // TODO is this needed?
-        
+        /// Whether the value currently does not contain a response.
         var isEmpty: Bool { get }
-        
+        /// Whether the value can currently be removed from the ``QuestionnaireResponses/Responses`` storage.
         var shouldClearResponse: Bool { get }
-        
-//        func summarize(for task: Questionnaire.Task, using runner: LLMRunner) async throws -> String? {
+        /// Creates a new, empty instance of the type.
+        init()
     }
     
     
     /// A response that was collected for some task within a questionnaire.
-    public struct Response: Hashable, Sendable { // TODO is the Hashability here really needed?
+    public struct Response: Hashable, Sendable {
         public enum Value: Hashable, Sendable {
             /// The lack of a response
             case none
@@ -92,9 +91,8 @@ extension QuestionnaireResponses {
             case choice(ChoiceResponse)
             case attachments([CollectedAttachment])
             case custom(any CustomResponseValueProtocol)
-//            case annotatedImage(AnnotatedImage) // TODO we need to model this via one of the FHIR types!!!!
             
-            public static func == (lhs: Self, rhs: Self) -> Bool {
+            public static func == (lhs: Self, rhs: Self) -> Bool { // swiftlint:disable:this cyclomatic_complexity
                 switch lhs {
                 case .none:
                     return switch rhs {
@@ -367,7 +365,7 @@ extension QuestionnaireResponses.Response {
 }
 
 extension QuestionnaireResponses.Response.Value {
-    package var boolValue: Bool? {
+    package var boolValue: Bool? { // swiftlint:disable:this discouraged_optional_boolean
         get { if case .bool(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.bool($0) } ?? .none }
     }
@@ -394,14 +392,14 @@ extension QuestionnaireResponses.Response.Value {
         set { self = .choice(newValue) }
     }
     
-    package var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? {
+    package var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? { // swiftlint:disable:this discouraged_optional_collection
         get { if case .attachments(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.attachments($0) } ?? .none }
     }
     
-    package var annotatedImageValue: QuestionnaireResponses.AnnotatedImage? {
-        get { self[asCustomTypeA: QuestionnaireResponses.AnnotatedImage.self] }
-        set { self[asCustomTypeA: QuestionnaireResponses.AnnotatedImage.self] = newValue }
+    package var annotatedImageValue: QuestionnaireResponses.ImageAnnotation? {
+        get { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] }
+        set { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] = newValue }
     }
     
     package subscript<T: QuestionnaireResponses.CustomResponseValueProtocol>(
@@ -509,7 +507,7 @@ extension QuestionnaireResponses.CollectedAttachment: Transferable {
 
 
 extension QuestionnaireResponses {
-    public struct AnnotatedImage: CustomResponseValueProtocol, Hashable, Sendable { // TODO rename ImageAnnotation? (it only stores the annotation, not the image)
+    public struct ImageAnnotation: CustomResponseValueProtocol, Hashable, Sendable {
         public var scaleFactor: Double
         public var drawing: PKDrawing
         
@@ -540,7 +538,7 @@ extension QuestionnaireResponses {
                 origin: .zero,
                 size: CGSize(width: baseCGImage.width, height: baseCGImage.height)
             )
-            let context = CGContext(
+            guard let context = CGContext(
                 data: nil,
                 width: Int(ctxBounds.width),
                 height: Int(ctxBounds.height),
@@ -548,7 +546,9 @@ extension QuestionnaireResponses {
                 bytesPerRow: 0,
                 space: colorSpace,
                 bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-            )!
+            ) else {
+                return nil
+            }
             context.draw(baseCGImage, in: ctxBounds)
             context.draw(drawingCGImage, in: { () -> CGRect in
                 // we need to flip the rect to compensate for the CGContext's flipped coordinate system

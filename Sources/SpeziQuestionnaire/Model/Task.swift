@@ -10,9 +10,9 @@
 
 public import Foundation
 private import SpeziFoundation
-public import UniformTypeIdentifiers
 public import struct SwiftUI.Color
 public import class UIKit.UIImage
+public import UniformTypeIdentifiers
 
 
 extension Questionnaire {
@@ -232,7 +232,7 @@ extension Questionnaire.Task {
             public enum InputImage: Hashable, Sendable {
                 case namedInMainBundle(filename: String)
                 
-                public func image() /*async throws*/ -> UIImage? {
+                public func image() -> UIImage? {
                     switch self {
                     case .namedInMainBundle(let filename):
                         guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
@@ -265,7 +265,6 @@ extension Questionnaire.Task {
                 self.inputImage = inputImage
                 self.regions = regions
             }
-            
         }
     }
 }
