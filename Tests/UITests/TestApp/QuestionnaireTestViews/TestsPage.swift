@@ -34,7 +34,9 @@ struct TestsPage: View {
         .followUpQuestionsSkippedIfNoneEnabled,
         .multilineMarkdownInstructionsText,
         .fileAttachment,
-        .annotateImageTmp
+        .annotateImageTmp,
+        .veryTallImage,
+        .veryWideImage
         // swiftlint:enable force_try
     ]
     
@@ -429,6 +431,34 @@ extension SpeziQuestionnaire.Questionnaire {
                     regions: [
                         .init(name: "Pain", color: .red),
                         .init(name: "Stiffness", color: .green)
+                    ]
+                )))
+            ])
+        ]
+    )
+    
+    fileprivate static let veryTallImage = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.veryTallImage", url: nil, title: "Annotate Very Tall Image", explainer: ""),
+        sections: [
+            .init(id: "s0", tasks: [
+                .init(id: "t0", title: "Annotate Image", kind: .annotateImage(.init(
+                    inputImage: .namedInMainBundle(filename: "history.jpg"),
+                    regions: [
+                        .init(name: "Pain", color: .red)
+                    ]
+                )))
+            ])
+        ]
+    )
+    
+    fileprivate static let veryWideImage = Self(
+        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.veryWideImage", url: nil, title: "Annotate Very Wide Image", explainer: ""),
+        sections: [
+            .init(id: "s0", tasks: [
+                .init(id: "t0", title: "Annotate Image", kind: .annotateImage(.init(
+                    inputImage: .namedInMainBundle(filename: "history.jpg"),
+                    regions: [
+                        .init(name: "Pain", color: .red)
                     ]
                 )))
             ])

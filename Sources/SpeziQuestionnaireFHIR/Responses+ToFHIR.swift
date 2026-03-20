@@ -264,6 +264,9 @@ extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.Questionnai
             throw FHIRConversionError("Unable to process annotated image")
         }
         try pngData.write(to: tmpUrl)
+        defer {
+            try? FileManager.default.removeItem(at: tmpUrl)
+        }
         let attachment = try QuestionnaireResponses.CollectedAttachment(url: tmpUrl)
         return try [QuestionnaireResponseItemAnswer(attachment)]
     }

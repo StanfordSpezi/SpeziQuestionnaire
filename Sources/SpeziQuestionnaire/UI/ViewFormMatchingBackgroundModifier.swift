@@ -16,7 +16,6 @@ private struct ViewFormMatchingBackgroundModifier: ViewModifier {
     func body(content: Content) -> some View {
         // It seems that this (using background vs backgroundStyle) depending on light/dark mode is what we need to do
         // in order to have the view background match the form background...
-        // QUESTION(@lukas) why is this the case?
         if colorScheme == .dark {
             content.backgroundStyle(Color(uiColor: UIColor.secondarySystemBackground))
         } else {

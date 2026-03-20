@@ -71,15 +71,7 @@ struct AnnotateImageView: View {
         self.task = task
         self.config = config
         self._response = response
-        switch config.inputImage {
-        case .namedInMainBundle(let filename):
-            if let url = Bundle.main.url(forResource: filename, withExtension: nil) {
-                image = UIImage(contentsOfFile: url.absoluteURL.path)
-            } else {
-                print("unable to find '\(filename)' in main bundle")
-                image = nil
-            }
-        }
+        self.image = config.inputImage.image()
     }
     
     private func previewImage(for image: UIImage) -> some View {
@@ -177,9 +169,7 @@ private struct Sheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .makeBackgroundMatchFormBackground()
             .toolbar {
-                if #available(iOS 26, *) {
-                    toolbarContent
-                }
+                toolbarContent
             }
         }
         .interactiveDismissDisabled()
@@ -190,7 +180,7 @@ private struct Sheet: View {
         }
     }
     
-    @available(iOS 26, *) @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
+    @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button(role: .destructive) {
                 isShowingResetAlert = true
@@ -207,10 +197,19 @@ private struct Sheet: View {
             }
         }
         ToolbarItem(placement: .confirmationAction) {
-            Button(role: .confirm) {
-                dismiss()
-            } label: {
-                Label("Save", systemImage: "checkmark")
+            if #available(iOS 26, *) {
+                Button(role: .confirm) {
+                    dismiss()
+                } label: {
+                    Label("Save", systemImage: "checkmark")
+                }
+            } else {
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Save", systemImage: "checkmark")
+                }
+                .buttonStyleGlassProminent()
             }
         }
     }

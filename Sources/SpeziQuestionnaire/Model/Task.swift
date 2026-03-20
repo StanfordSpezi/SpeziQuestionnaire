@@ -237,6 +237,7 @@ extension Questionnaire.Task {
                     case .namedInMainBundle(let filename):
                         guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
                               let data = try? Data(contentsOf: url) else {
+                            print("unable to find '\(filename)' in main bundle")
                             return nil
                         }
                         return UIImage(data: data)

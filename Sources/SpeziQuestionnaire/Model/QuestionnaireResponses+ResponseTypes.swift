@@ -454,6 +454,7 @@ extension QuestionnaireResponses {
             (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
         }
         
+        /// Creates a new attachment by copying the file at a URL.
         package init(url inputUrl: URL) throws {
             let needsToReleaseScopedResourceThing = inputUrl.startAccessingSecurityScopedResource()
             defer {

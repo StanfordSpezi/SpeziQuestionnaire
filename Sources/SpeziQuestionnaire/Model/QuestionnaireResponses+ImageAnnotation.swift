@@ -34,7 +34,7 @@ extension QuestionnaireResponses {
         
         /// Produces an image by overlaying the drawing onto a base image.
         public func draw(onto baseImage: UIImage) -> UIImage? {
-            let scale: CGFloat = 1
+            let scale = baseImage.scale
             guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
                   let baseCGImage = baseImage.cgImage,
                   let drawingCGImage = drawing.image(from: drawing.bounds, scale: scale).cgImage else {
@@ -68,7 +68,9 @@ extension QuestionnaireResponses {
                     height: rect.height
                 )
             }())
-            return context.makeImage().map { UIImage(cgImage: $0) }
+            return context.makeImage().map {
+                UIImage(cgImage: $0, scale: scale, orientation: baseImage.imageOrientation)
+            }
         }
     }
 }
