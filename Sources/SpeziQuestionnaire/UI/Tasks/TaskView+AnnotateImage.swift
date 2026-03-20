@@ -13,6 +13,7 @@ import SpeziViews
 import SwiftUI
 
 
+/// View that implements the UI for responding to "annotate image" tasks.
 struct AnnotateImageView: View {
     @Environment(\.colorScheme) private var colorScheme
     
@@ -29,11 +30,7 @@ struct AnnotateImageView: View {
         } label: {
             HStack(alignment: .top) {
                 if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .accessibilityLabel("Image")
-                        .frame(height: 100)
+                    previewImage(for: image)
                 } else {
                     Image(systemName: "questionmark.square.dashed")
                         .resizable()
@@ -83,6 +80,13 @@ struct AnnotateImageView: View {
                 image = nil
             }
         }
+    }
+    
+    private func previewImage(for image: UIImage) -> some View {
+        ImageAnnotationView(image: image, drawing: $response.drawing, tool: .init(.pen))
+            .accessibilityLabel("Image")
+            .frame(height: 100)
+            .disabled(true)
     }
 }
 
@@ -154,9 +158,9 @@ private struct Sheet: View {
                     ImageAnnotationView(
                         image: image,
                         drawing: $response.drawing,
-                        drawingScale: $response.scaleFactor,
                         tool: selectedRegion.map { PKInkingTool(ink: AnnotateImageView.ink(for: $0), width: 2) } ?? .init(.crayon)
                     )
+                    .disabled(selectedRegion == nil)
                     Spacer()
                 }
                 .padding(.horizontal)

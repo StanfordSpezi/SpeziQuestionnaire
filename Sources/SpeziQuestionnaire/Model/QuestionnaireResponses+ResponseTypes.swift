@@ -11,8 +11,6 @@
 private import CoreGraphics
 public import CoreTransferable
 public import Foundation
-public import PencilKit
-public import class UIKit.UIImage
 public import UniformTypeIdentifiers
 
 
@@ -59,7 +57,7 @@ extension QuestionnaireResponses {
                 storage[key] ?? .init(value: .none)
             }
             set {
-                if newValue.value.shouldClear {
+                if newValue.value.isEmpty {
                     storage[key] = nil
                 } else {
                     storage[key] = newValue
@@ -72,8 +70,7 @@ extension QuestionnaireResponses {
     public protocol CustomResponseValueProtocol: Hashable, Sendable, SendableMetatype {
         /// Whether the value currently does not contain a response.
         var isEmpty: Bool { get }
-        /// Whether the value can currently be removed from the ``QuestionnaireResponses/Responses`` storage.
-        var shouldClearResponse: Bool { get }
+        
         /// Creates a new, empty instance of the type.
         init()
     }
@@ -186,7 +183,7 @@ extension QuestionnaireResponses {
         }
         
         func sanitized() -> Response? {
-            guard !value.shouldClear else {
+            guard !value.isEmpty else {
                 // NOTE that we intentionally don't check nestedResponses here,
                 // since that is only allowed to be non-empty if value is also not empty
                 return nil
@@ -434,15 +431,6 @@ extension QuestionnaireResponses.Response.Value {
             value.isEmpty
         }
     }
-    
-    var shouldClear: Bool {
-        switch self {
-        case .none, .string, .bool, .date, .number, .choice, .attachments:
-            self.isEmpty
-        case .custom(let value):
-            value.shouldClearResponse
-        }
-    }
 }
 
 
@@ -505,75 +493,6 @@ extension QuestionnaireResponses.CollectedAttachment: Transferable {
     }
 }
 
-
-extension QuestionnaireResponses {
-    public struct ImageAnnotation: CustomResponseValueProtocol, Hashable, Sendable {
-        public var scaleFactor: Double
-        public var drawing: PKDrawing
-        
-        public var isEmpty: Bool {
-            drawing.strokes.isEmpty
-        }
-        
-        public var shouldClearResponse: Bool {
-            false
-        }
-        
-        public init(drawing: PKDrawing, scaleFactor: Double = 1) {
-            self.drawing = drawing
-            self.scaleFactor = scaleFactor
-        }
-        
-        public init() {
-            self.init(drawing: PKDrawing(), scaleFactor: 1)
-        }
-        
-        public func draw(onto baseImage: UIImage) -> UIImage? {
-            guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-                  let baseCGImage = baseImage.cgImage,
-                  let drawingCGImage = drawing.image(from: drawing.bounds, scale: 1 / scaleFactor).cgImage else {
-                return nil
-            }
-            let ctxBounds = CGRect(
-                origin: .zero,
-                size: CGSize(width: baseCGImage.width, height: baseCGImage.height)
-            )
-            guard let context = CGContext(
-                data: nil,
-                width: Int(ctxBounds.width),
-                height: Int(ctxBounds.height),
-                bitsPerComponent: 8,
-                bytesPerRow: 0,
-                space: colorSpace,
-                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-            ) else {
-                return nil
-            }
-            context.draw(baseCGImage, in: ctxBounds)
-            context.draw(drawingCGImage, in: { () -> CGRect in
-                // we need to flip the rect to compensate for the CGContext's flipped coordinate system
-                let rect = drawing.bounds.applying(
-                    CGAffineTransform(scaleX: 1 / scaleFactor, y: 1 / scaleFactor)
-                )
-                return CGRect(
-                    x: rect.origin.x,
-                    y: ctxBounds.height - rect.origin.y - rect.height,
-                    width: rect.width,
-                    height: rect.height
-                )
-            }())
-            return context.makeImage().map { UIImage(cgImage: $0) }
-        }
-    }
-}
-
-
-extension PKDrawing: @retroactive Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(self.bounds)
-        hasher.combine(self.strokes.count)
-    }
-}
 
 extension Equatable {
     fileprivate func isEqual(to other: Any) -> Bool {
