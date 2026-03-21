@@ -23,7 +23,6 @@ struct TestsPage: View {
     }
     
     private static let questionnaires: [SpeziQuestionnaire.Questionnaire] = [
-        // swiftlint:disable force_try
         .simpleNumberEntry,
         .simpleCondition,
         .crossSectionCondition,
@@ -36,8 +35,7 @@ struct TestsPage: View {
         .fileAttachment,
         .annotateImageTmp,
         .veryTallImage,
-        .veryWideImage
-        // swiftlint:enable force_try
+//        .veryWideImage
     ]
     
     
@@ -451,17 +449,17 @@ extension SpeziQuestionnaire.Questionnaire {
         ]
     )
     
-    fileprivate static let veryWideImage = Self(
-        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.veryWideImage", url: nil, title: "Annotate Very Wide Image", explainer: ""),
-        sections: [
-            .init(id: "s0", tasks: [
-                .init(id: "t0", title: "Annotate Image", kind: .annotateImage(.init(
-                    inputImage: .namedInMainBundle(filename: "history.jpg"),
-                    regions: [
-                        .init(name: "Pain", color: .red)
-                    ]
-                )))
-            ])
-        ]
-    )
+//    fileprivate static let veryWideImage = Self(
+//        metadata: .init(id: "edu.stanford.SpeziQuestionnaire.veryWideImage", url: nil, title: "Annotate Very Wide Image", explainer: ""),
+//        sections: [
+//            .init(id: "s0", tasks: [
+//                .init(id: "t0", title: "Annotate Image", kind: .annotateImage(.init(
+//                    inputImage: .namedInMainBundle(filename: "history.jpg"),
+//                    regions: [
+//                        .init(name: "Pain", color: .red)
+//                    ]
+//                )))
+//            ])
+//        ]
+//    )
 }

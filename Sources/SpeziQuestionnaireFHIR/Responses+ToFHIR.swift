@@ -278,7 +278,7 @@ extension QuestionnaireResponseItemAnswer {
         let data = try Data(contentsOf: attachment.url)
         let sha1 = Insecure.SHA1.hash(data: data)
         self.init(value: .attachment(.init(
-            contentType: attachment.contentType?.identifier.asFHIRStringPrimitive(),
+            contentType: attachment.contentType?.preferredMIMEType?.asFHIRStringPrimitive(),
 //                        creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
             data: FHIRPrimitive(Base64Binary(data.base64EncodedString())),
             hash: FHIRPrimitive(Base64Binary(Data(sha1).base64EncodedString())),
