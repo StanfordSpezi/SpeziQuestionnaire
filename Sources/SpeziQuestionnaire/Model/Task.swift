@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable nesting function_default_parameter_at_end
+// swiftlint:disable nesting
 
 public import Foundation
 private import SpeziFoundation
