@@ -28,8 +28,7 @@ extension Questionnaire {
     /// - ``not(_:)``
     /// - ``any(_:)``
     /// - ``all(_:)``
-    /// - ``true``
-    /// - ``false``
+    /// - ``init(booleanLiteral:)``
     /// - ``hasResponse(taskId:)``
     /// - ``isMissingResponse(taskId:)``
     /// - ``responseValueComparison(taskId:operator:value:)``

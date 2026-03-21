@@ -29,13 +29,13 @@ struct InputValidationTests {
         )
         let task = try #require(questionnaire.task(at: ["t0"]))
         let responses = QuestionnaireResponses(questionnaire: questionnaire)
-        #expect(responses.validateResponse(for: task) == .ok)
+        #expect(responses.validateResponse(for: task).isOk)
         responses.responses[task.id].value.dateValue = .init(hour: 12)
-        #expect(responses.validateResponse(for: task) == .ok)
+        #expect(responses.validateResponse(for: task).isOk)
         responses.responses[task.id].value.dateValue = .init(hour: 5)
         #expect(responses.validateResponse(for: task).isInvalid)
         responses.responses[task.id].value.dateValue = .init(hour: 7)
-        #expect(responses.validateResponse(for: task) == .ok)
+        #expect(responses.validateResponse(for: task).isOk)
         responses.responses[task.id].value.dateValue = .init(hour: 22)
         #expect(responses.validateResponse(for: task).isInvalid)
     }
@@ -55,8 +55,8 @@ struct InputValidationTests {
         )
         let task = try #require(questionnaire.task(at: ["t0"]))
         let responses = QuestionnaireResponses(questionnaire: questionnaire)
-        #expect(responses.validateResponse(for: task) == .ok)
+        #expect(responses.validateResponse(for: task).isOk)
         responses.responses[task.id].value.dateValue = .init(hour: 10, minute: 15)
-        #expect(responses.validateResponse(for: task) == .ok)
+        #expect(responses.validateResponse(for: task).isOk)
     }
 }

@@ -37,12 +37,11 @@ extension SpeziQuestionnaire.QuestionnaireResponses {
 
 
 extension ModelsR4.QuestionnaireResponse {
-    /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
+    /// Creates a FHIR R4 `QuestionnaireResponse` from a Spezi `QuestionnaireResponses`.
     public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
         self.init(status: .init(.completed))
-        let id = UUID().uuidString
-        self.id = id.asFHIRStringPrimitive()
-        self.identifier = Identifier(value: id.asFHIRStringPrimitive())
+        self.id = other.id.uuidString.asFHIRStringPrimitive()
+        self.identifier = Identifier(value: other.id.uuidString.asFHIRStringPrimitive())
         self.authored = try FHIRPrimitive(DateTime(date: .now))
         if let url = other.questionnaire.metadata.url {
             self.questionnaire = FHIRPrimitive(Canonical(url))

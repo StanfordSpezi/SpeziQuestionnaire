@@ -6,14 +6,13 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable missing_docs
-
+public import Foundation
 public import Observation
 
 
 /// Stores and manages responses to a questionnaire.
 @Observable
-public final class QuestionnaireResponses {
+public final class QuestionnaireResponses: Identifiable {
     /// The responses object's variant.
     ///
     /// There are two kinds of ``QuestionnaireResponses`` instances:
@@ -37,6 +36,9 @@ public final class QuestionnaireResponses {
         /// A view into another ``QuestionnaireResponses`` instances, scoped to see only the responses at a specific path.
         case view(parent: QuestionnaireResponses, pathFromParent: ResponsesPath)
     }
+    
+    /// An id identifying this responses instance
+    public let id: UUID
     
     /// The questionnaire from which these responses were collected.
     public let questionnaire: Questionnaire
@@ -108,12 +110,14 @@ public final class QuestionnaireResponses {
         }
     }
     
-    init(questionnaire: Questionnaire) {
+    init(id: UUID = UUID(), questionnaire: Questionnaire) {
+        self.id = id
         self.questionnaire = questionnaire
         _variant = .root(Responses())
     }
     
     private init(parent: QuestionnaireResponses, pathFromParent: ResponsesPath) {
+        id = parent.id
         questionnaire = parent.questionnaire
         _variant = .view(parent: parent, pathFromParent: pathFromParent)
     }

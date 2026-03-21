@@ -30,7 +30,7 @@ private struct FHIRConversionError: LocalizedError {
 
 
 extension SpeziQuestionnaire.Questionnaire {
-    /// Creates a ``Questionnaire`` from a FHIR R4 `Questionnaire`.
+    /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
     public init(_ other: ModelsR4.Questionnaire) throws {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
