@@ -75,7 +75,7 @@
               },
               "other" : {
                 "stringUnit" : {
-                  "state" : "new",
+                  "state" : "translated",
                   "value" : "Limited to %llu decimal places"
                 }
               }
@@ -184,7 +184,7 @@
               },
               "other" : {
                 "stringUnit" : {
-                  "state" : "new",
+                  "state" : "translated",
                   "value" : "Too long: can be at most %lld characters"
                 }
               }
@@ -206,7 +206,7 @@
               },
               "other" : {
                 "stringUnit" : {
-                  "state" : "new",
+                  "state" : "translated",
                   "value" : "Too short: must be at least %lld characters"
                 }
               }
