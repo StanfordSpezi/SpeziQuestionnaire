@@ -40,6 +40,7 @@ struct QuestionnaireSectionView<Header: View>: View {
     private let resultHandler: @MainActor (QuestionnaireSheet.Result) async -> Void
     
     @State private var indicateMissingResponses = false
+    @State private var viewState: ViewState = .idle
     
     var body: some View {
         @Bindable var responses = responses
@@ -49,19 +50,21 @@ struct QuestionnaireSectionView<Header: View>: View {
                 ForEach(section.tasks) { task in
                     TaskView(section: section, task: task, response: $responses.responses[task.id]) {
                         if indicateMissingResponses && responses.isMissingResponse(for: task) {
-                            Text("Missing Response")
+                            Text("Missing Response", bundle: .module)
                                 .foregroundStyle(.red)
                         }
                     }
                     .id(task.id)
                 }
+                // disallow mutating responses while an action is being performed
+                .disabled(viewState == .processing)
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 let canContinue = responses.isComplete(in: section)
-                AsyncButton {
-                    await advance(using: scrollViewProxy)
+                Button {
+                    advance(using: scrollViewProxy)
                 } label: {
-                    Text("Continue")
+                    Text("Continue", bundle: .module)
                         .bold()
                         .frame(maxWidth: .infinity, minHeight: 38)
                 }
@@ -77,6 +80,8 @@ struct QuestionnaireSectionView<Header: View>: View {
         }
         .navigationTitle(titleConfig)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
+        // disallow navigating around while an action is being performed
+        .navigationBarBackButtonHidden(viewState == .processing)
         .toolbar {
             toolbarContent
         }
@@ -99,7 +104,9 @@ struct QuestionnaireSectionView<Header: View>: View {
                 toolbarDoneButton
             } else {
                 CancelButton(context: context) {
-                    await resultHandler(.cancelled)
+                    Task {
+                        await resultHandler(.cancelled)
+                    }
                 }
             }
         }
@@ -107,16 +114,16 @@ struct QuestionnaireSectionView<Header: View>: View {
     
     @ViewBuilder private var toolbarDoneButton: some View {
         if #available(iOS 26, *) {
-            AsyncButton(role: .confirm) {
+            AsyncButton(role: .confirm, state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
-                Text("Submit")
+                Text("Submit", bundle: .module)
             }
         } else {
-            AsyncButton {
+            AsyncButton(state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
-                Label("Submit", systemImage: "checkmark")
+                Label(LocalizedStringResource("Submit", bundle: .module), systemImage: "checkmark")
             }
             .labelStyle(.iconOnly)
         }
@@ -179,7 +186,19 @@ struct QuestionnaireSectionView<Header: View>: View {
     }
     
     
-    private func advance(using scrollViewProxy: ScrollViewProxy) async {
+    private func advance(using scrollViewProxy: ScrollViewProxy) {
+        guard viewState == .idle else {
+            assertionFailure("Called \(#function) with non-idle viewState!")
+            return
+        }
+        viewState = .processing
+        Task {
+            await _advance(using: scrollViewProxy)
+            viewState = .idle
+        }
+    }
+    
+    private func _advance(using scrollViewProxy: ScrollViewProxy) async {
         if let problematicTask = responses.firstTaskPreventingCompletion(of: section) {
             indicateMissingResponses = true
             withAnimation {
@@ -205,7 +224,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                     await resultHandler(.completed(responses))
                 case .enable:
                     navigationPath.append {
-                        CompletionPage(title: "Questionnaire Complete", message: nil) {
+                        CompletionPage(title: LocalizedStringResource("Questionnaire Complete", bundle: .module)) {
                             await resultHandler(.completed(responses))
                         }
                     }
@@ -222,7 +241,7 @@ struct QuestionnaireSectionView<Header: View>: View {
 extension QuestionnaireSectionView {
     private struct CancelButton: View {
         let context: Context
-        let action: @MainActor () async -> Void
+        let action: @MainActor () -> Void
         
         @State private var showConfirmation = false
         
@@ -233,8 +252,12 @@ extension QuestionnaireSectionView {
                     isPresented: $showConfirmation,
                     titleVisibility: .visible,
                     actions: {
-                        AsyncButton("Yes", role: .destructive, action: action)
-                        Button("No", role: .cancel) {}
+                        Button(role: .destructive, action: action) {
+                            Text("Yes", bundle: .module)
+                        }
+                        Button(role: .cancel, action: {}) {
+                            Text("No", bundle: .module)
+                        }
                     },
                     message: {
                         Text(confirmMessage)
@@ -242,21 +265,27 @@ extension QuestionnaireSectionView {
                 )
         }
         
-        private var confirmTitle: String {
+        private var confirmTitle: LocalizedStringResource {
             switch context {
             case .regular:
-                "Cancel Questionnaire"
+                LocalizedStringResource("Cancel Questionnaire", bundle: .module)
             case .answerNestedQuestions:
-                "Discard Nested Responses"
+                LocalizedStringResource("Discard Nested Responses", bundle: .module)
             }
         }
         
-        private var confirmMessage: String {
+        private var confirmMessage: LocalizedStringResource {
             switch context {
             case .regular:
-                "Are you sure you want to cancel the questionnaire?\nYour responses will be lost."
+                LocalizedStringResource(
+                    "Are you sure you want to cancel the questionnaire?\nYour responses will be lost.",
+                    bundle: .module
+                )
             case .answerNestedQuestions(parentTask: _, let selectedOptionTitle, sections: _):
-                "This will de-select the '\(selectedOptionTitle)' option and discard all responses below."
+                LocalizedStringResource(
+                    "This will de-select the '\(selectedOptionTitle)' option and discard all responses below.",
+                    bundle: .module
+                )
             }
         }
         
@@ -270,7 +299,7 @@ extension QuestionnaireSectionView {
                     showConfirmation = true
                 } label: {
                     Image(systemName: "xmark")
-                        .accessibilityLabel("Cancel")
+                        .accessibilityLabel(LocalizedStringResource("Cancel", bundle: .module))
                 }
             }
         }

@@ -29,7 +29,6 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text(markdown: title)
-//                        .accessibilityIdentifier("") // ???
                     if !subtitle.isEmpty {
                         Text(markdown: subtitle)
                             .font(.caption)
@@ -45,7 +44,13 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
                     .accessibilityHidden(true)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Option: \(title), \(isSelected ? "Selected" : "Not Selected")")
+            .accessibilityLabel({ () -> Text in
+                if isSelected {
+                    Text("Option: \(title), Selected", bundle: .module)
+                } else {
+                    Text("Option: \(title), Not Selected", bundle: .module)
+                }
+            }())
             .accessibilityIdentifier("Choice:\(id)")
         }
     }

@@ -6,8 +6,9 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable missing_docs file_types_order all
+// swiftlint:disable missing_docs file_length
 
+private import CoreGraphics
 public import CoreTransferable
 public import Foundation
 public import UniformTypeIdentifiers
@@ -66,6 +67,15 @@ extension QuestionnaireResponses {
     }
     
     
+    public protocol CustomResponseValueProtocol: Hashable, Sendable, SendableMetatype {
+        /// Whether the value currently does not contain a response.
+        var isEmpty: Bool { get }
+        
+        /// Creates a new, empty instance of the type.
+        init()
+    }
+    
+    
     /// A response that was collected for some task within a questionnaire.
     public struct Response: Hashable, Sendable {
         public enum Value: Hashable, Sendable {
@@ -77,6 +87,82 @@ extension QuestionnaireResponses {
             case number(Double)
             case choice(ChoiceResponse)
             case attachments([CollectedAttachment])
+            case custom(any CustomResponseValueProtocol)
+            
+            public static func == (lhs: Self, rhs: Self) -> Bool { // swiftlint:disable:this cyclomatic_complexity
+                switch lhs {
+                case .none:
+                    return switch rhs {
+                    case .none: true
+                    default: false
+                    }
+                case .string(let lhs):
+                    return switch rhs {
+                    case .string(lhs): true
+                    default: false
+                    }
+                case .bool(let lhs):
+                    return switch rhs {
+                    case .bool(lhs): true
+                    default: false
+                    }
+                case .date(let lhs):
+                    return switch rhs {
+                    case .date(lhs): true
+                    default: false
+                    }
+                case .number(let lhs):
+                    return switch rhs {
+                    case .number(lhs): true
+                    default: false
+                    }
+                case .choice(let lhs):
+                    return switch rhs {
+                    case .choice(lhs): true
+                    default: false
+                    }
+                case .attachments(let lhs):
+                    return switch rhs {
+                    case .attachments(lhs): true
+                    default: false
+                    }
+                case .custom(let lhs):
+                    return switch rhs {
+                    case .custom(let rhs):
+                        lhs.isEqual(to: rhs)
+                    default:
+                        false
+                    }
+                }
+            }
+            
+            public func hash(into hasher: inout Hasher) {
+                switch self {
+                case .none:
+                    hasher.combine(ObjectIdentifier(Never.self))
+                case .string(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .bool(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .date(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .number(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .choice(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .attachments(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    hasher.combine(value)
+                case .custom(let value):
+                    hasher.combine(ObjectIdentifier(type(of: value)))
+                    value.hash(into: &hasher)
+                }
+            }
         }
         
         public enum NestedResponseIdentifier: Hashable, Sendable {
@@ -276,7 +362,7 @@ extension QuestionnaireResponses.Response {
 }
 
 extension QuestionnaireResponses.Response.Value {
-    package var boolValue: Bool? {
+    package var boolValue: Bool? { // swiftlint:disable:this discouraged_optional_boolean
         get { if case .bool(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.bool($0) } ?? .none }
     }
@@ -303,15 +389,27 @@ extension QuestionnaireResponses.Response.Value {
         set { self = .choice(newValue) }
     }
     
-    package var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? {
+    package var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? { // swiftlint:disable:this discouraged_optional_collection
         get { if case .attachments(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.attachments($0) } ?? .none }
+    }
+    
+    package var annotatedImageValue: QuestionnaireResponses.ImageAnnotation? {
+        get { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] }
+        set { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] = newValue }
+    }
+    
+    package subscript<T: QuestionnaireResponses.CustomResponseValueProtocol>(
+        asCustomTypeA type: T.Type
+    ) -> T? {
+        get { if case .custom(let value) = self { value as? T } else { nil } }
+        set { self = newValue.map { Self.custom($0) } ?? .none }
     }
 }
 
 
 extension QuestionnaireResponses.Response.Value {
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         switch self {
         case .none:
             true
@@ -329,6 +427,8 @@ extension QuestionnaireResponses.Response.Value {
             choiceResponse.isEmpty
         case .attachments(let attachments):
             attachments.isEmpty
+        case .custom(let value):
+            value.isEmpty
         }
     }
 }
@@ -354,14 +454,13 @@ extension QuestionnaireResponses {
             (try? url.resourceValues(forKeys: [.contentTypeKey]))?.contentType
         }
         
-        init(url inputUrl: URL) throws {
-            guard inputUrl.startAccessingSecurityScopedResource() else {
-                throw NSError(domain: "edu.stanford.Spezi", code: 0, userInfo: [
-                    NSLocalizedDescriptionKey: "Unable to access file url"
-                ])
-            }
+        /// Creates a new attachment by copying the file at a URL.
+        package init(url inputUrl: URL) throws {
+            let needsToReleaseScopedResourceThing = inputUrl.startAccessingSecurityScopedResource()
             defer {
-                inputUrl.stopAccessingSecurityScopedResource()
+                if needsToReleaseScopedResourceThing {
+                    inputUrl.stopAccessingSecurityScopedResource()
+                }
             }
             self.filename = inputUrl.lastPathComponent
             self.url = Self.tmpDir
@@ -391,6 +490,17 @@ extension QuestionnaireResponses.CollectedAttachment: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(importedContentType: .item) { input in
             try Self(url: input.file)
+        }
+    }
+}
+
+
+extension Equatable {
+    fileprivate func isEqual(to other: Any) -> Bool {
+        if let other = other as? Self {
+            self == other
+        } else {
+            false
         }
     }
 }

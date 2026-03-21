@@ -33,7 +33,7 @@ extension TaskView {
         @ViewBuilder
         private func numberPad(_ numberKind: Questionnaire.Task.Kind.NumericTaskConfig.NumberKind) -> some View {
             NumberTextField(
-                "", // ???
+                "" as String, // ???
                 value: $response,
                 allowsDecimalEntry: { () -> Bool in
                     switch numberKind {

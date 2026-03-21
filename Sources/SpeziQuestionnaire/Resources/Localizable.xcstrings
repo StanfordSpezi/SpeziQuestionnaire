@@ -2,6 +2,22 @@
   "sourceLanguage" : "en",
   "strings" : {
     "" : {
+      "shouldTranslate" : false
+    },
+    "Annotate Image" : {
+
+    },
+    "ANNOTATE_IMAGE_INSTRUCTIONS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please annotate the image below.\nSelect a region marker from underneath the image, and highlight the corresponding areas in the image."
+          }
+        }
+      }
+    },
+    "Answered" : {
 
     },
     "Are you sure you want to cancel the questionnaire?\nYour responses will be lost." : {
@@ -16,7 +32,19 @@
     "Continue" : {
 
     },
+    "Discard Nested Responses" : {
+
+    },
     "Dismiss Keyboard" : {
+
+    },
+    "Do you want to remove all annotations?" : {
+
+    },
+    "Enter Date" : {
+
+    },
+    "Enter Time" : {
 
     },
     "Follow-Up" : {
@@ -25,7 +53,59 @@
     "Follow-Up: %@" : {
 
     },
+    "Image" : {
+
+    },
+    "Image Missing" : {
+
+    },
+    "Invalid Input" : {
+
+    },
+    "Limited to %llu decimal places" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Limited to %llu decimal place"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Limited to %llu decimal places"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Mark %@" : {
+
+    },
+    "Missing" : {
+
+    },
     "Missing Response" : {
+
+    },
+    "Missing response text for \"Other\" option" : {
+
+    },
+    "Must be after %@" : {
+
+    },
+    "Must be at least %lf" : {
+
+    },
+    "Must be at most %lf" : {
+
+    },
+    "Must be before %@" : {
 
     },
     "No" : {
@@ -34,20 +114,28 @@
     "Not Yet Implemented" : {
 
     },
-    "Option: %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Option: %1$@, %2$@"
-          }
-        }
-      }
+    "Option: %@, Not Selected" : {
+
+    },
+    "Option: %@, Selected" : {
+
     },
     "Please answer the follow-up questions below, for the **'%@'** option you just selected." : {
 
     },
     "Questionnaire Complete" : {
+
+    },
+    "Questionnaire is Empty" : {
+
+    },
+    "Reset" : {
+
+    },
+    "Reset Annotations" : {
+
+    },
+    "Save" : {
 
     },
     "Select File" : {
@@ -76,6 +164,56 @@
     },
     "Take Photo" : {
 
+    },
+    "Tap to annotate" : {
+
+    },
+    "This will de-select the '%@' option and discard all responses below." : {
+
+    },
+    "Too long: can be at most %lld characters" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too long: can be at most %lld character"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too long: can be at most %lld characters"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Too short: must be at least %lld characters" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too short: must be at least %lld character"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too short: must be at least %lld characters"
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "Yes" : {
 

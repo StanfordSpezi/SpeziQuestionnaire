@@ -35,3 +35,10 @@ extension Binding {
         }
     }
 }
+
+
+extension ColorScheme {
+    var textLabelForegroundStyle: Color {
+        self == .dark ? .white : .black
+    }
+}

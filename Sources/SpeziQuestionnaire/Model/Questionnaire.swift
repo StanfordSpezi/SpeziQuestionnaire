@@ -79,7 +79,7 @@ extension Questionnaire.Task {
         var copy = self
         copy.enabledCondition.simplify()
         switch copy.kind {
-        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
+        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment, .annotateImage:
             break
         case .choice(var config):
             config.followUpTasks = config.followUpTasks.map {
@@ -175,8 +175,8 @@ extension Questionnaire {
         ///     Note that if a section does not contain any tasks, it may be skipped unconditionally by the ``QuestionnaireSheet``.
         public init(
             id: String,
-            title: String = "", // swiftlint:disable:this function_default_parameter_at_end
-            enabledCondition: Condition = .none, // swiftlint:disable:this function_default_parameter_at_end
+            title: String = "",
+            enabledCondition: Condition = .none,
             tasks: [Task]
         ) {
             self.id = id

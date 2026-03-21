@@ -18,6 +18,8 @@ public import SwiftUI
 /// The `QuestionnaireSheet` uses an internal `NavigationStack` to display the questionnaire's content;
 /// each section in the input questionnaire is displayed as one page on the stack.
 ///
+/// - Note: The presenting parent view is responsible for dismissing the `QuestionnaireSheet` after the result handler has completed.
+///
 /// The following example shows how to present a questionnaire:
 /// ```swift
 /// struct AnswerQuestionnaire: View {
@@ -32,6 +34,7 @@ public import SwiftUI
 ///                 switch result {
 ///                 case .completed(let responses):
 ///                     // ... save the response to your data store
+///                     activeQuestionnaire = nil
 ///                 case .cancelled:
 ///                     break
 ///                 }
@@ -41,8 +44,6 @@ public import SwiftUI
 /// }
 /// ```
 public struct QuestionnaireSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    
     private let questionnaire: Questionnaire
     private let completionStepConfig: CompletionStepConfig
     private let resultHandler: @MainActor (Result) async -> Void
@@ -60,11 +61,13 @@ public struct QuestionnaireSheet: View {
                 ) { result in
                     responses.purgeResponsesToDisabledTasks()
                     await resultHandler(result)
-                    dismiss()
                 }
                 .interactiveDismissDisabled()
             } else {
-                ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
+                ContentUnavailableView(
+                    LocalizedStringResource("Questionnaire is Empty", bundle: .module),
+                    image: "exclamationmark.triangle"
+                )
             }
         }
         .accessibilityIdentifier("SpeziQuestionnaireNavStack")

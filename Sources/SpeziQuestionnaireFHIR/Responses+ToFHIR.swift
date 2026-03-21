@@ -9,6 +9,7 @@
 private import CryptoKit
 private import Foundation
 public import ModelsR4
+private import PencilKit
 public import SpeziQuestionnaire
 
 
@@ -21,13 +22,26 @@ private struct FHIRConversionError: Error {
 }
 
 
+extension SpeziQuestionnaire.QuestionnaireResponses {
+    public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol { // swiftlint:disable:this type_name
+        /// Generates a FHIR R4 [`QuestionnaireResponseItemAnswer`](https://build.fhir.org/questionnaireresponse-definitions.html#QuestionnaireResponse.item.answer) for this custom value.
+        ///
+        /// - throws: If the response was invalid, or there was some other error turning it into a `ModelsR4.QuestionnaireResponseItemAnswer`.
+        /// - returns: An array of `ModelsR4.QuestionnaireResponseItemAnswer` objects, which will be inserted into the `ModelsR4.QuestionnaireResponse` to which this response belongs.
+        ///     In most cases this array should contain only a single element, but if the custom response represents multiple actual responses, it should contain one element per response.
+        func toFHIR(
+            for task: SpeziQuestionnaire.Questionnaire.Task
+        ) throws -> [ModelsR4.QuestionnaireResponseItemAnswer]
+    }
+}
+
+
 extension ModelsR4.QuestionnaireResponse {
-    /// Creates a FHIR R4 `QuestionnaireResponse` from a ``QuestionnaireResponses``.
+    /// Creates a FHIR R4 `QuestionnaireResponse` from a Spezi `QuestionnaireResponses`.
     public convenience init(_ other: SpeziQuestionnaire.QuestionnaireResponses) throws {
         self.init(status: .init(.completed))
-        let id = UUID().uuidString
-        self.id = id.asFHIRStringPrimitive()
-        self.identifier = Identifier(value: id.asFHIRStringPrimitive())
+        self.id = other.id.uuidString.asFHIRStringPrimitive()
+        self.identifier = Identifier(value: other.id.uuidString.asFHIRStringPrimitive())
         self.authored = try FHIRPrimitive(DateTime(date: .now))
         if let url = other.questionnaire.metadata.url {
             self.questionnaire = FHIRPrimitive(Canonical(url))
@@ -69,7 +83,7 @@ extension QuestionnaireResponses.Responses {
 
 
 extension QuestionnaireResponses.Response {
-    fileprivate struct FHIRConversionContext {
+    fileprivate struct FHIRConversionContext { // maybe also use this for the CustomResponseValue conversion?
         let task: SpeziQuestionnaire.Questionnaire.Task
     }
     
@@ -164,17 +178,22 @@ extension QuestionnaireResponses.Response {
             }
         case .attachments(let responses):
             responseItem.answer = try responses.map { attachment in
-                let data = try Data(contentsOf: attachment.url)
-                let sha1 = Insecure.SHA1.hash(data: data)
-                return .init(value: .attachment(.init(
-                    contentType: attachment.contentType?.identifier.asFHIRStringPrimitive(),
-//                        creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
-                    data: FHIRPrimitive(Base64Binary(data.base64EncodedString())),
-                    hash: FHIRPrimitive(Base64Binary(Data(sha1).base64EncodedString())),
-                    id: attachment.id.uuidString.asFHIRStringPrimitive(),
-                    size: data.count.asFHIRUnsignedIntegerPrimitive(),
-                    title: attachment.filename.asFHIRStringPrimitive(),
-                )))
+                try .init(attachment)
+            }
+        case .custom(let value):
+            typealias CustomFHIRSupportingValue = any QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport
+            guard let value = value as? CustomFHIRSupportingValue else {
+                throw FHIRConversionError(
+                    """
+                    Encountered custom response value of type '\(type(of: value))', which is missing FHIR support.
+                    (Add FHIR support by conforming to '\(CustomFHIRSupportingValue.self)'.)
+                    """
+                )
+            }
+            if !value.isEmpty {
+                responseItem.answer = try value.toFHIR(for: context.task)
+            } else {
+                responseItem.answer = nil
             }
         }
         for (nestingId, responses) in nestedResponses {
@@ -223,5 +242,52 @@ extension QuestionnaireResponseItem {
         } else {
             throw FHIRConversionError("Unable to get linkId")
         }
+    }
+}
+
+
+extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
+    public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
+        let baseImage: UIImage
+        switch task.kind {
+        case .annotateImage(let config):
+            guard let image = config.inputImage.image() else {
+                // Simply draw the annotation onto a clear backgrund in this case? (no.)
+                throw FHIRConversionError("Unable to obtain baseImage")
+            }
+            baseImage = image
+        default:
+            throw FHIRConversionError("Invalid task kind")
+        }
+        guard let annotatedImage = self.draw(onto: baseImage) else {
+            throw FHIRConversionError("Unable to draw annotated image")
+        }
+        let tmpUrl = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, conformingTo: .png)
+        guard let pngData = annotatedImage.pngData() else {
+            throw FHIRConversionError("Unable to process annotated image")
+        }
+        try pngData.write(to: tmpUrl)
+        defer {
+            try? FileManager.default.removeItem(at: tmpUrl)
+        }
+        let attachment = try QuestionnaireResponses.CollectedAttachment(url: tmpUrl)
+        return try [QuestionnaireResponseItemAnswer(attachment)]
+    }
+}
+
+
+extension QuestionnaireResponseItemAnswer {
+    convenience init(_ attachment: QuestionnaireResponses.CollectedAttachment) throws {
+        let data = try Data(contentsOf: attachment.url)
+        let sha1 = Insecure.SHA1.hash(data: data)
+        self.init(value: .attachment(.init(
+            contentType: attachment.contentType?.preferredMIMEType?.asFHIRStringPrimitive(),
+//                        creation: <#T##FHIRPrimitive<DateTime>?#>, // not easy bc eg an imported photo/file will likely not be brand new...
+            data: FHIRPrimitive(Base64Binary(data.base64EncodedString())),
+            hash: FHIRPrimitive(Base64Binary(Data(sha1).base64EncodedString())),
+            id: attachment.id.uuidString.asFHIRStringPrimitive(),
+            size: data.count.asFHIRUnsignedIntegerPrimitive(),
+            title: attachment.filename.asFHIRStringPrimitive(),
+        )))
     }
 }

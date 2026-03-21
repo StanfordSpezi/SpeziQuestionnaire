@@ -6,12 +6,13 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable file_types_order
+// swiftlint:disable file_types_order file_length
 
 private import Algorithms
 private import Foundation
 public import ModelsR4
 public import SpeziQuestionnaire
+private import struct SwiftUI.Color
 private import UniformTypeIdentifiers
 
 
@@ -29,7 +30,7 @@ private struct FHIRConversionError: LocalizedError {
 
 
 extension SpeziQuestionnaire.Questionnaire {
-    /// Creates a ``Questionnaire`` from a FHIR R4 `Questionnaire`.
+    /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
     public init(_ other: ModelsR4.Questionnaire) throws {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
@@ -314,21 +315,72 @@ extension ModelsR4.QuestionnaireItem {
                 allowsMultipleSelection: repeats == true
             ))
         case .attachment:
-            return .fileAttachment(.init(
-                contentTypes: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").compactMapIntoSet { ext in
-                    ext.value?.stringValue.flatMap { UTType(mimeType: $0) }
-                },
-                maxSize: { () -> UInt64? in
-                    if let value = self.extensions(for: "http://hl7.org/fhir/StructureDefinition/maxSize").first?.value?.intValue {
-                        UInt64(exactly: value)
-                    } else {
-                        nil
+            switch itemControl {
+            case "annotate-image":
+                let inputImageExts = self.extensions(for: "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task/annotate-image/inputImage")
+                guard let inputImageExt = inputImageExts.first, inputImageExts.count == 1 else {
+                    throw FHIRConversionError("Must specify exactly one inputImage config")
+                }
+                let inputImage: SpeziQuestionnaire.Questionnaire.Task.Kind.AnnotateImageConfig.InputImage
+                if let inputImageName = inputImageExt.value?.stringValue {
+                    inputImage = .namedInMainBundle(filename: inputImageName)
+                } else {
+                    throw FHIRConversionError("Invalid inputImage config")
+                }
+                let regionExts = self.extensions(for: "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task/annotate-image/region")
+                return .annotateImage(.init(
+                    inputImage: inputImage,
+                    regions: try regionExts.map { ext in
+                        guard let stringValue = ext.value?.stringValue else {
+                            throw FHIRConversionError("Invalid region value")
+                        }
+                        guard let idx = stringValue.lastIndex(of: ":") else {
+                            throw FHIRConversionError("Invalid region value")
+                        }
+                        let colorMapping: [String: Color] = [
+                            "red": .red,
+                            "orange": .orange,
+                            "yellow": .yellow,
+                            "green": .green,
+                            "mint": .mint,
+                            "teal": .teal,
+                            "cyan": .cyan,
+                            "blue": .blue,
+                            "indigo": .indigo,
+                            "purple": .purple,
+                            "pink": .pink,
+                            "brown": .brown,
+                            "white": .white,
+                            "gray": .gray,
+                            "black": .black,
+                            "clear": .clear,
+                            "primary": .primary,
+                            "secondary": .secondary
+                        ]
+                        let colorName = String(stringValue[idx...].dropFirst())
+                        guard let color = colorMapping[colorName] else {
+                            throw FHIRConversionError("Invalid color '\(colorName)'")
+                        }
+                        return .init(name: String(stringValue[..<idx]), color: color)
                     }
-                }(),
-                // ISSUE this will likely lead to effectively all such questions NOT allowing multiple selection,
-                // since the `repeats` field is typically not used, and eg the phoenix builder only offers it when you know where to look...
-                allowsMultipleSelection: repeats == true
-            ))
+                ))
+            default:
+                return .fileAttachment(.init(
+                    contentTypes: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").compactMapIntoSet { ext in
+                        ext.value?.stringValue.flatMap { UTType(mimeType: $0) }
+                    },
+                    maxSize: { () -> UInt64? in
+                        if let value = self.extensions(for: "http://hl7.org/fhir/StructureDefinition/maxSize").first?.value?.intValue {
+                            UInt64(exactly: value)
+                        } else {
+                            nil
+                        }
+                    }(),
+                    // ISSUE this will likely lead to effectively all such questions NOT allowing multiple selection,
+                    // since the `repeats` field is typically not used, and eg the phoenix builder only offers it when you know where to look...
+                    allowsMultipleSelection: repeats == true
+                ))
+            }
         case .reference:
             throw FHIRConversionError("Unsupported question type '\(itemType)'")
         }
@@ -478,7 +530,7 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
             return .decimal(try unwrap(value.value?.decimal.doubleValue))
         case .integer(let value):
             return .integer(Int(try unwrap(value.value?.integer)))
-        case .quantity(let value):
+        case .quantity:
             // ISSUE: we might need to convert units here? (if the condition uses a different unit than the question
             throw FHIRConversionError("Quantity values are not yet supported in comparisons")
         case .reference(let value):

@@ -281,7 +281,7 @@ extension QuestionnaireResponses {
                     // invalid match
                     return false
                 }
-            case .fileAttachment:
+            case .fileAttachment, .annotateImage:
                 return false
             }
         }

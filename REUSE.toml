@@ -2,7 +2,8 @@ version = 1
 
 [[annotations]]
 path = [
-    "Tests/SpeziQuestionnaireTests/Resources/**"
+    "Tests/SpeziQuestionnaireTests/Resources/**",
+    "Tests/UITests/TestApp/Resources/**"
 ]
 SPDX-FileCopyrightText = "2026 Stanford University and the project authors (see CONTRIBUTORS.md)"
 SPDX-License-Identifier = "MIT"

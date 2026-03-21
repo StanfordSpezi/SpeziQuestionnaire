@@ -17,9 +17,9 @@ public import SwiftUI
 ///
 /// Note that the ``QuestionnaireView`` does not dismiss itself; the presenting view is responsible for this.
 ///
-/// - Important: This type has been deprecated in favor of ``QuestionnaireSheet``.
+/// - Important: This type has been deprecated in favor of `QuestionnaireSheet`.
 ///     The difference is that this type uses ResearchKit to display the questionnaire and collect responses,
-///     whereas the new ``QuestionnaireSheet`` uses a custom, SwiftUI-native questionnaire renderer,
+///     whereas the new `QuestionnaireSheet` uses a custom, SwiftUI-native questionnaire renderer,
 ///     which, unlike ResearchKit, is able to match the exact structure, semantics, and defined behaviour of
 ///     the FHIR questionnaire being displayed.
 ///
