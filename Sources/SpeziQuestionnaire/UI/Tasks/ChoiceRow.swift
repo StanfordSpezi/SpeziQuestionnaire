@@ -44,7 +44,13 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
                     .accessibilityHidden(true)
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("Option: \(title), \(isSelected ? "Selected" : "Not Selected")", bundle: .module))
+            .accessibilityLabel({ () -> Text in
+                if isSelected {
+                    Text("Option: \(title), Selected", bundle: .module)
+                } else {
+                    Text("Option: \(title), Not Selected", bundle: .module)
+                }
+            }())
             .accessibilityIdentifier("Choice:\(id)")
         }
     }

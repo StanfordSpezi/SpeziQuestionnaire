@@ -114,15 +114,11 @@
     "Not Yet Implemented" : {
 
     },
-    "Option: %@, %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Option: %1$@, %2$@"
-          }
-        }
-      }
+    "Option: %@, Not Selected" : {
+
+    },
+    "Option: %@, Selected" : {
+
     },
     "Please answer the follow-up questions below, for the **'%@'** option you just selected." : {
 
