@@ -190,7 +190,11 @@ extension QuestionnaireResponses.Response {
                     """
                 )
             }
-            responseItem.answer = try value.toFHIR(for: context.task)
+            if !value.isEmpty {
+                responseItem.answer = try value.toFHIR(for: context.task)
+            } else {
+                responseItem.answer = nil
+            }
         }
         for (nestingId, responses) in nestedResponses {
             switch nestingId {
