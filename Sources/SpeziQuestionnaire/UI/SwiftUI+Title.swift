@@ -14,6 +14,7 @@ struct ViewTitleConfig: Sendable {
     fileprivate let title: Text
     fileprivate let subtitle: Text?
     
+    @_disfavoredOverload
     init(title: some StringProtocol, subtitle: (some StringProtocol)? = String?.none) {
         self.title = Text(title)
         self.subtitle = subtitle.map { Text($0) }
@@ -40,27 +41,4 @@ extension View {
             self
         }
     }
-}
-
-
-extension View {
-//    @ViewBuilder
-//    @_disfavoredOverload
-//    nonisolated func navigationTitle(_ title: (some StringProtocol)?) -> some View {
-//        if let title {
-//            self.navigationTitle(title)
-//        } else {
-//            self
-//        }
-//    }
-//    
-//    @ViewBuilder
-//    @_disfavoredOverload
-//    nonisolated func navigationSubtitle(_ subtitle: (some StringProtocol)?) -> some View {
-//        if let subtitle, #available(iOS 26, *) {
-//            self.navigationSubtitle(subtitle)
-//        } else {
-//            self
-//        }
-//    }
 }

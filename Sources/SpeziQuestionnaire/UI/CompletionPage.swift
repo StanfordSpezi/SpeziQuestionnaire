@@ -11,9 +11,9 @@ import SwiftUI
 
 
 struct CompletionPage: View {
-    let title: LocalizedStringResource
-    let message: LocalizedStringResource?
-    let action: @MainActor () async -> Void
+    private let title: LocalizedStringResource
+    private let message: LocalizedStringResource?
+    private let action: @MainActor () async -> Void
     
     var body: some View {
         VStack {
@@ -24,7 +24,7 @@ struct CompletionPage: View {
             AsyncButton {
                 await action()
             } label: {
-                Text("Continue")
+                Text("Continue", bundle: .module)
                     .bold()
                     .frame(maxWidth: .infinity, minHeight: 38)
             }
@@ -62,6 +62,16 @@ struct CompletionPage: View {
                 .foregroundStyle(.secondary)
                 .padding(.bottom)
         }
+    }
+    
+    init(
+        title: LocalizedStringResource,
+        message: LocalizedStringResource? = nil,
+        action: @escaping @MainActor () async -> Void
+    ) {
+        self.title = title
+        self.message = message
+        self.action = action
     }
 }
 

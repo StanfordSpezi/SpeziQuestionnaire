@@ -88,7 +88,7 @@ struct FilePicker: View {
             }
         }
         .sheet(isPresented: $isShowingCameraSheet) {
-            Text("Not Yet Implemented")
+            Text("Not Yet Implemented", bundle: .module)
         }
         .onChange(of: selectedPhotos) { _, newValue in
             guard !newValue.isEmpty else {
@@ -136,7 +136,7 @@ struct FilePicker: View {
         Button {
             isShowingCameraSheet = true
         } label: {
-            Label("Take Photo", systemImage: "camera")
+            Label(LocalizedStringResource("Take Photo", bundle: .module), systemImage: "camera")
         }
     }
     
@@ -144,7 +144,7 @@ struct FilePicker: View {
         Button {
             isShowingPhotosPicker = true
         } label: {
-            Label("Select Photo", systemImage: "photo.on.rectangle")
+            Label(LocalizedStringResource("Select Photo", bundle: .module), systemImage: "photo.on.rectangle")
         }
     }
     
@@ -152,7 +152,7 @@ struct FilePicker: View {
         Button {
             isShowingFileImporter = true
         } label: {
-            Label("Select File", systemImage: "document")
+            Label(LocalizedStringResource("Select File", bundle: .module), systemImage: "document")
         }
     }
     

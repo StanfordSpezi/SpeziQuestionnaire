@@ -7,6 +7,16 @@
     "Annotate Image" : {
 
     },
+    "ANNOTATE_IMAGE_INSTRUCTIONS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please annotate the image below.\nSelect a region marker from underneath the image, and highlight the corresponding areas in the image."
+          }
+        }
+      }
+    },
     "Answered" : {
 
     },
@@ -22,10 +32,19 @@
     "Continue" : {
 
     },
+    "Discard Nested Responses" : {
+
+    },
     "Dismiss Keyboard" : {
 
     },
     "Do you want to remove all annotations?" : {
+
+    },
+    "Enter Date" : {
+
+    },
+    "Enter Time" : {
 
     },
     "Follow-Up" : {
@@ -40,6 +59,31 @@
     "Image Missing" : {
 
     },
+    "Invalid Input" : {
+
+    },
+    "Limited to %llu decimal places" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Limited to %llu decimal place"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "Limited to %llu decimal places"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Mark %@" : {
 
     },
@@ -47,6 +91,21 @@
 
     },
     "Missing Response" : {
+
+    },
+    "Missing response text for \"Other\" option" : {
+
+    },
+    "Must be after %@" : {
+
+    },
+    "Must be at least %lf" : {
+
+    },
+    "Must be at most %lf" : {
+
+    },
+    "Must be before %@" : {
 
     },
     "No" : {
@@ -69,6 +128,9 @@
 
     },
     "Questionnaire Complete" : {
+
+    },
+    "Questionnaire is Empty" : {
 
     },
     "Reset" : {
@@ -109,6 +171,53 @@
     },
     "Tap to annotate" : {
 
+    },
+    "This will de-select the '%@' option and discard all responses below." : {
+
+    },
+    "Too long: can be at most %lld characters" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too long: can be at most %lld character"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "Too long: can be at most %lld characters"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Too short: must be at least %lld characters" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Too short: must be at least %lld character"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "Too short: must be at least %lld characters"
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "Yes" : {
 

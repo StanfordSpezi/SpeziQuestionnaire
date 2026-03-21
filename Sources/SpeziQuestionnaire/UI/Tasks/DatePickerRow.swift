@@ -29,16 +29,16 @@ struct DatePickerRow: View {
             .datePickerStyle(.compact)
     }
     
-    private var label: String {
+    private var label: LocalizedStringResource {
         switch config.style {
         case .dateOnly:
-            "Enter Date"
+            LocalizedStringResource("Enter Date", bundle: .module)
         case .timeOnly:
-            "Enter Time"
+            LocalizedStringResource("Enter Time", bundle: .module)
         case .dateAndTime:
             // Ideally we'd have "Enter Date and Time",
             // but that's too long and will cause the date picker to get displayed below the label :/
-            "Enter Date"
+            LocalizedStringResource("Enter Date", bundle: .module)
         }
     }
     

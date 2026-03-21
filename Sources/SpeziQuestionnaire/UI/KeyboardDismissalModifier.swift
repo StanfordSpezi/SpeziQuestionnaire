@@ -6,6 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
+import SpeziViews
 import SwiftUI
 
 
@@ -24,7 +25,7 @@ private struct KeyboardDismissalModifier: ViewModifier {
                         isFocused = false
                     } label: {
                         Image(systemName: "checkmark")
-                            .accessibilityLabel("Dismiss Keyboard")
+                            .accessibilityLabel(Text("Dismiss Keyboard", bundle: .module))
                     }
                     .buttonStyleGlassProminent()
                 }

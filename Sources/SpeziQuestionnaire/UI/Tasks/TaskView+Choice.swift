@@ -44,8 +44,10 @@ extension TaskView {
                         }
                     }
                 } accessoryIfSelected: {
-                    TextField("", text: $response.value.choiceValue.freeTextOtherResponse.withDefault(""), prompt: Text(verbatim: "…"))
-                        .textFieldStyle(.roundedBorder)
+                    TextField(text: $response.value.choiceValue.freeTextOtherResponse.withDefault(""), prompt: Text(verbatim: "…")) {
+                        Text(verbatim: "")
+                    }
+                    .textFieldStyle(.roundedBorder)
                 }
             }
         }
@@ -116,13 +118,16 @@ extension TaskView.ChoiceAnswering {
                         }
                     } header: {
                         VStack(alignment: .leading) {
-                            Text("Follow-Up")
+                            Text("Follow-Up", bundle: .module)
                                 .font(.headline)
-                            Text("Please answer the follow-up questions below, for the **'\(option.title)'** option you just selected.")
-                                .font(.subheadline)
+                            Text(
+                                "Please answer the follow-up questions below, for the **'\(option.title)'** option you just selected.",
+                                bundle: .module
+                            )
+                            .font(.subheadline)
                         }
                     }
-                    .navigationTitle("Follow-Up: \(option.title)")
+                    .navigationTitle(Text("Follow-Up: \(option.title)", bundle: .module))
                 }
                 .accessibilityIdentifier("SpeziQuestionnaireNavStack")
                 .interactiveDismissDisabled()

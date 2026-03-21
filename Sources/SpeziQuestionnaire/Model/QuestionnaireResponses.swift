@@ -155,7 +155,7 @@ extension QuestionnaireResponses {
     func isComplete(in section: Questionnaire.Section) -> Bool {
         !isMissingResponses(in: section) && section.tasks.allSatisfy { task in
             // either the task is disabled, or its response is valid.
-            !shouldEnable(task: task) || validateResponse(for: task) == .ok
+            !shouldEnable(task: task) || validateResponse(for: task).isOk
         }
     }
     
@@ -164,7 +164,7 @@ extension QuestionnaireResponses {
     /// For example, if a required task is missing a response or its response is invalid, it would get returned.
     func firstTaskPreventingCompletion(of section: Questionnaire.Section) -> Questionnaire.Task? {
         section.tasks.first { task in
-            isMissingResponse(for: task) || validateResponse(for: task) != .ok
+            isMissingResponse(for: task) || !validateResponse(for: task).isOk
         }
     }
     

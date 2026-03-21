@@ -50,7 +50,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                 ForEach(section.tasks) { task in
                     TaskView(section: section, task: task, response: $responses.responses[task.id]) {
                         if indicateMissingResponses && responses.isMissingResponse(for: task) {
-                            Text("Missing Response")
+                            Text("Missing Response", bundle: .module)
                                 .foregroundStyle(.red)
                         }
                     }
@@ -62,7 +62,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                 AsyncButton(state: $viewState) {
                     await advance(using: scrollViewProxy)
                 } label: {
-                    Text("Continue")
+                    Text("Continue", bundle: .module)
                         .bold()
                         .frame(maxWidth: .infinity, minHeight: 38)
                 }
@@ -111,13 +111,13 @@ struct QuestionnaireSectionView<Header: View>: View {
             AsyncButton(role: .confirm, state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
-                Text("Submit")
+                Text("Submit", bundle: .module)
             }
         } else {
             AsyncButton(state: $viewState) {
                 await resultHandler(.completed(responses))
             } label: {
-                Label("Submit", systemImage: "checkmark")
+                Label(LocalizedStringResource("Submit", bundle: .module), systemImage: "checkmark")
             }
             .labelStyle(.iconOnly)
         }
@@ -206,7 +206,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                     await resultHandler(.completed(responses))
                 case .enable:
                     navigationPath.append {
-                        CompletionPage(title: "Questionnaire Complete", message: nil) {
+                        CompletionPage(title: LocalizedStringResource("Questionnaire Complete", bundle: .module)) {
                             await resultHandler(.completed(responses))
                         }
                     }
@@ -234,8 +234,12 @@ extension QuestionnaireSectionView {
                     isPresented: $showConfirmation,
                     titleVisibility: .visible,
                     actions: {
-                        AsyncButton("Yes", role: .destructive, action: action)
-                        Button("No", role: .cancel) {}
+                        AsyncButton(role: .destructive, action: action) {
+                            Text("Yes", bundle: .module)
+                        }
+                        Button(role: .cancel, action: {}) {
+                            Text("No", bundle: .module)
+                        }
                     },
                     message: {
                         Text(confirmMessage)
@@ -243,21 +247,27 @@ extension QuestionnaireSectionView {
                 )
         }
         
-        private var confirmTitle: String {
+        private var confirmTitle: LocalizedStringResource {
             switch context {
             case .regular:
-                "Cancel Questionnaire"
+                LocalizedStringResource("Cancel Questionnaire", bundle: .module)
             case .answerNestedQuestions:
-                "Discard Nested Responses"
+                LocalizedStringResource("Discard Nested Responses", bundle: .module)
             }
         }
         
-        private var confirmMessage: String {
+        private var confirmMessage: LocalizedStringResource {
             switch context {
             case .regular:
-                "Are you sure you want to cancel the questionnaire?\nYour responses will be lost."
+                LocalizedStringResource(
+                    "Are you sure you want to cancel the questionnaire?\nYour responses will be lost.",
+                    bundle: .module
+                )
             case .answerNestedQuestions(parentTask: _, let selectedOptionTitle, sections: _):
-                "This will de-select the '\(selectedOptionTitle)' option and discard all responses below."
+                LocalizedStringResource(
+                    "This will de-select the '\(selectedOptionTitle)' option and discard all responses below.",
+                    bundle: .module
+                )
             }
         }
         
@@ -271,7 +281,7 @@ extension QuestionnaireSectionView {
                     showConfirmation = true
                 } label: {
                     Image(systemName: "xmark")
-                        .accessibilityLabel("Cancel")
+                        .accessibilityLabel(LocalizedStringResource("Cancel", bundle: .module))
                 }
             }
         }

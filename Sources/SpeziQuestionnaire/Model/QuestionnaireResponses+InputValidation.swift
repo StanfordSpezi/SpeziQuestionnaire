@@ -6,15 +6,31 @@
 // SPDX-License-Identifier: MIT
 //
 
-private import Foundation
+import Foundation
 
 
 extension QuestionnaireResponses {
-    enum ResponseValidationResult: Hashable, Sendable {
+    enum ResponseValidationResult: Sendable {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
-        case invalid(message: String)
+        case invalid(message: LocalizedStringResource)
+        
+        /// Creates a ``invalid(message:)`` localized to the specified bundle.
+        ///
+        /// - Important: Use this function when creating `invalid` results within the package, to ensure that the localization is picked up correctly.
+        static func invalid(message: String.LocalizationValue, bundle: Bundle) -> Self {
+            .invalid(message: LocalizedStringResource(message, bundle: bundle))
+        }
+        
+        var isOk: Bool {
+            switch self {
+            case .ok:
+                true
+            case .invalid:
+                false
+            }
+        }
         
         var isInvalid: Bool {
             switch self {
@@ -52,7 +68,7 @@ extension QuestionnaireResponses {
                     return .ok
                 }
                 guard !response.isEmpty else {
-                    return .invalid(message: "Missing response text for \"Other\" option")
+                    return .invalid(message: "Missing response text for \"Other\" option", bundle: .module)
                 }
                 return .ok
             } else {
@@ -66,15 +82,15 @@ extension QuestionnaireResponses {
                 return .ok
             }
             if let minLength = config.minLength, response.count < minLength {
-                return .invalid(message: "Too short: must be at least \(minLength) character\(minLength == 1 ? "" : "s")")
+                return .invalid(message: "Too short: must be at least \(minLength) characters", bundle: .module)
             }
             if let maxLength = config.maxLength, response.count > maxLength {
-                return .invalid(message: "Too long: can be at most \(maxLength) character\(maxLength == 1 ? "" : "s")")
+                return .invalid(message: "Too long: can be at most \(maxLength) characters", bundle: .module)
             }
             let responseNSString = response as NSString
             let wholeStringRange = NSRange(location: 0, length: responseNSString.length)
             if let regex = config.regex, regex.rangeOfFirstMatch(in: response, range: wholeStringRange) != wholeStringRange {
-                return .invalid(message: "Invalid Input")
+                return .invalid(message: "Invalid Input", bundle: .module)
             }
             return .ok
         case .dateTime(let config):
@@ -95,7 +111,8 @@ extension QuestionnaireResponses {
                         )?
                         .formatted(date: .omitted, time: .shortened)
                     return .invalid(
-                        message: "Must be after \(minValueDesc ?? (config.minValue ?? .init()).description)" // will never be nil.
+                        message: "Must be after \(minValueDesc ?? (config.minValue ?? .init()).description)", // will never be nil.
+                        bundle: .module
                     )
                 }
                 if let maxValue = config.maxValue.map({ ($0.hour ?? 0, $0.minute ?? 0, $0.second ?? 0) }), !(response <= maxValue) {
@@ -108,20 +125,21 @@ extension QuestionnaireResponses {
                         )?
                         .formatted(date: .omitted, time: .shortened)
                     return .invalid(
-                        message: "Must be before \(maxValueDesc ?? (config.maxValue ?? .init()).description)" // will never be nil.
+                        message: "Must be before \(maxValueDesc ?? (config.maxValue ?? .init()).description)", // will never be nil.
+                        bundle: .module
                     )
                 }
                 return .ok
             case .dateOnly, .dateAndTime:
                 guard let responseDate = cal.date(from: response) else {
                     // very likely unreachable
-                    return .invalid(message: "Invalid Input")
+                    return .invalid(message: "Invalid Input", bundle: .module)
                 }
                 if let minDate = config.minValue.flatMap({ cal.date(from: $0) }), responseDate < minDate {
-                    return .invalid(message: "Must be after \(minDate.formatted(.dateTime))")
+                    return .invalid(message: "Must be after \(minDate.formatted(.dateTime))", bundle: .module)
                 }
                 if let maxDate = config.maxValue.flatMap({ cal.date(from: $0) }), responseDate > maxDate {
-                    return .invalid(message: "Must be before \(maxDate.formatted(.dateTime))")
+                    return .invalid(message: "Must be before \(maxDate.formatted(.dateTime))", bundle: .module)
                 }
                 return .ok
             }
@@ -130,17 +148,17 @@ extension QuestionnaireResponses {
                 return .ok
             }
             if let minimum = config.minimum, response < minimum {
-                return .invalid(message: "Must be at least \(minimum)")
+                return .invalid(message: "Must be at least \(minimum)", bundle: .module)
             }
             if let maximum = config.maximum, response > maximum {
-                return .invalid(message: "Must be at most \(maximum)")
+                return .invalid(message: "Must be at most \(maximum)", bundle: .module)
             }
             if let maxDecimalPlaces = config.maxDecimalPlaces {
                 let fmtNormal = response.formatted(.number)
                 let fmtLimit = response.formatted(.number.precision(.fractionLength(Int(maxDecimalPlaces))))
                 return fmtNormal == fmtLimit
                     ? .ok
-                    : .invalid(message: "Limited to \(maxDecimalPlaces) decimal place\(maxDecimalPlaces == 1 ? "" : "s")")
+                    : .invalid(message: "Limited to \(maxDecimalPlaces) decimal places", bundle: .module)
             }
             return .ok
         case .fileAttachment, .annotateImage:

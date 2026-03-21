@@ -35,20 +35,20 @@ struct AnnotateImageView: View {
                     Image(systemName: "questionmark.square.dashed")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .accessibilityLabel("Image Missing")
+                        .accessibilityLabel(Text("Image Missing", bundle: .module))
                         .frame(width: 50)
                 }
                 VStack(alignment: .leading) {
                     HStack {
                         let regions = config.regions.map(\.name).joined(separator: ", ")
-                        Text("Mark \(regions)")
+                        Text("Mark \(regions)", bundle: .module)
                             .fontWeight(.medium)
                         Spacer()
                         let hasResponse = !response.isEmpty
-                        Badge(hasResponse ? "Answered" : "Missing")
+                        Badge(hasResponse ? "Answered" : "Missing", bundle: .module)
                             .tint(hasResponse ? .green : .orange)
                     }
-                    Text("Tap to annotate")
+                    Text("Tap to annotate", bundle: .module)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -76,7 +76,7 @@ struct AnnotateImageView: View {
     
     private func previewImage(for image: UIImage) -> some View {
         ImageAnnotationView(image: image, drawing: $response.drawing, tool: .init(.pen))
-            .accessibilityLabel("Image")
+            .accessibilityLabel(Text("Image", bundle: .module))
             .frame(height: 100)
             .disabled(true)
     }
@@ -112,6 +112,12 @@ extension AnnotateImageView {
                 Text(title)
             }
         }
+        
+        init(_ title: LocalizedStringKey, bundle: Bundle) where Label == Text {
+            self.init {
+                Text(title, bundle: bundle)
+            }
+        }
     }
 }
 
@@ -138,10 +144,7 @@ private struct Sheet: View {
                     Text(task.subtitle)
                         .font(.subheadline)
                     Divider()
-                    Text(verbatim: """
-                        Please annotate the image below.
-                        Select a region marker from underneath the image, and highlight the corresponding areas in the image.
-                        """)
+                    Text("ANNOTATE_IMAGE_INSTRUCTIONS", bundle: .module)
                 }
                 .padding(.horizontal)
                 Divider()
@@ -165,7 +168,7 @@ private struct Sheet: View {
                 .frame(height: 150)
                 .sensoryFeedback(.selection, trigger: selectedRegion)
             }
-            .navigationTitle("Annotate Image")
+            .navigationTitle(Text("Annotate Image", bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .makeBackgroundMatchFormBackground()
             .toolbar {
@@ -185,15 +188,17 @@ private struct Sheet: View {
             Button(role: .destructive) {
                 isShowingResetAlert = true
             } label: {
-                Label("Reset", systemImage: "trash")
+                Label(LocalizedStringResource("Reset", bundle: .module), systemImage: "trash")
             }
             .tint(.red)
-            .confirmationDialog("Reset Annotations", isPresented: $isShowingResetAlert) {
-                Button("Reset", role: .destructive) {
+            .confirmationDialog(LocalizedStringResource("Reset Annotations", bundle: .module), isPresented: $isShowingResetAlert) {
+                Button(role: .destructive) {
                     response.drawing = .init()
+                } label: {
+                    Text("Reset", bundle: .module)
                 }
             } message: {
-                Text("Do you want to remove all annotations?")
+                Text("Do you want to remove all annotations?", bundle: .module)
             }
         }
         ToolbarItem(placement: .confirmationAction) {
@@ -201,13 +206,13 @@ private struct Sheet: View {
                 Button(role: .confirm) {
                     dismiss()
                 } label: {
-                    Label("Save", systemImage: "checkmark")
+                    Label(LocalizedStringResource("Save", bundle: .module), systemImage: "checkmark")
                 }
             } else {
                 Button {
                     dismiss()
                 } label: {
-                    Label("Save", systemImage: "checkmark")
+                    Label(LocalizedStringResource("Save", bundle: .module), systemImage: "checkmark")
                 }
                 .buttonStyleGlassProminent()
             }

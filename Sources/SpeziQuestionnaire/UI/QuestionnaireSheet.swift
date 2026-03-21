@@ -64,7 +64,10 @@ public struct QuestionnaireSheet: View {
                 }
                 .interactiveDismissDisabled()
             } else {
-                ContentUnavailableView("Questionnaire is Empty" as String, image: "exclamationmark.triangle")
+                ContentUnavailableView(
+                    LocalizedStringResource("Questionnaire is Empty", bundle: .module),
+                    image: "exclamationmark.triangle"
+                )
             }
         }
         .accessibilityIdentifier("SpeziQuestionnaireNavStack")

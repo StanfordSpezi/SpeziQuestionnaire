@@ -62,7 +62,7 @@ struct FileAttachmentQuestionView: View {
                             return try await item.loadTransferable(type: QuestionnaireResponses.CollectedAttachment.self)
                         }
                     } catch {
-                        print("ERROR: \(error)")
+                        print("Error processing selected file picker item: \(error)")
                         return nil
                     }
                 }
