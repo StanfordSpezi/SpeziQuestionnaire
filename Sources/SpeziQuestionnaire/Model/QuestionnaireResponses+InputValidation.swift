@@ -16,13 +16,6 @@ extension QuestionnaireResponses {
         /// The response provided for the task is invalid.
         case invalid(message: LocalizedStringResource)
         
-        /// Creates a ``invalid(message:)`` localized to the specified bundle.
-        ///
-        /// - Important: Use this function when creating `invalid` results within the package, to ensure that the localization is picked up correctly.
-        static func invalid(message: String.LocalizationValue, bundle: Bundle) -> Self {
-            .invalid(message: LocalizedStringResource(message, bundle: bundle))
-        }
-        
         var isOk: Bool {
             switch self {
             case .ok:
@@ -39,6 +32,13 @@ extension QuestionnaireResponses {
             case .invalid:
                 true
             }
+        }
+        
+        /// Creates a ``invalid(message:)`` localized to the specified bundle.
+        ///
+        /// - Important: Use this function when creating `invalid` results within the package, to ensure that the localization is picked up correctly.
+        static func invalid(message: String.LocalizationValue, bundle: Bundle) -> Self {
+            .invalid(message: LocalizedStringResource(message, bundle: bundle))
         }
     }
     
