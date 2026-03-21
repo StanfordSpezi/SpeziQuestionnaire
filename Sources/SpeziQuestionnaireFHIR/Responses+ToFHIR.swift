@@ -28,7 +28,7 @@ extension SpeziQuestionnaire.QuestionnaireResponses {
         ///
         /// - throws: If the response was invalid, or there was some other error turning it into a `ModelsR4.QuestionnaireResponseItemAnswer`.
         /// - returns: An array of `ModelsR4.QuestionnaireResponseItemAnswer` objects, which will be inserted into the `ModelsR4.QuestionnaireResponse` to which this response belongs.
-        ///     In most cases this array should contain only a single element, but if the custom resopnse represents multiple actual responses, it should contain one element per response.
+        ///     In most cases this array should contain only a single element, but if the custom response represents multiple actual responses, it should contain one element per response.
         func toFHIR(
             for task: SpeziQuestionnaire.Questionnaire.Task
         ) throws -> [ModelsR4.QuestionnaireResponseItemAnswer]
