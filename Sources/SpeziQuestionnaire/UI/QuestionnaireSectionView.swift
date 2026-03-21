@@ -56,11 +56,13 @@ struct QuestionnaireSectionView<Header: View>: View {
                     }
                     .id(task.id)
                 }
+                // disallow mutating responses while an action is being performed
+                .disabled(viewState == .processing)
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 let canContinue = responses.isComplete(in: section)
-                AsyncButton(state: $viewState) {
-                    await advance(using: scrollViewProxy)
+                Button {
+                    advance(using: scrollViewProxy)
                 } label: {
                     Text("Continue", bundle: .module)
                         .bold()
@@ -78,6 +80,8 @@ struct QuestionnaireSectionView<Header: View>: View {
         }
         .navigationTitle(titleConfig)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
+        // disallow navigating around while an action is being performed
+        .navigationBarBackButtonHidden(viewState == .processing)
         .toolbar {
             toolbarContent
         }
@@ -100,7 +104,9 @@ struct QuestionnaireSectionView<Header: View>: View {
                 toolbarDoneButton
             } else {
                 CancelButton(context: context) {
-                    await resultHandler(.cancelled)
+                    Task {
+                        await resultHandler(.cancelled)
+                    }
                 }
             }
         }
@@ -180,7 +186,19 @@ struct QuestionnaireSectionView<Header: View>: View {
     }
     
     
-    private func advance(using scrollViewProxy: ScrollViewProxy) async {
+    private func advance(using scrollViewProxy: ScrollViewProxy) {
+        guard viewState == .idle else {
+            assertionFailure("Called \(#function) with non-idle viewState!")
+            return
+        }
+        viewState = .processing
+        Task {
+            await _advance(using: scrollViewProxy)
+            viewState = .idle
+        }
+    }
+    
+    private func _advance(using scrollViewProxy: ScrollViewProxy) async {
         if let problematicTask = responses.firstTaskPreventingCompletion(of: section) {
             indicateMissingResponses = true
             withAnimation {
@@ -223,7 +241,7 @@ struct QuestionnaireSectionView<Header: View>: View {
 extension QuestionnaireSectionView {
     private struct CancelButton: View {
         let context: Context
-        let action: @MainActor () async -> Void
+        let action: @MainActor () -> Void
         
         @State private var showConfirmation = false
         
@@ -234,7 +252,7 @@ extension QuestionnaireSectionView {
                     isPresented: $showConfirmation,
                     titleVisibility: .visible,
                     actions: {
-                        AsyncButton(role: .destructive, action: action) {
+                        Button(role: .destructive, action: action) {
                             Text("Yes", bundle: .module)
                         }
                         Button(role: .cancel, action: {}) {
