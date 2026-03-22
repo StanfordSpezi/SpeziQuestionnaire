@@ -6,14 +6,12 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable all
+// swiftlint:disable function_body_length multiline_arguments_brackets
 
-import FHIRQuestionnaires
 import FHIRModelsExtensions
 import Foundation
 import ModelsR4
 @testable import SpeziQuestionnaire
-import SpeziQuestionnaireCatalog
 @testable import SpeziQuestionnaireFHIR
 import SwiftUI
 import Testing
@@ -21,20 +19,17 @@ import Testing
 
 @Suite
 struct FHIRConversionCustomTasksTests {
-    @Test func simpleCustomTask() throws {
+    @Test
+    func simpleCustomTask() throws {
         struct Config: QuestionKindConfig {
             let options: [String]
         }
         let taskDefinition = QuestionKindDefinitionWithFHIRSupport(
             id: "edu.stanford.Spezi.Questionnaire.",
             configType: Config.self
-        ) { response, config in
+        ) { _, _ in
             .ok
         } parseFHIR: { (item: ModelsR4.QuestionnaireItem) -> Config? in
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-            let text = String(decoding: try! encoder.encode(item), as: UTF8.self)
-            print(text)
             guard let itemControlExt = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl").first,
                   let itemControlCoding = itemControlExt.value?.codableConceptValue?.coding?.first,
                   itemControlCoding.system == "http://spezi.stanford.edu/fhir/CodeSystem/custom-task/item-control",
