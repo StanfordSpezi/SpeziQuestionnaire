@@ -103,6 +103,7 @@ let package = Package(
                 "SpeziQuestionnaireCatalog",
                 "SpeziQuestionnaireFHIR",
                 .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "FHIRModelsExtensions", package: "FHIRModelsExtensions"),
                 .product(name: "FHIRQuestionnaires", package: "FHIRModelsExtensions")
             ],
             resources: [.process("Resources")],

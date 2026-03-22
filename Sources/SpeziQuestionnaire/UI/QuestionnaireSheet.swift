@@ -45,6 +45,7 @@ public import SwiftUI
 /// ```
 public struct QuestionnaireSheet: View {
     private let questionnaire: Questionnaire
+    private let customQuestionKinds: [any QuestionKindDefinitionProtocol]
     private let completionStepConfig: CompletionStepConfig
     private let resultHandler: @MainActor (Result) async -> Void
     
@@ -72,6 +73,7 @@ public struct QuestionnaireSheet: View {
         }
         .accessibilityIdentifier("SpeziQuestionnaireNavStack")
         .environment(responses)
+        .environment(\.customQuestionKinds, customQuestionKinds)
     }
     
     /// Creates a new `QuestionnaireSheet`
@@ -87,13 +89,20 @@ public struct QuestionnaireSheet: View {
         _ questionnaire: Questionnaire,
         responses: QuestionnaireResponses? = nil,
         completionStepConfig: CompletionStepConfig = .enable,
+        additionalQuestionKinds: [any QuestionKindDefinitionProtocol] = [],
         resultHandler: @escaping @MainActor (Result) async -> Void
     ) {
         self.questionnaire = questionnaire.withConditionsSimplified()
         self.completionStepConfig = completionStepConfig
         self.responses = responses ?? QuestionnaireResponses(questionnaire: questionnaire)
+        self.customQuestionKinds = additionalQuestionKinds
         self.resultHandler = resultHandler
     }
+}
+
+
+extension EnvironmentValues {
+    @Entry var customQuestionKinds: [any QuestionKindDefinitionProtocol] = []
 }
 
 

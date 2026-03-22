@@ -110,4 +110,13 @@ struct TaskConditionTests {
             rootTask0.id: .init(value: .bool(false))
         ]))
     }
+    
+    
+    @Test
+    func conditionSimplification() {
+        do {
+            let input: Questionnaire.Condition = .all([.all([.all([]), .all([])]), .all([])])
+            #expect(input.simplified() == .none)
+        }
+    }
 }

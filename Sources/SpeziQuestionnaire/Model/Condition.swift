@@ -36,7 +36,7 @@ extension Questionnaire {
     /// ### Supporting Types
     /// - ``ComparisonOperator``
     /// - ``Value``
-    public indirect enum Condition: Hashable, ExpressibleByBooleanLiteral, Sendable {
+    public indirect enum Condition: ExpressibleByBooleanLiteral, Sendable {
         /// A condition that is satisfied if `nested` is not satisfied.
         case not(_ nested: Condition)
         
@@ -128,6 +128,57 @@ extension Questionnaire {
         /// Negates a condition
         public static prefix func ! (rhs: Self) -> Self {
             .not(rhs)
+        }
+    }
+}
+
+
+extension Questionnaire.Condition: Hashable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.simplified().isEqual(to: rhs.simplified())
+    }
+    
+    private func isEqual(to other: Self) -> Bool {
+        switch (self, other) {
+        case let (.not(lhs), .not(rhs)):
+            lhs.isEqual(to: rhs)
+        case let (.any(lhs), .any(rhs)):
+            Set(lhs) == Set(rhs)
+        case let (.all(lhs), .all(rhs)):
+            Set(lhs) == Set(rhs)
+        case let (.hasResponse(lhs), .hasResponse(rhs)):
+            lhs == rhs
+        case let (.isMissingResponse(lhs), .isMissingResponse(rhs)):
+            lhs == rhs
+        case let (.responseValueComparison(lhsTask, lhsOp, lhsVal), .responseValueComparison(rhsTask, rhsOp, rhsVal)):
+            lhsTask == rhsTask && lhsOp == rhsOp && lhsVal == rhsVal
+        default:
+            false
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .not(let inner):
+            hasher.combine(#line)
+            hasher.combine(inner)
+        case .any(let inner):
+            hasher.combine(#line)
+            hasher.combine(inner)
+        case .all(let inner):
+            hasher.combine(#line)
+            hasher.combine(inner)
+        case .hasResponse(let taskId):
+            hasher.combine(#line)
+            hasher.combine(taskId)
+        case .isMissingResponse(let taskId):
+            hasher.combine(#line)
+            hasher.combine(taskId)
+        case let .responseValueComparison(taskId, `operator`, value):
+            hasher.combine(#line)
+            hasher.combine(taskId)
+            hasher.combine(`operator`)
+            hasher.combine(value)
         }
     }
 }

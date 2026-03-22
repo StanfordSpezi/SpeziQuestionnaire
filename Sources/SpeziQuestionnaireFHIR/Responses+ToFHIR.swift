@@ -250,7 +250,11 @@ extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.Questionnai
     public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
         let baseImage: UIImage
         switch task.kind {
-        case .annotateImage(let config):
+        case ._custom(questionKind: _, let config):
+            guard let config = config as? AnnotateImageConfig else {
+                throw FHIRConversionError("Invalid task kind")
+            }
+//        case .annotateImage(let config):
             guard let image = config.inputImage.image() else {
                 // Simply draw the annotation onto a clear backgrund in this case? (no.)
                 throw FHIRConversionError("Unable to obtain baseImage")

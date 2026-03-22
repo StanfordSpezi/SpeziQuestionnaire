@@ -281,7 +281,10 @@ extension QuestionnaireResponses {
                     // invalid match
                     return false
                 }
-            case .fileAttachment, .annotateImage:
+            case .fileAttachment/*, .annotateImage*/:
+                return false
+            case let ._custom(questionKind, config):
+                // TODO???
                 return false
             }
         }

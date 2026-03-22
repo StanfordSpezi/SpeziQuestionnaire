@@ -31,7 +31,10 @@ private struct FHIRConversionError: LocalizedError {
 
 extension SpeziQuestionnaire.Questionnaire {
     /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
-    public init(_ other: ModelsR4.Questionnaire) throws {
+    public init(
+        _ other: ModelsR4.Questionnaire,
+        additionalTaskDefinitions: [any QuestionKindDefinitionProtocol] = []
+    ) throws {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
         }
@@ -43,7 +46,7 @@ extension SpeziQuestionnaire.Questionnaire {
         )
         self.init(
             metadata: metadata,
-            sections: try other.toSections()
+            sections: try other.toSections(additionalTaskDefinitions: additionalTaskDefinitions)
         )
     }
 }
@@ -54,11 +57,15 @@ private struct ConversionContext {
     let questionnaire: ModelsR4.Questionnaire
     /// The "is enabled" condition of the parent item.
     let parentItemCondition: SpeziQuestionnaire.Questionnaire.Condition
+    /// TODO document!
+    let additionalTaskDefinitions: [any QuestionKindDefinitionProtocol]
 }
 
 
 extension ModelsR4.Questionnaire {
-    fileprivate func toSections() throws -> [SpeziQuestionnaire.Questionnaire.Section] {
+    fileprivate func toSections(
+        additionalTaskDefinitions: [any QuestionKindDefinitionProtocol]
+    ) throws -> [SpeziQuestionnaire.Questionnaire.Section] {
         guard let items = item, !items.isEmpty else {
             throw FHIRConversionError("Input questionnaire is empty")
         }
@@ -106,7 +113,8 @@ extension ModelsR4.Questionnaire {
             }
             let context = ConversionContext(
                 questionnaire: self,
-                parentItemCondition: .none
+                parentItemCondition: .none,
+                additionalTaskDefinitions: additionalTaskDefinitions
             )
             return try item.toSection(using: context)
         }
@@ -128,7 +136,8 @@ extension ModelsR4.QuestionnaireItem {
         let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
         let itemContext = ConversionContext(
             questionnaire: context.questionnaire,
-            parentItemCondition: groupCondition
+            parentItemCondition: groupCondition,
+            additionalTaskDefinitions: context.additionalTaskDefinitions
         )
         return .init(
             id: linkId,
@@ -154,7 +163,8 @@ extension ModelsR4.QuestionnaireItem {
             // non-top-level groups are flattened into a series of tasks; the group's title is ignored but its condition is inherited by the tasks
             let itemContext = ConversionContext(
                 questionnaire: context.questionnaire,
-                parentItemCondition: context.parentItemCondition && groupCondition
+                parentItemCondition: context.parentItemCondition && groupCondition,
+                additionalTaskDefinitions: context.additionalTaskDefinitions
             )
             return try nestedItems.flatMap { item in
                 try item.toTasks(using: itemContext)
@@ -171,7 +181,8 @@ extension ModelsR4.QuestionnaireItem {
             if itemType != .display, let nestedItems = item, !nestedItems.isEmpty {
                 let itemContext = ConversionContext(
                     questionnaire: context.questionnaire,
-                    parentItemCondition: context.parentItemCondition && task.enabledCondition
+                    parentItemCondition: context.parentItemCondition && task.enabledCondition,
+                    additionalTaskDefinitions: context.additionalTaskDefinitions
                 )
                 let nestedTasks = try nestedItems.flatMap { item in
                     try item.toTasks(using: itemContext)
@@ -190,7 +201,7 @@ extension ModelsR4.QuestionnaireItem {
             throw FHIRConversionError("QuestionnaireItem is missing 'type'")
         }
         guard itemControl != "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
-            try toCustomTaskKind(using: context)
+            return try toCustomTaskKind(using: context)
         }
         switch itemType {
         case .group:
@@ -199,31 +210,50 @@ extension ModelsR4.QuestionnaireItem {
             guard let text = text?.value?.string else {
                 throw FHIRConversionError("QuestionnaireItem of type display is missing 'text'")
             }
-            return .instructional(text)
+            switch itemControl {
+            case .none:
+                return .instructional(text)
+            case .some:
+                return try toCustomTaskKind(using: context)
+            }
         case .question:
             // is this what we'd need to parse/support for custom question kinds??
             throw FHIRConversionError("Not-yet-supported question type 'question'")
         case .boolean:
-            return .boolean
+            switch itemControl {
+            case .none:
+                return .boolean
+            case .some:
+                return try toCustomTaskKind(using: context)
+            }
         case .decimal, .integer, .quantity:
+            let inputMode: SpeziQuestionnaire.Questionnaire.Task.Kind.NumericTaskConfig.InputMode
+            switch itemControl {
+            case "slider":
+                inputMode = if let sliderStepValue {
+                    .slider(stepValue: sliderStepValue.doubleValue)
+                } else {
+                    .numberPad(itemType == .integer ? .integer : .decimal)
+                }
+            case .none:
+                inputMode = .numberPad(itemType == .integer ? .integer : .decimal)
+            case .some:
+                return try toCustomTaskKind(using: context)
+            }
             return .numeric(.init(
-                inputMode: {
-                    switch self.itemControl {
-                    case "slider":
-                        guard let sliderStepValue else {
-                            return .numberPad(itemType == .integer ? .integer : .decimal)
-                        }
-                        return .slider(stepValue: sliderStepValue.doubleValue)
-                    default:
-                        return .numberPad(itemType == .integer ? .integer : .decimal)
-                    }
-                }(),
+                inputMode: inputMode,
                 minimum: minValue?.doubleValue,
                 maximum: maxValue?.doubleValue,
                 maxDecimalPlaces: self.maximumDecimalPlaces?.uintValue,
                 unit: unit ?? ""
             ))
         case .date, .time, .dateTime:
+            switch itemControl {
+            case .some:
+                return try toCustomTaskKind(using: context)
+            case .none:
+                break
+            }
             return .dateTime(.init(
                 style: {
                     switch itemType {
@@ -241,6 +271,12 @@ extension ModelsR4.QuestionnaireItem {
                 maxValue: maxDateValue
             ))
         case .string, .text, .url:
+            switch itemControl {
+            case .some:
+                return try toCustomTaskKind(using: context)
+            case .none:
+                break
+            }
             return .freeText(.init(
                 minLength: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/minLength").first?.value?.intValue,
                 maxLength: { () -> Int? in
@@ -254,6 +290,12 @@ extension ModelsR4.QuestionnaireItem {
                 disableAutocorrection: itemType == .url
             ))
         case .choice, .openChoice:
+            switch itemControl {
+            case .some:
+                return try toCustomTaskKind(using: context)
+            case .none:
+                break
+            }
             let valueSets = context.questionnaire.getContainedValueSets()
             var options: [SpeziQuestionnaire.Questionnaire.Task.Kind.ChoiceConfig.Option] = []
             // If the `QuestionnaireItem` has an `answerValueSet` defined which is a reference to a contained `ValueSet`,
@@ -321,7 +363,7 @@ extension ModelsR4.QuestionnaireItem {
                 guard let inputImageExt = inputImageExts.first, inputImageExts.count == 1 else {
                     throw FHIRConversionError("Must specify exactly one inputImage config")
                 }
-                let inputImage: SpeziQuestionnaire.Questionnaire.Task.Kind.AnnotateImageConfig.InputImage
+                let inputImage: /*SpeziQuestionnaire.Questionnaire.Task.Kind.*/AnnotateImageConfig.InputImage
                 if let inputImageName = inputImageExt.value?.stringValue {
                     inputImage = .namedInMainBundle(filename: inputImageName)
                 } else {
@@ -364,6 +406,8 @@ extension ModelsR4.QuestionnaireItem {
                         return .init(name: String(stringValue[..<idx]), color: color)
                     }
                 ))
+            case .some:
+                return try toCustomTaskKind(using: context)
             default:
                 return .fileAttachment(.init(
                     contentTypes: self.extensions(for: "http://hl7.org/fhir/StructureDefinition/mimeType").compactMapIntoSet { ext in
@@ -389,11 +433,25 @@ extension ModelsR4.QuestionnaireItem {
     
     private func toCustomTaskKind(
         using context: ConversionContext
-    ) throws -> Never {
-        guard itemControl == "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
-            throw FHIRConversionError("Invalid item-control for custom task kind")
+    ) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
+        // http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl
+//        guard itemControl == "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
+//            throw FHIRConversionError("Invalid item-control for custom task kind")
+//        }
+        for definition in context.additionalTaskDefinitions {
+            guard let definition = definition as? any QuestionKindDefinitionWithFHIRSupportProtocol else {
+                continue
+            }
+            if let config = try definition.parse(self) {
+                return ._custom(questionKind: definition, config: config)
+            }
         }
-        throw FHIRConversionError("Custom task's aren't supported yet")
+        throw FHIRConversionError(
+            """
+            Unable to parse questionnaire item for task '\(try self.getLinkId())'.
+            No matching task definition.
+            """
+        )
     }
 }
 

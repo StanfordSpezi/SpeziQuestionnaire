@@ -13,7 +13,7 @@ import XCTestExtensions
 import XCTSpeziQuestionnaire
 
 
-final class QuestionKindTests: TestAppUITests {
+final class QuestionKindTests: TestAppUITests, @unchecked Sendable {
     @MainActor
     func testFileAttachments() {
         launchAppAndStartTestQuestionnaire(named: "File Attachment")

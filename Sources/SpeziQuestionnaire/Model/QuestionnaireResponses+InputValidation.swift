@@ -6,11 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Foundation
+public import Foundation
 
 
 extension QuestionnaireResponses {
-    enum ResponseValidationResult: Sendable {
+    public enum ResponseValidationResult: Sendable {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
@@ -161,8 +161,23 @@ extension QuestionnaireResponses {
                     : .invalid(message: "Limited to \(maxDecimalPlaces) decimal places", bundle: .module)
             }
             return .ok
-        case .fileAttachment, .annotateImage:
+        case .fileAttachment/*, .annotateImage*/:
             return .ok
+        case let ._custom(questionKind, config):
+            return questionKind.validate(response: responses[task.id], for: config)
         }
+    }
+}
+
+
+extension QuestionKindDefinitionProtocol {
+    fileprivate func validate(
+        response: QuestionnaireResponses.Response,
+        for config: any CustomQuestionKindConfig
+    ) -> QuestionnaireResponses.ResponseValidationResult {
+        guard let config = config as? Config else {
+            return .invalid(message: "Internal Error", bundle: .module)
+        }
+        return self.validate(response: response, for: config)
     }
 }

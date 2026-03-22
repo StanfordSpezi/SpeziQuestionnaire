@@ -362,44 +362,44 @@ extension QuestionnaireResponses.Response {
 }
 
 extension QuestionnaireResponses.Response.Value {
-    package var boolValue: Bool? { // swiftlint:disable:this discouraged_optional_boolean
+    public var boolValue: Bool? { // swiftlint:disable:this discouraged_optional_boolean
         get { if case .bool(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.bool($0) } ?? .none }
     }
     
-    package var stringValue: String? {
+    public var stringValue: String? {
         get { if case .string(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.string($0) } ?? .none }
     }
     
-    package var dateValue: DateComponents? {
+    public var dateValue: DateComponents? {
         get { if case .date(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.date($0) } ?? .none }
     }
     
-    package var numberValue: Double? {
+    public var numberValue: Double? {
         get { if case .number(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.number($0) } ?? .none }
     }
     
     /// - Important: Assigning this property will unconditionally turn this `ResponseValue` into a choice question response value,
     ///     regardless of the actual kind of the task to which the response belongs.
-    package var choiceValue: QuestionnaireResponses.ChoiceResponse {
+    public var choiceValue: QuestionnaireResponses.ChoiceResponse {
         get { if case .choice(let value) = self { value } else { .init(selectedOptions: []) } }
         set { self = .choice(newValue) }
     }
     
-    package var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? { // swiftlint:disable:this discouraged_optional_collection
+    public var attachmentsValue: [QuestionnaireResponses.CollectedAttachment]? { // swiftlint:disable:this discouraged_optional_collection
         get { if case .attachments(let value) = self { value } else { nil } }
         set { self = newValue.map { Self.attachments($0) } ?? .none }
     }
     
-    package var annotatedImageValue: QuestionnaireResponses.ImageAnnotation? {
+    public var annotatedImageValue: QuestionnaireResponses.ImageAnnotation? {
         get { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] }
         set { self[asCustomTypeA: QuestionnaireResponses.ImageAnnotation.self] = newValue }
     }
     
-    package subscript<T: QuestionnaireResponses.CustomResponseValueProtocol>(
+    public subscript<T: QuestionnaireResponses.CustomResponseValueProtocol>(
         asCustomTypeA type: T.Type
     ) -> T? {
         get { if case .custom(let value) = self { value as? T } else { nil } }
@@ -496,7 +496,7 @@ extension QuestionnaireResponses.CollectedAttachment: Transferable {
 
 
 extension Equatable {
-    fileprivate func isEqual(to other: Any) -> Bool {
+    internal func isEqual(to other: Any) -> Bool {
         if let other = other as? Self {
             self == other
         } else {

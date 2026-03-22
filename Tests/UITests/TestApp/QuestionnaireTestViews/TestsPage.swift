@@ -69,11 +69,33 @@ struct TestsPage: View {
                 activeQuestionnaire = nil
             }
         }
+//        .sheet(isPresented: $showCustomThing) {
+//            let Q = SpeziQuestionnaire.Questionnaire(
+//                metadata: .init(id: "", url: nil, title: "", explainer: ""),
+//                sections: [.init(id: "s0", tasks: [
+//                    .init(
+//                        id: "t0",
+//                        title: "Measure Time",
+//                        subtitle: "",
+//                        footer: "",
+//                        kind: .custom(questionKind: stopwatchQuestionKind, config: .init(text: "HEYYYYY")),
+//                        isOptional: false,
+//                        enabledCondition: .none
+//                    )
+//                ])]
+//            )
+//            QuestionnaireSheet(Q, additionalQuestionKinds: [stopwatchQuestionKind]) { result in
+//                print("RESULT", result)
+//            }
+//        }
     }
     
     @ViewBuilder private var otherTests: some View {
         NavigationLink("External Response Object") {
             TestExternalResponsesObject()
+        }
+        Button("Custom Question Kind (Stopwatch)") {
+            activeQuestionnaire = .stopwatch
         }
     }
     
@@ -462,4 +484,11 @@ extension SpeziQuestionnaire.Questionnaire {
 //            ])
 //        ]
 //    )
+    
+    fileprivate static let stopwatch = Self(
+        metadata: .init(id: "edu.stanford.Spezi.Questionnaire.test.stopwatch", url: nil, title: "Stopwatch Test", explainer: ""),
+        sections: [.init(id: "s0", tasks: [
+            .init(id: "t0", title: "Stopwatch Question", kind: .custom(questionKind: stopwatchQuestionKind))
+        ])]
+    )
 }
