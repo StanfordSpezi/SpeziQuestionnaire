@@ -48,7 +48,7 @@ public protocol QuestionKindDefinition: Sendable {
 
 
 extension QuestionKindDefinition {
-    static func evaluateResponseValueComparison(
+    public static func evaluateResponseValueComparison(
         for config: Config,
         response: QuestionnaireResponses.Response.Value,
         operator: Questionnaire.Condition.ComparisonOperator,

@@ -61,15 +61,15 @@ public struct AnnotateImageConfig: QuestionKindConfig {
 }
 
 
-private struct AnnotateImageQuestionKind: QuestionKindDefinition {
-    static func validate(
+public struct AnnotateImageQuestionKind: QuestionKindDefinition {
+    public static func validate(
         response: QuestionnaireResponses.Response,
         for config: AnnotateImageConfig
     ) -> QuestionnaireResponses.ResponseValidationResult {
         .ok
     }
     
-    static func makeView(
+    public static func makeView(
         for task: Questionnaire.Task,
         using config: AnnotateImageConfig,
         response: Binding<QuestionnaireResponses.Response>

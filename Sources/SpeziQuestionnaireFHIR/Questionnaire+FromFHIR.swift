@@ -49,7 +49,9 @@ extension SpeziQuestionnaire.Questionnaire {
         )
         self.init(
             metadata: metadata,
-            sections: try other.toSections(additionalTaskDefinitions: additionalTaskDefinitions)
+            sections: try other.toSections(
+                additionalTaskDefinitions: additionalTaskDefinitions + [AnnotateImageQuestionKind.self]
+            )
         )
     }
 }
