@@ -48,6 +48,7 @@ public protocol QuestionKindDefinition: Sendable {
 
 
 extension QuestionKindDefinition {
+    // swiftlint:disable:next missing_docs
     public static func evaluateResponseValueComparison(
         for config: Config,
         response: QuestionnaireResponses.Response.Value,
