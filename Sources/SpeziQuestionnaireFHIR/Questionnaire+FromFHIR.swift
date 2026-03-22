@@ -296,6 +296,8 @@ extension ModelsR4.QuestionnaireItem {
             ))
         case .choice, .openChoice:
             switch itemControl {
+            case "check-box":
+                break
             case .some:
                 return try toCustomTaskKind(using: context)
             case .none:

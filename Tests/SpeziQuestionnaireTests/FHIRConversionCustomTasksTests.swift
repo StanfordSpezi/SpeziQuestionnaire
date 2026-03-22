@@ -24,29 +24,46 @@ struct FHIRConversionCustomTasksTests {
         struct Config: QuestionKindConfig {
             let options: [String]
         }
-        let taskDefinition = QuestionKindDefinitionWithFHIRSupport(
-            id: "edu.stanford.Spezi.Questionnaire.",
-            configType: Config.self
-        ) { _, _ in
-            .ok
-        } parseFHIR: { (item: ModelsR4.QuestionnaireItem) -> Config? in
-            guard let itemControlExt = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl").first,
-                  let itemControlCoding = itemControlExt.value?.codableConceptValue?.coding?.first,
-                  itemControlCoding.system == "http://spezi.stanford.edu/fhir/CodeSystem/custom-task/item-control",
-                  itemControlCoding.code == "rank-options" else {
-                return nil
+        struct RankChoicesTask: QuestionKindDefinition, QuestionKindDefinitionWithFHIRSupport {
+            static func makeView(
+                for task: SpeziQuestionnaire.Questionnaire.Task,
+                using config: Config,
+                response: Binding<QuestionnaireResponses.Response>
+            ) -> some View {
+                EmptyView()
             }
-            let options = (item.answerOption ?? []).compactMap { option in
-                switch option.value {
-                case .coding(let coding):
-                    coding.display?.value?.string
-                default:
-                    nil
+            
+            static func validate(
+                response: QuestionnaireResponses.Response,
+                for config: Config
+            ) -> QuestionnaireResponses.ResponseValidationResult {
+                .ok
+            }
+            
+            static func parse(_ item: QuestionnaireItem) throws -> Config? {
+                guard let itemControlExt = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl").first,
+                      let itemControlCoding = itemControlExt.value?.codableConceptValue?.coding?.first,
+                      itemControlCoding.system == "http://spezi.stanford.edu/fhir/CodeSystem/custom-task/item-control",
+                      itemControlCoding.code == "rank-options" else {
+                    return nil
                 }
+                let options = (item.answerOption ?? []).compactMap { option in
+                    switch option.value {
+                    case .coding(let coding):
+                        coding.display?.value?.string
+                    default:
+                        nil
+                    }
+                }
+                return .init(options: options)
             }
-            return .init(options: options)
-        } makeView: { _, _, _ in
-            EmptyView()
+            
+            static func toFHIR(
+                _ response: QuestionnaireResponses.Response,
+                for task: SpeziQuestionnaire.Questionnaire.Task
+            ) throws -> [QuestionnaireResponseItemAnswer] {
+                throw NSError(domain: "edu.stanford.Questionnaire", code: 0)
+            }
         }
         let input = Data("""
             {
@@ -141,7 +158,7 @@ struct FHIRConversionCustomTasksTests {
         )
         let questionnaire = try SpeziQuestionnaire.Questionnaire(
             try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: input),
-            additionalTaskDefinitions: [taskDefinition]
+            additionalTaskDefinitions: [RankChoicesTask.self]
         )
         #expect(questionnaire.sections.count == 1)
         #expect(questionnaire.sections[0].tasks.count == 1)
@@ -149,19 +166,19 @@ struct FHIRConversionCustomTasksTests {
         #expect(task == .init(
             id: "t0",
             title: "Question 1",
-            kind: .custom(questionKind: taskDefinition, config: .init(options: ["Strawberry", "Mango", "Chocolate"]))
+            kind: .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"]))
         ))
         #expect(task.id == "t0")
         #expect(task.title == "Question 1")
         switch task.kind {
         case let ._custom(questionKind, config):
-            #expect(questionKind == taskDefinition)
+            #expect(ObjectIdentifier(questionKind) == ObjectIdentifier(RankChoicesTask.self))
             let config = try #require(config as? Config)
             #expect(config == Config(options: ["Strawberry", "Mango", "Chocolate"]))
         default:
             Issue.record()
         }
-        #expect(task.kind == .custom(questionKind: taskDefinition, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
+        #expect(task.kind == .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
     }
 }
 
