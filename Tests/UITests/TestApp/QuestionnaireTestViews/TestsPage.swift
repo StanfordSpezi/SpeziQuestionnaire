@@ -488,7 +488,7 @@ extension SpeziQuestionnaire.Questionnaire {
     fileprivate static let stopwatch = Self(
         metadata: .init(id: "edu.stanford.Spezi.Questionnaire.test.stopwatch", url: nil, title: "Stopwatch Test", explainer: ""),
         sections: [.init(id: "s0", tasks: [
-            .init(id: "t0", title: "Stopwatch Question", kind: .custom(questionKind: stopwatchQuestionKind))
+            .init(id: "t0", title: "Stopwatch Question", kind: .stopwatch)
         ])]
     )
 }

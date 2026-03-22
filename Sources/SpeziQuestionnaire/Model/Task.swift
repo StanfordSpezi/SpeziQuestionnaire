@@ -10,8 +10,6 @@
 
 public import Foundation
 private import SpeziFoundation
-public import struct SwiftUI.Color
-public import class UIKit.UIImage
 public import UniformTypeIdentifiers
 
 
@@ -85,19 +83,19 @@ extension Questionnaire.Task {
         case numeric(_ config: NumericTaskConfig)
         /// A task that lets the user select photos and other files.
         case fileAttachment(_ config: FileAttachmentConfig)
-//        /// A task that asks the user to annotate an image
-//        case annotateImage(_ config: AnnotateImageConfig)
+        
+        // FYI: named _custom to avoid overload resolution issues
         /// A custom question kind
-        case _custom(questionKind: any QuestionKindDefinitionProtocol, config: any CustomQuestionKindConfig) // named _custom to avoid overload resolution issues
+        case _custom( // swiftlint:disable:this identifier_name
+            questionKind: any QuestionKindDefinition.Type,
+            config: any QuestionKindConfig
+        )
         
-        public static func custom<K: QuestionKindDefinitionProtocol>(questionKind: K, config: K.Config) -> Self {
-            Self._custom(questionKind: questionKind as any QuestionKindDefinitionProtocol, config: config as any CustomQuestionKindConfig)
-        }
-        
-        public static func custom<K: QuestionKindDefinitionProtocol>(questionKind: K) -> Self where K.Config == EmptyQuestionKindConfig {
-            // TODO why can't we do this?
-//            Self.custom(questionKind: questionKind, config: K.Config())
-            Self._custom(questionKind: questionKind as any QuestionKindDefinitionProtocol, config: K.Config() as any CustomQuestionKindConfig)
+        public static func custom<K: QuestionKindDefinition>(questionKind: K.Type, config: K.Config) -> Self {
+            Self._custom(
+                questionKind: questionKind as any QuestionKindDefinition.Type,
+                config: config as any QuestionKindConfig
+            )
         }
         
         public static func == (lhs: Self, rhs: Self) -> Bool {
@@ -116,10 +114,8 @@ extension Questionnaire.Task {
                 lhs == rhs
             case let (.fileAttachment(lhs), .fileAttachment(rhs)):
                 lhs == rhs
-//            case let (.annotateImage(lhs), .annotateImage(rhs)):
-//                lhs == rhs
             case let (._custom(lhsTy, lhsConfig), ._custom(rhsTy, rhsConfig)):
-                lhsTy.isEqual(to: rhsTy) && lhsConfig.isEqual(to: rhsConfig)
+                lhsTy == rhsTy && lhsConfig.isEqual(to: rhsConfig)
             default:
                 false
             }
@@ -128,31 +124,28 @@ extension Questionnaire.Task {
         public func hash(into hasher: inout Hasher) {
             switch self {
             case .instructional(let text):
-                hasher.combine(0)
+                hasher.combine(#line)
                 hasher.combine(text)
             case .boolean:
-                hasher.combine(1)
+                hasher.combine(#line)
             case .choice(let config):
-                hasher.combine(2)
+                hasher.combine(#line)
                 hasher.combine(config)
             case .freeText(let config):
-                hasher.combine(3)
+                hasher.combine(#line)
                 hasher.combine(config)
             case .dateTime(let config):
-                hasher.combine(4)
+                hasher.combine(#line)
                 hasher.combine(config)
             case .numeric(let config):
-                hasher.combine(5)
+                hasher.combine(#line)
                 hasher.combine(config)
             case .fileAttachment(let config):
-                hasher.combine(6)
+                hasher.combine(#line)
                 hasher.combine(config)
-//            case .annotateImage(let config):
-//                hasher.combine(7)
-//                hasher.combine(config)
             case let ._custom(type, config):
-                hasher.combine(8)
-                type.hash(into: &hasher)
+                hasher.combine(#line)
+                hasher.combine(ObjectIdentifier(type))
                 config.hash(into: &hasher)
             }
         }
@@ -300,67 +293,19 @@ extension Questionnaire.Task.Kind {
             self.followUpTasks = followUpTasks
         }
     }
-    
-//    public struct AnnotateImageConfig: Hashable, Sendable {
-//        public enum InputImage: Hashable, Sendable {
-//            case namedInMainBundle(filename: String)
-//            
-//            public func image() -> UIImage? {
-//                switch self {
-//                case .namedInMainBundle(let filename):
-//                    guard let url = Bundle.main.url(forResource: filename, withExtension: nil),
-//                          let data = try? Data(contentsOf: url) else {
-//                        print("unable to find '\(filename)' in main bundle")
-//                        return nil
-//                    }
-//                    return UIImage(data: data)
-//                }
-//            }
-//        }
-//        
-//        public struct Region: Hashable, Identifiable, Sendable {
-//            public let name: String
-//            public let color: Color
-//            
-//            public var id: some Hashable {
-//                name
-//            }
-//            
-//            public init(name: String, color: Color) {
-//                self.name = name
-//                self.color = color
-//            }
-//        }
-//        
-//        public let inputImage: InputImage
-//        public let regions: [Region]
-//        
-//        public init(inputImage: InputImage, regions: [Region]) {
-//            self.inputImage = inputImage
-//            self.regions = regions
-//        }
-//    }
 }
 
 
 extension Questionnaire.Task.Kind {
+    /// The task's follow-up tasks.
     package var followUpTasks: [Questionnaire.Task] {
         switch self {
         case .choice(let config):
             config.followUpTasks
-        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment/*, .annotateImage*/:
+        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment:
             []
         case ._custom(_, let config):
             config.followUpTasks
-        }
-    }
-    
-    package var choiceOptions: [ChoiceConfig.Option] {
-        switch self {
-        case .choice(let config):
-            config.options
-        case .instructional, .boolean, .freeText, .dateTime, .numeric, .fileAttachment/*, .annotateImage*/, ._custom:
-            []
         }
     }
 }

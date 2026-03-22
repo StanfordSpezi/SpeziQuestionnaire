@@ -161,7 +161,7 @@ extension QuestionnaireResponses {
                     : .invalid(message: "Limited to \(maxDecimalPlaces) decimal places", bundle: .module)
             }
             return .ok
-        case .fileAttachment/*, .annotateImage*/:
+        case .fileAttachment:
             return .ok
         case let ._custom(questionKind, config):
             return questionKind.validate(response: responses[task.id], for: config)
@@ -170,10 +170,10 @@ extension QuestionnaireResponses {
 }
 
 
-extension QuestionKindDefinitionProtocol {
-    fileprivate func validate(
+extension QuestionKindDefinition {
+    fileprivate static func validate(
         response: QuestionnaireResponses.Response,
-        for config: any CustomQuestionKindConfig
+        for config: any QuestionKindConfig
     ) -> QuestionnaireResponses.ResponseValidationResult {
         guard let config = config as? Config else {
             return .invalid(message: "Internal Error", bundle: .module)

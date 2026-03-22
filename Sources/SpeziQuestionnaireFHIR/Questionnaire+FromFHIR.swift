@@ -31,9 +31,12 @@ private struct FHIRConversionError: LocalizedError {
 
 extension SpeziQuestionnaire.Questionnaire {
     /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
+    ///
+    /// - parameter other: A FHIR R4 Questionnaire
+    /// - parameter additionalTaskDefinitions: Additional task definition types that should be taken into account when parsing nonstandard FHIR questions.
     public init(
         _ other: ModelsR4.Questionnaire,
-        additionalTaskDefinitions: [any QuestionKindDefinitionProtocol] = []
+        additionalTaskDefinitions: [any QuestionKindDefinition.Type] = []
     ) throws {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
@@ -57,14 +60,14 @@ private struct ConversionContext {
     let questionnaire: ModelsR4.Questionnaire
     /// The "is enabled" condition of the parent item.
     let parentItemCondition: SpeziQuestionnaire.Questionnaire.Condition
-    /// TODO document!
-    let additionalTaskDefinitions: [any QuestionKindDefinitionProtocol]
+    /// All task definition types that should be taken into account when parsing nonstandard FHIR questions.
+    let additionalTaskDefinitions: [any QuestionKindDefinition.Type]
 }
 
 
 extension ModelsR4.Questionnaire {
     fileprivate func toSections(
-        additionalTaskDefinitions: [any QuestionKindDefinitionProtocol]
+        additionalTaskDefinitions: [any QuestionKindDefinition.Type]
     ) throws -> [SpeziQuestionnaire.Questionnaire.Section] {
         guard let items = item, !items.isEmpty else {
             throw FHIRConversionError("Input questionnaire is empty")
@@ -363,7 +366,7 @@ extension ModelsR4.QuestionnaireItem {
                 guard let inputImageExt = inputImageExts.first, inputImageExts.count == 1 else {
                     throw FHIRConversionError("Must specify exactly one inputImage config")
                 }
-                let inputImage: /*SpeziQuestionnaire.Questionnaire.Task.Kind.*/AnnotateImageConfig.InputImage
+                let inputImage: AnnotateImageConfig.InputImage
                 if let inputImageName = inputImageExt.value?.stringValue {
                     inputImage = .namedInMainBundle(filename: inputImageName)
                 } else {
@@ -439,7 +442,7 @@ extension ModelsR4.QuestionnaireItem {
 //            throw FHIRConversionError("Invalid item-control for custom task kind")
 //        }
         for definition in context.additionalTaskDefinitions {
-            guard let definition = definition as? any QuestionKindDefinitionWithFHIRSupportProtocol else {
+            guard let definition = definition as? any QuestionKindDefinitionWithFHIRSupport.Type else {
                 continue
             }
             if let config = try definition.parse(self) {

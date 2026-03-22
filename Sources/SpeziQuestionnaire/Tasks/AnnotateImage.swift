@@ -6,10 +6,21 @@
 // SPDX-License-Identifier: MIT
 //
 
+// swiftlint:disable file_types_order
+
 public import SwiftUI
 
 
-public struct AnnotateImageConfig: CustomQuestionKindConfig {
+extension Questionnaire.Task.Kind {
+    /// A task that asks the user to annotate an image
+    public static func annotateImage(_ config: AnnotateImageConfig) -> Self {
+        .custom(questionKind: AnnotateImageQuestionKind.self, config: config)
+    }
+}
+
+
+/// Configures an image annotation task.
+public struct AnnotateImageConfig: QuestionKindConfig {
     public enum InputImage: Hashable, Sendable {
         case namedInMainBundle(filename: String)
         
@@ -50,21 +61,23 @@ public struct AnnotateImageConfig: CustomQuestionKindConfig {
 }
 
 
-private let annotateImageQuestionKind = QuestionKindDefinition(
-    id: "edu.stanford.Spezi.Questionnaire.AnnotateImage",
-    configType: AnnotateImageConfig.self
-) { _, _ in
-    .ok
-} makeView: { task, config, response in
-    AnnotateImageView(
-        task: task,
-        config: config,
-        response: response.value.annotatedImageValue.withDefault(.init())
-    )
-}
-
-extension Questionnaire.Task.Kind {
-    public static func annotateImage(_ config: AnnotateImageConfig) -> Self {
-        .custom(questionKind: annotateImageQuestionKind, config: config)
+private struct AnnotateImageQuestionKind: QuestionKindDefinition {
+    static func validate(
+        response: QuestionnaireResponses.Response,
+        for config: AnnotateImageConfig
+    ) -> QuestionnaireResponses.ResponseValidationResult {
+        .ok
+    }
+    
+    static func makeView(
+        for task: Questionnaire.Task,
+        using config: AnnotateImageConfig,
+        response: Binding<QuestionnaireResponses.Response>
+    ) -> some View {
+        AnnotateImageView(
+            task: task,
+            config: config,
+            response: response.value.annotatedImageValue.withDefault(.init())
+        )
     }
 }

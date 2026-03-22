@@ -79,7 +79,7 @@ extension Questionnaire.Task {
         var copy = self
         copy.enabledCondition.simplify()
         switch copy.kind {
-        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment/*, .annotateImage*/:
+        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
             break
         case .choice(var config):
             config.followUpTasks = config.followUpTasks.map {
@@ -87,8 +87,7 @@ extension Questionnaire.Task {
             }
             copy.kind = .choice(config)
         case let ._custom(questionKind, config):
-            // TODO
-            break
+            copy.kind = ._custom(questionKind: questionKind, config: config.withConditionsSimplified())
         }
         return copy
     }

@@ -45,7 +45,7 @@ public import SwiftUI
 /// ```
 public struct QuestionnaireSheet: View {
     private let questionnaire: Questionnaire
-    private let customQuestionKinds: [any QuestionKindDefinitionProtocol]
+    private let customQuestionKinds: [any QuestionKindDefinition]
     private let completionStepConfig: CompletionStepConfig
     private let resultHandler: @MainActor (Result) async -> Void
     
@@ -89,7 +89,7 @@ public struct QuestionnaireSheet: View {
         _ questionnaire: Questionnaire,
         responses: QuestionnaireResponses? = nil,
         completionStepConfig: CompletionStepConfig = .enable,
-        additionalQuestionKinds: [any QuestionKindDefinitionProtocol] = [],
+        additionalQuestionKinds: [any QuestionKindDefinition] = [],
         resultHandler: @escaping @MainActor (Result) async -> Void
     ) {
         self.questionnaire = questionnaire.withConditionsSimplified()
@@ -102,7 +102,7 @@ public struct QuestionnaireSheet: View {
 
 
 extension EnvironmentValues {
-    @Entry var customQuestionKinds: [any QuestionKindDefinitionProtocol] = []
+    @Entry var customQuestionKinds: [any QuestionKindDefinition] = []
 }
 
 

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-public import SwiftUI
+import SwiftUI
 
 
 extension Text {
@@ -25,7 +25,7 @@ extension Text {
 
 
 extension Binding {
-    public func withDefault<T>(
+    func withDefault<T>(
         _ defaultValue: @autoclosure @escaping @Sendable () -> T
     ) -> Binding<T> where Value == T?, Self: Sendable {
         Binding<T> {

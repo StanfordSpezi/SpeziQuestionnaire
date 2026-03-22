@@ -99,6 +99,15 @@ extension QuestionnaireResponses.Response {
         let responseItem = QuestionnaireResponseItem(
             linkId: context.task.id.asFHIRStringPrimitive()
         )
+        switch task.kind {
+        case let ._custom(questionKind, config: _):
+            if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIRSupport.Type {
+                responseItem.answer = try questionKind.toFHIR(self, for: task)
+                return responseItem
+            }
+        default:
+            break
+        }
         switch self.value {
         case .none:
             guard nestedResponses.isEmpty else {
@@ -196,10 +205,13 @@ extension QuestionnaireResponses.Response {
                 responseItem.answer = nil
             }
         }
+        guard case .choice(let taskConfig) = task.kind else {
+            throw FHIRConversionError("Invalid Input")
+        }
         for (nestingId, responses) in nestedResponses {
             switch nestingId {
             case .choiceOption(let optionId):
-                guard let option = task.kind.choiceOptions.first(where: { $0.id == optionId }) else {
+                guard let option = taskConfig.options.first(where: { $0.id == optionId }) else {
                     throw FHIRConversionError("Unable to find choice option '\(optionId)'")
                 }
                 guard self.value.choiceValue.selectedOptions.contains(option.id) else {
@@ -254,7 +266,6 @@ extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.Questionnai
             guard let config = config as? AnnotateImageConfig else {
                 throw FHIRConversionError("Invalid task kind")
             }
-//        case .annotateImage(let config):
             guard let image = config.inputImage.image() else {
                 // Simply draw the annotation onto a clear backgrund in this case? (no.)
                 throw FHIRConversionError("Unable to obtain baseImage")

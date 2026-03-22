@@ -22,7 +22,7 @@ import Testing
 @Suite
 struct FHIRConversionCustomTasksTests {
     @Test func simpleCustomTask() throws {
-        struct Config: CustomQuestionKindConfig {
+        struct Config: QuestionKindConfig {
             let options: [String]
         }
         let taskDefinition = QuestionKindDefinitionWithFHIRSupport(

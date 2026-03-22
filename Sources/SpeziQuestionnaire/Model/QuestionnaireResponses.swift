@@ -137,7 +137,7 @@ extension QuestionnaireResponses {
         case .instructional:
             // instructional tasks never collect a response; they are always considered as being complete.
             true
-        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment/*, .annotateImage*/, ._custom:
+        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment, ._custom:
             responses[task.id].value != .none
         }
     }
@@ -224,7 +224,7 @@ extension QuestionnaireResponses {
                 }
             case .instructional:
                 responses[task.id] = .init(value: .none)
-            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, /*.annotateImage,*/ ._custom:
+            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, ._custom:
                 break
             }
         }
