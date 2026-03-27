@@ -13,8 +13,24 @@ public import SwiftUI
 
 // MARK: Question Kind
 
-/// A question kind
-public protocol QuestionKindDefinition: Sendable {
+/// Defines a question kind.
+///
+/// See also <doc:QuestionKinds>
+///
+/// ## Topics
+///
+/// ### Static Methods
+/// - ``makeView(for:using:response:)``
+/// - ``validate(response:for:)``
+/// - ``evaluateResponseValueComparison(for:response:operator:value:)``
+///
+/// ### Associated Types
+/// - ``Config``
+/// - ``View``
+///
+/// ### Related Types
+/// - ``QuestionKindConfig``
+public protocol QuestionKindDefinition: Sendable, SendableMetatype {
     associatedtype Config: QuestionKindConfig = EmptyQuestionKindConfig
     associatedtype View: SwiftUI.View
     
@@ -55,6 +71,8 @@ extension QuestionKindDefinition {
         operator: Questionnaire.Condition.ComparisonOperator,
         value: Questionnaire.Condition.Value
     ) -> Bool {
+        // Idea: instead of always returning false, we could try to default-match the response value against the condition value.
+        // But: might not be what we want here; the current behaviour is more explicit in forcing the question kind to customize this!
         false
     }
 }
@@ -62,6 +80,12 @@ extension QuestionKindDefinition {
 
 // MARK: Question Kind Config
 
+/// A configuration associated with a ``QuestionKindDefinition``
+///
+/// ## Topics
+///
+/// ### Supporting Types
+/// - ``EmptyQuestionKindConfig``
 public protocol QuestionKindConfig: Hashable, Sendable {
     /// Any follow-up tasks a task with this config will ask, in response to some specific event (e.g., a selection)
     var followUpTasks: [Questionnaire.Task] { get }

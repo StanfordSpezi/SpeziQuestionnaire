@@ -67,6 +67,7 @@ extension QuestionnaireResponses {
     }
     
     
+    /// A custom value collected in response to a question within a questionnaire.
     public protocol CustomResponseValueProtocol: Hashable, Sendable, SendableMetatype {
         /// Whether the value currently does not contain a response.
         var isEmpty: Bool { get }

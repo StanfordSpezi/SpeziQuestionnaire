@@ -14,7 +14,7 @@ public import SwiftUI
 extension Questionnaire.Task.Kind {
     /// A task that asks the user to annotate an image
     public static func annotateImage(_ config: AnnotateImageConfig) -> Self {
-        .custom(questionKind: AnnotateImageQuestionKind.self, config: config)
+        .custom(AnnotateImageQuestionKind.self, config: config)
     }
 }
 
@@ -61,6 +61,13 @@ public struct AnnotateImageConfig: QuestionKindConfig {
 }
 
 
+/// Prompts the user to respond to a question by highlighting regions on an image.
+///
+/// ## Topics
+///
+/// ### Related Types
+/// 
+/// - ``AnnotateImageConfig``
 public struct AnnotateImageQuestionKind: QuestionKindDefinition {
     public static func validate(
         response: QuestionnaireResponses.Response,

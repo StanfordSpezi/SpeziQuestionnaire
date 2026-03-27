@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: MIT
 //
 
-// swiftlint:disable function_body_length multiline_arguments_brackets
+// swiftlint:disable function_body_length multiline_arguments_brackets type_body_length
 
 import FHIRModelsExtensions
 import Foundation
@@ -42,7 +42,7 @@ struct FHIRConversionCustomTasksTests {
             
             static func parse(_ item: QuestionnaireItem) throws -> Config? {
                 guard let itemControlExt = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl").first,
-                      let itemControlCoding = itemControlExt.value?.codableConceptValue?.coding?.first,
+                      let itemControlCoding = itemControlExt.value?.codeableConceptValue?.coding?.first,
                       itemControlCoding.system == "http://spezi.stanford.edu/fhir/CodeSystem/custom-task/item-control",
                       itemControlCoding.code == "rank-options" else {
                     return nil
@@ -158,7 +158,9 @@ struct FHIRConversionCustomTasksTests {
         )
         let questionnaire = try SpeziQuestionnaire.Questionnaire(
             try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: input),
-            additionalTaskDefinitions: [RankChoicesTask.self]
+            using: .init(
+                extraQuestionKinds: [RankChoicesTask.self]
+            )
         )
         #expect(questionnaire.sections.count == 1)
         #expect(questionnaire.sections[0].tasks.count == 1)
@@ -166,7 +168,7 @@ struct FHIRConversionCustomTasksTests {
         #expect(task == .init(
             id: "t0",
             title: "Question 1",
-            kind: .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"]))
+            kind: .custom(RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"]))
         ))
         #expect(task.id == "t0")
         #expect(task.title == "Question 1")
@@ -178,20 +180,104 @@ struct FHIRConversionCustomTasksTests {
         default:
             Issue.record()
         }
-        #expect(task.kind == .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
-        #expect(task.kind.variant == .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
+        #expect(task.kind == .custom(RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
+        #expect(task.kind.variant == .custom(
+            questionKind: RankChoicesTask.self,
+            config: RankChoicesTask.Config(options: ["Strawberry", "Mango", "Chocolate"])
+        ))
     }
-}
-
-
-extension ModelsR4.Extension.ValueX {
-    /// The value's `CodeableConcept` value, if applicable.
-    public var codableConceptValue: ModelsR4.CodeableConcept? {
-        switch self {
-        case .codeableConcept(let concept):
-            concept
-        default:
-            nil
-        }
+    
+    
+    @Test
+    func annotationTask() throws {
+        let input = Data("""
+            {
+              "title": "Test",
+              "resourceType": "Questionnaire",
+              "id": "edu.stanford.Spezi.Questionnaire.test",
+              "language": "en-US",
+              "status": "draft",
+              "meta": {
+                "profile": [
+                  "http://spezi.health/fhir/StructureDefinition/sdf-Questionnaire"
+                ],
+                "tag": [
+                  {
+                    "system": "urn:ietf:bcp:47",
+                    "code": "en-US",
+                    "display": "English"
+                  }
+                ]
+              },
+              "item": [
+                {
+                  "linkId": "pain-leg",
+                  "text": "In each leg, where do you feel pain?",
+                  "type": "attachment",
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+                      "valueCodeableConcept": {
+                        "coding": [
+                          {
+                            "system": "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control",
+                            "code": "annotate-image"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "url": "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control/annotate-image/input-image",
+                      "valueString": "bodymap.png"
+                    },
+                    {
+                      "url": "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control/annotate-image/region",
+                      "extension": [
+                        {
+                          "url": "label",
+                          "valueString": "Pain"
+                        },
+                        {
+                          "url": "color",
+                          "valueString": "red"
+                        }
+                      ]
+                    },
+                    {
+                      "url": "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control/annotate-image/region",
+                      "extension": [
+                        {
+                          "url": "label",
+                          "valueString": "Stiffness"
+                        },
+                        {
+                          "url": "color",
+                          "valueString": "blue"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            """.utf8
+        )
+        let questionnaire = try SpeziQuestionnaire.Questionnaire(
+            try JSONDecoder().decode(ModelsR4.Questionnaire.self, from: input)
+        )
+        #expect(questionnaire.sections.count == 1)
+        #expect(questionnaire.sections[0].tasks.count == 1)
+        let task = try #require(questionnaire.sections.first?.tasks.first)
+        #expect(task == .init(
+            id: "pain-leg",
+            title: "In each leg, where do you feel pain?",
+            kind: .annotateImage(AnnotateImageConfig(
+                inputImage: .namedInMainBundle(filename: "bodymap.png"),
+                regions: [
+                    .init(name: "Pain", color: .red),
+                    .init(name: "Stiffness", color: .blue)
+                ]
+            ))
+        ))
     }
 }

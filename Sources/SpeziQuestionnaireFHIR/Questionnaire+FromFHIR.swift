@@ -16,27 +16,26 @@ private import struct SwiftUI.Color
 private import UniformTypeIdentifiers
 
 
-private struct FHIRConversionError: LocalizedError {
-    let message: String
-    
-    var errorDescription: String? {
-        message
-    }
-    
-    init(_ message: String) {
-        self.message = message
-    }
-}
-
-
 extension SpeziQuestionnaire.Questionnaire {
+    /// Controls conversion behaviour when creating a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`
+    public struct FHIRConversionOptions: Sendable {
+        /// All known question kinds, with the builtin ones at the end of the list.
+        fileprivate let knownQuestionKinds: [any QuestionKindDefinition.Type]
+        
+        public init(
+            extraQuestionKinds: [any QuestionKindDefinition.Type] = []
+        ) {
+            self.knownQuestionKinds = extraQuestionKinds + SpeziQuestionnaire.Questionnaire.builtinQuestionKinds
+        }
+    }
+    
     /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
     ///
     /// - parameter other: A FHIR R4 Questionnaire
-    /// - parameter additionalTaskDefinitions: Additional task definition types that should be taken into account when parsing nonstandard FHIR questions.
+    /// - parameter options: Additional options to control the conversion process. Use this to specify e.g. custom question kinds.
     public init(
         _ other: ModelsR4.Questionnaire,
-        additionalTaskDefinitions: [any QuestionKindDefinition.Type] = []
+        using options: FHIRConversionOptions = .init()
     ) throws {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
             throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
@@ -49,27 +48,24 @@ extension SpeziQuestionnaire.Questionnaire {
         )
         self.init(
             metadata: metadata,
-            sections: try other.toSections(
-                additionalTaskDefinitions: additionalTaskDefinitions + [AnnotateImageQuestionKind.self]
-            )
+            sections: try other.toSections(using: options)
         )
     }
 }
 
 
 private struct ConversionContext {
+    let options: SpeziQuestionnaire.Questionnaire.FHIRConversionOptions
     /// The FHIR questionnaire being converted
     let questionnaire: ModelsR4.Questionnaire
     /// The "is enabled" condition of the parent item.
     let parentItemCondition: SpeziQuestionnaire.Questionnaire.Condition
-    /// All task definition types that should be taken into account when parsing nonstandard FHIR questions.
-    let additionalTaskDefinitions: [any QuestionKindDefinition.Type]
 }
 
 
 extension ModelsR4.Questionnaire {
     fileprivate func toSections(
-        additionalTaskDefinitions: [any QuestionKindDefinition.Type]
+        using options: SpeziQuestionnaire.Questionnaire.FHIRConversionOptions
     ) throws -> [SpeziQuestionnaire.Questionnaire.Section] {
         guard let items = item, !items.isEmpty else {
             throw FHIRConversionError("Input questionnaire is empty")
@@ -117,9 +113,9 @@ extension ModelsR4.Questionnaire {
                 fatalError("Preprocessing failed")
             }
             let context = ConversionContext(
+                options: options,
                 questionnaire: self,
-                parentItemCondition: .none,
-                additionalTaskDefinitions: additionalTaskDefinitions
+                parentItemCondition: .none
             )
             return try item.toSection(using: context)
         }
@@ -140,9 +136,9 @@ extension ModelsR4.QuestionnaireItem {
         }
         let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
         let itemContext = ConversionContext(
+            options: context.options,
             questionnaire: context.questionnaire,
-            parentItemCondition: groupCondition,
-            additionalTaskDefinitions: context.additionalTaskDefinitions
+            parentItemCondition: groupCondition
         )
         return .init(
             id: linkId,
@@ -167,9 +163,9 @@ extension ModelsR4.QuestionnaireItem {
             let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
             // non-top-level groups are flattened into a series of tasks; the group's title is ignored but its condition is inherited by the tasks
             let itemContext = ConversionContext(
+                options: context.options,
                 questionnaire: context.questionnaire,
                 parentItemCondition: context.parentItemCondition && groupCondition,
-                additionalTaskDefinitions: context.additionalTaskDefinitions
             )
             return try nestedItems.flatMap { item in
                 try item.toTasks(using: itemContext)
@@ -185,9 +181,9 @@ extension ModelsR4.QuestionnaireItem {
             )
             if itemType != .display, let nestedItems = item, !nestedItems.isEmpty {
                 let itemContext = ConversionContext(
+                    options: context.options,
                     questionnaire: context.questionnaire,
-                    parentItemCondition: context.parentItemCondition && task.enabledCondition,
-                    additionalTaskDefinitions: context.additionalTaskDefinitions
+                    parentItemCondition: context.parentItemCondition && task.enabledCondition
                 )
                 let nestedTasks = try nestedItems.flatMap { item in
                     try item.toTasks(using: itemContext)
@@ -306,7 +302,7 @@ extension ModelsR4.QuestionnaireItem {
             let valueSets = context.questionnaire.getContainedValueSets()
             var options: [SpeziQuestionnaire.Questionnaire.Task.Kind.ChoiceConfig.Option] = []
             // If the `QuestionnaireItem` has an `answerValueSet` defined which is a reference to a contained `ValueSet`,
-            // search the available `ValueSets`and, if a match is found, convert the options to `ORKTextChoice`
+            // search the available `ValueSets`and, if a match is found, convert the options to `Questionnaire.Task.Kind.ChoiceConfig.Option`s
             if let answerValueSetURL = answerValueSet?.value?.url.absoluteString,
                answerValueSetURL.starts(with: "#") {
                 let valueSet = valueSets.first { valueSet in
@@ -335,7 +331,7 @@ extension ModelsR4.QuestionnaireItem {
                 }
             } else {
                 // If the `QuestionnaireItem` has `answerOptions` defined instead, extract these options
-                // and convert them to `ORKTextChoice`
+                // and convert them to `Questionnaire.Task.Kind.ChoiceConfig.Option`s
                 guard let answerOptions = answerOption else {
                     throw FHIRConversionError("Missing answerOption")
                 }
@@ -365,54 +361,6 @@ extension ModelsR4.QuestionnaireItem {
             ))
         case .attachment:
             switch itemControl {
-            case "annotate-image":
-                let inputImageExts = self.extensions(for: "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task/annotate-image/inputImage")
-                guard let inputImageExt = inputImageExts.first, inputImageExts.count == 1 else {
-                    throw FHIRConversionError("Must specify exactly one inputImage config")
-                }
-                let inputImage: AnnotateImageConfig.InputImage
-                if let inputImageName = inputImageExt.value?.stringValue {
-                    inputImage = .namedInMainBundle(filename: inputImageName)
-                } else {
-                    throw FHIRConversionError("Invalid inputImage config")
-                }
-                let regionExts = self.extensions(for: "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task/annotate-image/region")
-                return .annotateImage(.init(
-                    inputImage: inputImage,
-                    regions: try regionExts.map { ext in
-                        guard let stringValue = ext.value?.stringValue else {
-                            throw FHIRConversionError("Invalid region value")
-                        }
-                        guard let idx = stringValue.lastIndex(of: ":") else {
-                            throw FHIRConversionError("Invalid region value")
-                        }
-                        let colorMapping: [String: Color] = [
-                            "red": .red,
-                            "orange": .orange,
-                            "yellow": .yellow,
-                            "green": .green,
-                            "mint": .mint,
-                            "teal": .teal,
-                            "cyan": .cyan,
-                            "blue": .blue,
-                            "indigo": .indigo,
-                            "purple": .purple,
-                            "pink": .pink,
-                            "brown": .brown,
-                            "white": .white,
-                            "gray": .gray,
-                            "black": .black,
-                            "clear": .clear,
-                            "primary": .primary,
-                            "secondary": .secondary
-                        ]
-                        let colorName = String(stringValue[idx...].dropFirst())
-                        guard let color = colorMapping[colorName] else {
-                            throw FHIRConversionError("Invalid color '\(colorName)'")
-                        }
-                        return .init(name: String(stringValue[..<idx]), color: color)
-                    }
-                ))
             case .some:
                 return try toCustomTaskKind(using: context)
             default:
@@ -441,12 +389,8 @@ extension ModelsR4.QuestionnaireItem {
     private func toCustomTaskKind(
         using context: ConversionContext
     ) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
-        // http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl
-//        guard itemControl == "http://spezi.stanford.edu/fhir/StructureDefinition/custom-task" else {
-//            throw FHIRConversionError("Invalid item-control for custom task kind")
-//        }
-        for definition in context.additionalTaskDefinitions {
-            guard let definition = definition as? any QuestionKindDefinitionWithFHIRSupport.Type else {
+        for definition in context.options.knownQuestionKinds {
+            guard let definition = definition as? any QuestionKindDefinitionWithFHIRDecodingSupport.Type else {
                 continue
             }
             if let config = try definition.parse(self) {
@@ -477,6 +421,16 @@ extension ModelsR4.Extension.ValueX {
         switch self {
         case .integer(let value):
             (value.value?.integer).map { Int($0) }
+        default:
+            nil
+        }
+    }
+    
+    /// The value's `CodeableConcept` value, if applicable.
+    var codeableConceptValue: ModelsR4.CodeableConcept? {
+        switch self {
+        case .codeableConcept(let concept):
+            concept
         default:
             nil
         }

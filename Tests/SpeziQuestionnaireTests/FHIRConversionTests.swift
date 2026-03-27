@@ -33,7 +33,7 @@ struct FHIRConversionTests {
         let questionnaire = SpeziQuestionnaire.Questionnaire.phq9
         let responses = QuestionnaireResponses(questionnaire: questionnaire)
         for task in questionnaire.sections.flatMap(\.tasks) {
-            switch task.kind {
+            switch task.kind.variant {
             case .instructional:
                 break // ignore
             case .choice(let config):
@@ -135,7 +135,7 @@ struct FHIRConversionTests {
         let q2Task = try #require(section.tasks.first { $0.id == "q2" })
         
         // The converted option id should be the bare code "LA6568-5"
-        guard case .choice(let choiceConfig) = q1Task.kind else {
+        guard case .choice(let choiceConfig) = q1Task.kind.variant else {
             Issue.record("Expected q1 to be a choice task")
             return
         }

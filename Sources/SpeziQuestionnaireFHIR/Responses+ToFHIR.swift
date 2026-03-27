@@ -9,20 +9,11 @@
 private import CryptoKit
 private import Foundation
 public import ModelsR4
-private import PencilKit
 public import SpeziQuestionnaire
 
 
-private struct FHIRConversionError: Error {
-    let message: String
-    
-    init(_ message: String) {
-        self.message = message
-    }
-}
-
-
 extension SpeziQuestionnaire.QuestionnaireResponses {
+    /// A custom response value that can be expressed as one or more FHIR R4 `QuestionnaireResponseItemAnswer`
     public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol { // swiftlint:disable:this type_name
         /// Generates a FHIR R4 [`QuestionnaireResponseItemAnswer`](https://build.fhir.org/questionnaireresponse-definitions.html#QuestionnaireResponse.item.answer) for this custom value.
         ///
@@ -101,7 +92,7 @@ extension QuestionnaireResponses.Response {
         )
         switch task.kind.variant {
         case let .custom(questionKind, config: _):
-            if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIRSupport.Type {
+            if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIREncodingSupport.Type {
                 responseItem.answer = try questionKind.toFHIR(self, for: task)
                 return responseItem
             }
@@ -254,39 +245,6 @@ extension QuestionnaireResponseItem {
         } else {
             throw FHIRConversionError("Unable to get linkId")
         }
-    }
-}
-
-
-extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
-    public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
-        let baseImage: UIImage
-        switch task.kind.variant {
-        case .custom(questionKind: _, let config):
-            guard let config = config as? AnnotateImageConfig else {
-                throw FHIRConversionError("Invalid task kind")
-            }
-            guard let image = config.inputImage.image() else {
-                // Simply draw the annotation onto a clear backgrund in this case? (no.)
-                throw FHIRConversionError("Unable to obtain baseImage")
-            }
-            baseImage = image
-        default:
-            throw FHIRConversionError("Invalid task kind")
-        }
-        guard let annotatedImage = self.draw(onto: baseImage) else {
-            throw FHIRConversionError("Unable to draw annotated image")
-        }
-        let tmpUrl = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, conformingTo: .png)
-        guard let pngData = annotatedImage.pngData() else {
-            throw FHIRConversionError("Unable to process annotated image")
-        }
-        try pngData.write(to: tmpUrl)
-        defer {
-            try? FileManager.default.removeItem(at: tmpUrl)
-        }
-        let attachment = try QuestionnaireResponses.CollectedAttachment(url: tmpUrl)
-        return try [QuestionnaireResponseItemAnswer(attachment)]
     }
 }
 

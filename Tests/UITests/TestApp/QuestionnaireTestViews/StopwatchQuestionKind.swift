@@ -34,13 +34,7 @@ struct StopwatchQuestionKind: QuestionKindDefinition {
 }
 
 
-extension StopwatchQuestionKind: QuestionKindDefinitionWithFHIRSupport {
-    static func parse(_ item: QuestionnaireItem) throws -> EmptyQuestionKindConfig? {
-        throw NSError(domain: "edu.stanford.Spezi.Questionnaire", code: 0, userInfo: [
-            NSLocalizedDescriptionKey: "Not Supported" // ok bc test-only type
-        ])
-    }
-    
+extension StopwatchQuestionKind: QuestionKindDefinitionWithFHIREncodingSupport {
     static func toFHIR(
         _ response: QuestionnaireResponses.Response,
         for task: SpeziQuestionnaire.Questionnaire.Task
@@ -63,7 +57,7 @@ extension StopwatchQuestionKind: QuestionKindDefinitionWithFHIRSupport {
 
 extension SpeziQuestionnaire.Questionnaire.Task.Kind {
     static var stopwatch: Self {
-        .custom(questionKind: StopwatchQuestionKind.self, config: .init())
+        .custom(StopwatchQuestionKind.self, config: .init())
     }
 }
 

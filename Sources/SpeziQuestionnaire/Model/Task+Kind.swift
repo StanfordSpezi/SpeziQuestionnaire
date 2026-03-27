@@ -14,6 +14,43 @@ public import UniformTypeIdentifiers
 
 
 extension Questionnaire.Task {
+    /// Question Kind.
+    ///
+    /// Each ``Questionnaire/Task`` has a kind, which defines what the task does.
+    ///
+    /// ## Topics
+    /// ### Instructional Tasks
+    /// - ``instructional(_:)``
+    ///
+    /// ### Boolean Questions
+    /// - ``boolean``
+    ///
+    /// ### Choice Questions
+    /// - ``choice(_:)``
+    /// - ``ChoiceConfig``
+    ///
+    /// ### Numeric Questions
+    /// - ``numeric(_:)``
+    /// - ``NumericTaskConfig``
+    ///
+    /// ### Free-Text Questions
+    /// - ``freeText(_:)``
+    /// - ``FreeTextConfig``
+    ///
+    /// ### Date/Time Questions
+    /// - ``dateTime(_:)``
+    /// - ``DateTimeConfig``
+    ///
+    /// ### File Questions
+    /// - ``fileAttachment(_:)``
+    /// - ``FileAttachmentConfig``
+    ///
+    /// ### Image Annotation Questions
+    /// - ``annotateImage(_:)``
+    /// - ``AnnotateImageConfig``
+    ///
+    /// ### Custom Questions
+    /// - ``custom(_:config:)``
     public struct Kind: Hashable, Sendable {
         package enum Variant: Sendable {
             /// A task that displays instructional text to the user.
@@ -98,7 +135,8 @@ extension Questionnaire.Task.Kind {
         .init(variant: .fileAttachment(config))
     }
     
-    public static func custom<K: QuestionKindDefinition>(questionKind: K.Type, config: K.Config) -> Self {
+    /// A custom question type, with an associated configuration.
+    public static func custom<K: QuestionKindDefinition>(_ questionKind: K.Type, config: K.Config) -> Self {
         .init(variant: .custom(questionKind: questionKind, config: config))
     }
 }
