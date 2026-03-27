@@ -119,4 +119,13 @@ struct TaskConditionTests {
             #expect(input.simplified() == .none)
         }
     }
+    
+    
+    @Test
+    func hashing() {
+        let cond1: Questionnaire.Condition = .all([true, false])
+        let cond2: Questionnaire.Condition = .all([false, true])
+        #expect(cond1 == cond2)
+        #expect(cond1.hashValue == cond2.hashValue)
+    }
 }

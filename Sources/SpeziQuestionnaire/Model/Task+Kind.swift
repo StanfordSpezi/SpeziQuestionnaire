@@ -169,27 +169,27 @@ extension Questionnaire.Task.Kind.Variant: Hashable {
     package func hash(into hasher: inout Hasher) {
         switch self {
         case .instructional(let text):
-            hasher.combine(#line)
+            hasher.combine(0)
             hasher.combine(text)
         case .boolean:
-            hasher.combine(#line)
+            hasher.combine(1)
         case .choice(let config):
-            hasher.combine(#line)
+            hasher.combine(2)
             hasher.combine(config)
         case .freeText(let config):
-            hasher.combine(#line)
+            hasher.combine(3)
             hasher.combine(config)
         case .dateTime(let config):
-            hasher.combine(#line)
+            hasher.combine(4)
             hasher.combine(config)
         case .numeric(let config):
-            hasher.combine(#line)
+            hasher.combine(5)
             hasher.combine(config)
         case .fileAttachment(let config):
-            hasher.combine(#line)
+            hasher.combine(6)
             hasher.combine(config)
         case let .custom(type, config):
-            hasher.combine(#line)
+            hasher.combine(7)
             hasher.combine(ObjectIdentifier(type))
             config.hash(into: &hasher)
         }

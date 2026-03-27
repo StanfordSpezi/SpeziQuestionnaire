@@ -16,7 +16,7 @@ Use FHIR questionnaires in your iOS app
 ## Discussion
 
 The `SpeziQuestionnaireFHIR` target extends the `SpeziQuestionnaire` target, adding FHIR support:
-- Convert a FHIR F4 questionnaires into a SpeziQuestionnaire [`Questionnaire`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaire)
+- Convert a FHIR R4 questionnaires into a SpeziQuestionnaire [`Questionnaire`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaire)
     - support for partially and fully custom question kinds using `item-control` and FHIR extensions
 - Convert a SpeziQuestionnaire [`QuestionnaireResponses`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnaire/questionnaireresponses) instance into a FHIR R4 QuestionnaireResponse
 

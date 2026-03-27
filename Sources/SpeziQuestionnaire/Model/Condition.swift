@@ -7,6 +7,7 @@
 //
 
 public import Foundation
+private import SpeziFoundation
 
 
 extension Questionnaire {
@@ -43,12 +44,12 @@ extension Questionnaire {
         /// A condition that is satisfied if any of its contained conditions are satisfied..
         ///
         /// If there are no nested conditions, `any` evaluates to `false`.
-        case any([Condition])
+        case any(Set<Condition>)
         
         /// A condition that is satisfied if all of its contained conditions are satisfied.
         ///
         /// If there are no nested conditions, `all` evaluates to `true`.
-        case all([Condition])
+        case all(Set<Condition>)
         
         /// A condition that is satisfied if a response exists for the task at `taskPath`.
         ///
@@ -134,6 +135,7 @@ extension Questionnaire {
 
 
 extension Questionnaire.Condition: Hashable {
+    /// Determines whether two conditions are semantically equivalent.
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.simplified().isEqual(to: rhs.simplified())
     }
@@ -158,24 +160,24 @@ extension Questionnaire.Condition: Hashable {
     }
     
     public func hash(into hasher: inout Hasher) {
-        switch self {
+        switch simplified() {
         case .not(let inner):
-            hasher.combine(#line)
+            hasher.combine(0)
             hasher.combine(inner)
         case .any(let inner):
-            hasher.combine(#line)
+            hasher.combine(1)
             hasher.combine(inner)
         case .all(let inner):
-            hasher.combine(#line)
+            hasher.combine(2)
             hasher.combine(inner)
         case .hasResponse(let taskId):
-            hasher.combine(#line)
+            hasher.combine(3)
             hasher.combine(taskId)
         case .isMissingResponse(let taskId):
-            hasher.combine(#line)
+            hasher.combine(4)
             hasher.combine(taskId)
         case let .responseValueComparison(taskId, `operator`, value):
-            hasher.combine(#line)
+            hasher.combine(5)
             hasher.combine(taskId)
             hasher.combine(`operator`)
             hasher.combine(value)
@@ -203,24 +205,32 @@ extension Questionnaire.Condition {
                 return .not(inner)
             }
         case .any(let inner):
-            let inner = inner.mapIntoSet { $0.simplified() }
+            let inner: Set<Self> = inner.compactMapIntoSet {
+                switch $0.simplified() {
+                case false: nil
+                case let cond: cond
+                }
+            }
             if inner.isEmpty {
                 return false
             } else if inner.contains(true) {
                 return true
             } else {
-                return .any(Array(inner))
+                return .any(inner)
             }
         case .all(let inner):
-            let inner = inner.mapIntoSet { $0.simplified() }
+            let inner: Set<Self> = inner.compactMapIntoSet {
+                switch $0.simplified() {
+                case true: nil
+                case let cond: cond
+                }
+            }
             if inner.isEmpty {
                 return true
             } else if inner.contains(false) {
                 return false
-            } else if inner == [true] {
-                return true
             } else {
-                return .all(Array(inner))
+                return .all(inner)
             }
         case .hasResponse, .isMissingResponse, .responseValueComparison:
             return self

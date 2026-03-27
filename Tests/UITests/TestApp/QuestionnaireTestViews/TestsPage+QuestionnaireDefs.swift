@@ -151,7 +151,7 @@ extension Questionnaire {
                             ]
                         ))
                     ),
-                    .init(id: "taskAttachment", title: "Test Task: Attachmenr", kind: .fileAttachment(.init(
+                    .init(id: "taskAttachment", title: "Test Task: Attachment", kind: .fileAttachment(.init(
                         contentTypes: [.image],
                         allowsMultipleSelection: true
                     )))
@@ -173,7 +173,7 @@ extension Questionnaire {
                     kind: .choice(.init(
                         options: [
                             .init(id: "mango", title: "Mango"),
-                            .init(id: "strawbeerry", title: "Strawbeerry")
+                            .init(id: "strawberry", title: "Strawberry")
                         ],
                         allowsMultipleSelection: false
                     )),
@@ -197,7 +197,7 @@ extension Questionnaire {
                         kind: .choice(.init(
                             options: [
                                 .init(id: "mango", title: "Mango"),
-                                .init(id: "strawbeerry", title: "Strawbeerry")
+                                .init(id: "strawberry", title: "Strawberry")
                             ],
                             allowsMultipleSelection: false
                         )),

@@ -62,6 +62,29 @@ struct FHIRConversionTests {
     }
     
     
+    @Test
+    func responseConversion() throws {
+        let questionnaire = SpeziQuestionnaire.Questionnaire(
+            metadata: .init(id: "", url: nil, title: "", explainer: ""),
+            sections: [
+                .init(id: "s0", tasks: [
+                    .init(id: "t0", title: "", kind: .numeric(.init(inputMode: .numberPad(.integer))))
+                ])
+            ]
+        )
+        let responses = QuestionnaireResponses(questionnaire: questionnaire)
+        responses.responses["t0"].value.numberValue = 123
+        let fhir = try ModelsR4.QuestionnaireResponse(responses)
+        let items = try #require(fhir.item)
+        #expect(items.count == 1)
+        let item = try #require(items.first)
+        let answers = try #require(item.answer)
+        #expect(answers.count == 1)
+        let answer = try #require(answers.first)
+        #expect(answer.value == .decimal(123.asFHIRDecimalPrimitive()))
+    }
+    
+    
     @Test(arguments: ["Diet", "PHQ9"])
     func fhirResponsesStructureVsRKoF(filename: String) throws {
         let rkofResultUrl = try #require(Foundation.Bundle.module.url(forResource: "\(filename)_response_rkof", withExtension: "json"))

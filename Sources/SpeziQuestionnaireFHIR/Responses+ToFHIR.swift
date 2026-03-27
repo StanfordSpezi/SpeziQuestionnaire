@@ -196,23 +196,29 @@ extension QuestionnaireResponses.Response {
                 responseItem.answer = nil
             }
         }
-        guard case .choice(let taskConfig) = task.kind.variant else {
-            throw FHIRConversionError("Invalid Input")
+        guard !nestedResponses.isEmpty else {
+            return responseItem
         }
-        for (nestingId, responses) in nestedResponses {
-            switch nestingId {
-            case .choiceOption(let optionId):
-                guard let option = taskConfig.options.first(where: { $0.id == optionId }) else {
-                    throw FHIRConversionError("Unable to find choice option '\(optionId)'")
+        switch task.kind.variant {
+        case .choice(let taskConfig):
+            for (nestingId, responses) in nestedResponses {
+                switch nestingId {
+                case .choiceOption(let optionId):
+                    guard let option = taskConfig.options.first(where: { $0.id == optionId }) else {
+                        throw FHIRConversionError("Unable to find choice option '\(optionId)'")
+                    }
+                    guard self.value.choiceValue.selectedOptions.contains(option.id) else {
+                        throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
+                    }
+                    guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.toFHIRCoding()) }) else {
+                        throw FHIRConversionError("Unable to find answer for choice option")
+                    }
+                    answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
                 }
-                guard self.value.choiceValue.selectedOptions.contains(option.id) else {
-                    throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
-                }
-                guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.toFHIRCoding()) }) else {
-                    throw FHIRConversionError("Unable to find answer for choice option")
-                }
-                answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
             }
+        default:
+            // Question: how to best handle this?
+            throw FHIRConversionError("Invalid Input")
         }
         return responseItem
     }

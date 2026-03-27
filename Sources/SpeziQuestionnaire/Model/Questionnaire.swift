@@ -19,7 +19,7 @@ private import SpeziFoundation
 ///
 /// ### Interoperability
 ///
-/// The `Questionnaire` type is compatible with  [FHIR R4 questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
+/// The `Questionnaire` type is compatible with [FHIR R4 questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
 ///
 ///
 /// ## Topics

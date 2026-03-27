@@ -455,7 +455,7 @@ extension SpeziQuestionnaire.Questionnaire.Condition {
             return
         }
         let behaviour = item.enableBehavior?.value ?? .all
-        let elements = try enableWhen.map { try Self($0, using: context) }
+        let elements = try enableWhen.mapIntoSet { try Self($0, using: context) }
         switch behaviour {
         case .all:
             self = .all(elements)
