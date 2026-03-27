@@ -19,14 +19,14 @@ struct StopwatchQuestionKind: QuestionKindDefinition {
     
     static func validate(
         response: QuestionnaireResponses.Response,
-        for config: EmptyQuestionKindConfig
+        for config: Config
     ) -> QuestionnaireResponses.ResponseValidationResult {
         .ok
     }
     
     static func makeView(
         for task: SpeziQuestionnaire.Questionnaire.Task,
-        using config: EmptyQuestionKindConfig,
+        using config: Config,
         response: Binding<QuestionnaireResponses.Response>
     ) -> some View {
         StopwatchQuestionKindView(response: response)

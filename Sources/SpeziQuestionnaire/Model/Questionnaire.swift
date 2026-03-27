@@ -78,7 +78,7 @@ extension Questionnaire.Task {
     func withConditionsSimplified() -> Self {
         var copy = self
         copy.enabledCondition.simplify()
-        switch copy.kind {
+        switch copy.kind.variant {
         case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
             break
         case .choice(var config):
@@ -86,8 +86,8 @@ extension Questionnaire.Task {
                 $0.withConditionsSimplified()
             }
             copy.kind = .choice(config)
-        case let ._custom(questionKind, config):
-            copy.kind = ._custom(questionKind: questionKind, config: config.withConditionsSimplified())
+        case let .custom(questionKind, config):
+            copy.kind = .init(variant: .custom(questionKind: questionKind, config: config.withConditionsSimplified()))
         }
         return copy
     }

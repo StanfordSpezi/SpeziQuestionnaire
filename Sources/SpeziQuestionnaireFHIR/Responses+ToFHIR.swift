@@ -99,8 +99,8 @@ extension QuestionnaireResponses.Response {
         let responseItem = QuestionnaireResponseItem(
             linkId: context.task.id.asFHIRStringPrimitive()
         )
-        switch task.kind {
-        case let ._custom(questionKind, config: _):
+        switch task.kind.variant {
+        case let .custom(questionKind, config: _):
             if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIRSupport.Type {
                 responseItem.answer = try questionKind.toFHIR(self, for: task)
                 return responseItem
@@ -124,7 +124,7 @@ extension QuestionnaireResponses.Response {
             ]
         case .date(let response):
             let value = try { () -> QuestionnaireResponseItemAnswer.ValueX in
-                guard case .dateTime(let config) = task.kind else {
+                guard case .dateTime(let config) = task.kind.variant else {
                     throw FHIRConversionError("Invalid Input")
                 }
                 switch config.style {
@@ -157,7 +157,7 @@ extension QuestionnaireResponses.Response {
             }()
             responseItem.answer = [.init(value: value)]
         case .number(let response):
-            guard case .numeric(let config) = task.kind else {
+            guard case .numeric(let config) = task.kind.variant else {
                 throw FHIRConversionError("Invalid Input")
             }
             let value: QuestionnaireResponseItemAnswer.ValueX
@@ -172,7 +172,7 @@ extension QuestionnaireResponses.Response {
             }
             responseItem.answer = [.init(value: value)]
         case .choice(let response):
-            guard case .choice(let config) = task.kind else {
+            guard case .choice(let config) = task.kind.variant else {
                 throw FHIRConversionError("Invalid Input")
             }
             responseItem.answer = try response.selectedOptions.map { optionId in
@@ -205,7 +205,7 @@ extension QuestionnaireResponses.Response {
                 responseItem.answer = nil
             }
         }
-        guard case .choice(let taskConfig) = task.kind else {
+        guard case .choice(let taskConfig) = task.kind.variant else {
             throw FHIRConversionError("Invalid Input")
         }
         for (nestingId, responses) in nestedResponses {
@@ -261,8 +261,8 @@ extension QuestionnaireResponseItem {
 extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
     public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
         let baseImage: UIImage
-        switch task.kind {
-        case ._custom(questionKind: _, let config):
+        switch task.kind.variant {
+        case .custom(questionKind: _, let config):
             guard let config = config as? AnnotateImageConfig else {
                 throw FHIRConversionError("Invalid task kind")
             }

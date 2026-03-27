@@ -450,7 +450,7 @@ extension ModelsR4.QuestionnaireItem {
                 continue
             }
             if let config = try definition.parse(self) {
-                return ._custom(questionKind: definition, config: config)
+                return .init(variant: .custom(questionKind: definition, config: config))
             }
         }
         throw FHIRConversionError(

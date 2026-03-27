@@ -52,7 +52,7 @@ extension QuestionnaireResponses {
             // the instant it's opened, turn bright red bc every question would complain about an invalid response
             return .ok
         }
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional:
             // instructional tasks never can have a response, so they're always ok
             return .ok
@@ -163,7 +163,7 @@ extension QuestionnaireResponses {
             return .ok
         case .fileAttachment:
             return .ok
-        case let ._custom(questionKind, config):
+        case let .custom(questionKind, config):
             return questionKind.validate(response: responses[task.id], for: config)
         }
     }

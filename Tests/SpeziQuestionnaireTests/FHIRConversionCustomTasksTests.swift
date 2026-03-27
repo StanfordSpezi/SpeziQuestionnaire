@@ -170,8 +170,8 @@ struct FHIRConversionCustomTasksTests {
         ))
         #expect(task.id == "t0")
         #expect(task.title == "Question 1")
-        switch task.kind {
-        case let ._custom(questionKind, config):
+        switch task.kind.variant {
+        case let .custom(questionKind, config):
             #expect(ObjectIdentifier(questionKind) == ObjectIdentifier(RankChoicesTask.self))
             let config = try #require(config as? Config)
             #expect(config == Config(options: ["Strawberry", "Mango", "Chocolate"]))
@@ -179,6 +179,7 @@ struct FHIRConversionCustomTasksTests {
             Issue.record()
         }
         #expect(task.kind == .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
+        #expect(task.kind.variant == .custom(questionKind: RankChoicesTask.self, config: .init(options: ["Strawberry", "Mango", "Chocolate"])))
     }
 }
 

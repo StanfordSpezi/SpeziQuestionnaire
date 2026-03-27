@@ -60,7 +60,7 @@ struct TaskView<Header: View>: View {
     }
     
     @ViewBuilder private var mainContent: some View {
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional(let text):
             Instructions(text: text)
         case .choice(let config):
@@ -75,7 +75,7 @@ struct TaskView<Header: View>: View {
             yesNoRows
         case .fileAttachment(let config):
             FileAttachmentQuestionView(config: config, attachments: $response.value.attachmentsValue.withDefault([]))
-        case let ._custom(questionKind, config):
+        case let .custom(questionKind, config):
             questionKind.makeView(for: task, using: config, response: $response).intoAnyView()
         }
     }

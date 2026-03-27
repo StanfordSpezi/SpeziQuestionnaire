@@ -147,7 +147,7 @@ extension QuestionnaireResponses {
             }
             let task = resolved.task
             let responses = resolved.responses.responses
-            switch task.kind {
+            switch task.kind.variant {
             case .instructional:
                 return false
             case .boolean:
@@ -283,7 +283,7 @@ extension QuestionnaireResponses {
                 }
             case .fileAttachment:
                 return false
-            case let ._custom(questionKind, config):
+            case let .custom(questionKind, config):
                 let response = responses[taskId].value
                 return questionKind.evaluateResponseValueComparison(
                     for: config,

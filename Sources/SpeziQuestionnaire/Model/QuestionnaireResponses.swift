@@ -133,11 +133,11 @@ public final class QuestionnaireResponses: Identifiable {
 
 extension QuestionnaireResponses {
     func hasResponse(for task: Questionnaire.Task) -> Bool {
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional:
             // instructional tasks never collect a response; they are always considered as being complete.
             true
-        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment, ._custom:
+        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment, .custom:
             responses[task.id].value != .none
         }
     }
@@ -215,7 +215,7 @@ extension QuestionnaireResponses {
                 // Found nested responses for a task that doesn't have nested questions
                 responses[task.id].nestedResponses.removeAll()
             }
-            switch task.kind {
+            switch task.kind.variant {
             case .choice(let config):
                 for option in config.options {
                     self
@@ -224,7 +224,7 @@ extension QuestionnaireResponses {
                 }
             case .instructional:
                 responses[task.id] = .init(value: .none)
-            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, ._custom:
+            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, .custom:
                 break
             }
         }
