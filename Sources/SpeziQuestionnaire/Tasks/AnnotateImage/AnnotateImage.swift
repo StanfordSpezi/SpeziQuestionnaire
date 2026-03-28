@@ -51,7 +51,11 @@ public struct AnnotateImageConfig: QuestionKindConfig {
         }
     }
     
+    /// The image onto which the annotations should be drawn.
     public let inputImage: InputImage
+    /// The regions offered to the user to select from.
+    ///
+    /// - Important: Regions are identified by their ``Region/name``. It is invalid for multiple regions to have identical names. If that is the case, the behaviour is undefined.
     public let regions: [Region]
     
     public init(inputImage: InputImage, regions: [Region]) {

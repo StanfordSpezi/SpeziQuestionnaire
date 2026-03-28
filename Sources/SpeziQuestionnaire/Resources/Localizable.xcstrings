@@ -65,6 +65,16 @@
     "Invalid Input" : {
 
     },
+    "Length must be between %lld and %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Length must be between %1$lld and %2$lld"
+          }
+        }
+      }
+    },
     "Limited to %llu decimal places" : {
       "localizations" : {
         "en" : {

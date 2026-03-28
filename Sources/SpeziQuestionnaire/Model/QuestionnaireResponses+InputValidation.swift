@@ -81,11 +81,27 @@ extension QuestionnaireResponses {
             guard let response = responses[task.id].value.stringValue else {
                 return .ok
             }
-            if let minLength = config.minLength, response.count < minLength {
-                return .invalid(message: "Too short: must be at least \(minLength) characters", bundle: .module)
+            func isLengthValid(_ allowed: some RangeExpression<Int>) -> Bool {
+                allowed.contains(response.count)
             }
-            if let maxLength = config.maxLength, response.count > maxLength {
-                return .invalid(message: "Too long: can be at most \(maxLength) characters", bundle: .module)
+            switch (config.minLength, config.maxLength) {
+            case (.none, .none):
+                break
+            case (.some(let minLength), .none):
+                if !isLengthValid(minLength...) {
+                    return .invalid(message: "Too short: must be at least \(minLength) characters", bundle: .module)
+                }
+            case (.none, .some(let maxLength)):
+                if !isLengthValid(...maxLength) {
+                    return .invalid(message: "Too long: can be at most \(maxLength) characters", bundle: .module)
+                }
+            case let (.some(minLength), .some(maxLength)):
+                guard maxLength >= minLength else {
+                    break
+                }
+                if !isLengthValid(minLength...maxLength) {
+                    return .invalid(message: "Length must be between \(minLength) and \(maxLength)", bundle: .module)
+                }
             }
             let responseNSString = response as NSString
             let wholeStringRange = NSRange(location: 0, length: responseNSString.length)

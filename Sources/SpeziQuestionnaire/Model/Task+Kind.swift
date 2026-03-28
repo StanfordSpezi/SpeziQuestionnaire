@@ -315,7 +315,10 @@ extension Questionnaire.Task.Kind {
             }
         }
         
-        /// The options the user can select from
+        /// The options the user can select from.
+        ///
+        /// - Important: The options, as identified by their ``Option/id``s must be distinct.
+        ///     If a `ChoiceConfig` contains multiple options with identical identifiers, the behaviour is undefined.
         public var options: [Option]
         /// Whether the user should be offered an "Other" option where they can enter arbitrary text.
         public var hasFreeTextOtherOption: Bool

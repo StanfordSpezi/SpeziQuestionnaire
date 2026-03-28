@@ -47,7 +47,7 @@ extension AnnotateImageQuestionKind: QuestionKindDefinitionWithFHIRDecodingSuppo
                 }
                 guard let label = labelExts.first?.value?.stringValue,
                       let color = colorExts.first?.value?.stringValue else {
-                    throw FHIRConversionError("TODO")
+                    throw FHIRConversionError("Region label and color must be string values.")
                 }
                 let colorMapping: [String: Color] = [
                     "red": .red,
