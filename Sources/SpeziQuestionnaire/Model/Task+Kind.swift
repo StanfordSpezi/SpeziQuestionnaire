@@ -52,7 +52,11 @@ extension Questionnaire.Task {
     /// ### Custom Questions
     /// - ``custom(_:config:)``
     public struct Kind: Hashable, Sendable {
-        package enum Variant: Sendable {
+        /// The task's internal variant.
+        ///
+        /// - Important: This type is part of the public API, but no guarantees are made as for its stability.
+        /// Enum cases might be added or removed in any new release of the package.
+        public enum Variant: Sendable {
             /// A task that displays instructional text to the user.
             case instructional(String)
             
@@ -88,7 +92,10 @@ extension Questionnaire.Task {
             )
         }
         
-        package let variant: Variant
+        /// The task's internal variant.
+        ///
+        /// - Important: This property is part of the public API, but no guarantees are made as for its stability.
+        public let variant: Variant
         
         package init(variant: Variant) {
             self.variant = variant
@@ -142,8 +149,47 @@ extension Questionnaire.Task.Kind {
 }
 
 
+extension Questionnaire.Task.Kind {
+    public func `is`<D: QuestionKindDefinition>(_ definition: D.Type) -> Bool {
+        switch variant {
+        case .custom(let questionKind, config: _):
+            questionKind == definition
+        case .instructional, .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment:
+            false
+        }
+    }
+    
+    /// Extracts the task kind's config, if it matches the specified type.
+    public func config<D: QuestionKindDefinition>(for _: D.Type) -> D.Config? {
+        config(as: D.Config.self)
+    }
+    
+    /// Extracts the task kind's config, if it matches the specified type.
+    public func config<C>(as _: C.Type) -> C? {
+        switch variant {
+        case .instructional(let config):
+            config as? C
+        case .boolean:
+            nil
+        case .choice(let config):
+            config as? C
+        case .freeText(let config):
+            config as? C
+        case .dateTime(let config):
+            config as? C
+        case .numeric(let config):
+            config as? C
+        case .fileAttachment(let config):
+            config as? C
+        case .custom(questionKind: _, config: let config):
+            config as? C
+        }
+    }
+}
+
+
 extension Questionnaire.Task.Kind.Variant: Hashable {
-    package static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case let (.instructional(lhs), .instructional(rhs)):
             lhs == rhs
@@ -166,7 +212,7 @@ extension Questionnaire.Task.Kind.Variant: Hashable {
         }
     }
     
-    package func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         switch self {
         case .instructional(let text):
             hasher.combine(0)

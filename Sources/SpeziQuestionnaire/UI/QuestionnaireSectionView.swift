@@ -69,6 +69,7 @@ struct QuestionnaireSectionView<Header: View>: View {
                         .frame(maxWidth: .infinity, minHeight: 38)
                 }
                 .buttonStyleGlassProminent()
+                .processingOverlay(isProcessing: viewState)
                 // if we're missing responses, we keep the button enabled,
                 // but tapping it won't proceed to the next section, but rather will scroll to the missing question
                 .tint(!canContinue ? .some(.gray.secondary) : .none)

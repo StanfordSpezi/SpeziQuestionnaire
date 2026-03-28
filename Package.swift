@@ -11,7 +11,7 @@ import class Foundation.ProcessInfo
 import PackageDescription
 
 
-let enableSwiftLintPlugin = true
+let enableSwiftLintPlugin = false
 
 
 let package = Package(
