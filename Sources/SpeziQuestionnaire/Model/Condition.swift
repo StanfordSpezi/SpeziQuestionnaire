@@ -29,6 +29,9 @@ extension Questionnaire {
     /// - ``not(_:)``
     /// - ``any(_:)``
     /// - ``all(_:)``
+    /// - ``none``
+    /// - ``true``
+    /// - ``false``
     /// - ``init(booleanLiteral:)``
     /// - ``hasResponse(taskId:)``
     /// - ``isMissingResponse(taskId:)``
@@ -109,6 +112,16 @@ extension Questionnaire {
         /// Always evaluates to `true`.
         public static var none: Self {
             true
+        }
+        
+        /// A `Condition` that is always true.
+        public static var `true`: Self {
+            true
+        }
+        
+        /// A `Condition` that is always false.
+        public static var `false`: Self {
+            false
         }
         
         /// Creates a ``Condition`` that always evaluates to the specified boolean value.

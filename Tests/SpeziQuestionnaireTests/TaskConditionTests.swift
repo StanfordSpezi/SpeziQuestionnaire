@@ -13,6 +13,32 @@ import Testing
 
 @Suite
 struct TaskConditionTests {
+    private typealias C = Questionnaire.Condition // swiftlint:disable:this type_name
+    
+    @Test
+    func conditionSimplification() {
+        do {
+            let input: C = .all([.all([.all([]), .all([])]), .all([])])
+            #expect(input.simplified() == .none)
+        }
+    }
+    
+    
+    @Test
+    func hashingAndEquality() {
+        let cond1: C = .all([true, false])
+        let cond2: C = .all([false, true])
+        #expect(cond1 == cond2)
+        #expect(cond1.hashValue == cond2.hashValue)
+        
+        #expect(C.all([true, false]) == false)
+        #expect(C.any([true, false]) == true)
+        #expect(C.all([true, .true && .false]) == false)
+        #expect(C.all([true, .false || .false]) == false)
+        #expect(C.all([true, .false || .true]) == true)
+        #expect(C.all([true, !(.false || .true)]) == false)
+    }
+    
     @Test
     func nestedTaskConditionLookup() throws {
         let questionnaire = Questionnaire(
@@ -109,23 +135,5 @@ struct TaskConditionTests {
         #expect(responses.responses == .init([
             rootTask0.id: .init(value: .bool(false))
         ]))
-    }
-    
-    
-    @Test
-    func conditionSimplification() {
-        do {
-            let input: Questionnaire.Condition = .all([.all([.all([]), .all([])]), .all([])])
-            #expect(input.simplified() == .none)
-        }
-    }
-    
-    
-    @Test
-    func hashing() {
-        let cond1: Questionnaire.Condition = .all([true, false])
-        let cond2: Questionnaire.Condition = .all([false, true])
-        #expect(cond1 == cond2)
-        #expect(cond1.hashValue == cond2.hashValue)
     }
 }
