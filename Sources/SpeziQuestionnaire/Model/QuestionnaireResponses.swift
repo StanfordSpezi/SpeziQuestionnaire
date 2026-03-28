@@ -11,6 +11,27 @@ public import Observation
 
 
 /// Stores and manages responses to a questionnaire.
+///
+/// ## Topics
+///
+/// ### Instance Properties
+/// - ``id``
+/// - ``questionnaire``
+/// - ``responses``
+///
+/// ### Path Utilities
+/// - ``ResponsesPath``
+/// - ``ResponsePath``
+/// - ``ResponsePathComponent``
+///
+/// ### Custom Response Support
+/// - ``CustomResponseValueProtocol``
+///
+/// ### Response Data Types
+/// - ``Response``
+/// - ``ChoiceResponse``
+/// - ``ImageAnnotation``
+/// - ``CollectedAttachment``
 @Observable
 public final class QuestionnaireResponses: Identifiable {
     /// The responses object's variant.
@@ -91,6 +112,7 @@ public final class QuestionnaireResponses: Identifiable {
         }
     }
     
+    /// The responses collected from the questionnaire.
     public internal(set) var responses: Responses {
         get {
             switch _variant {
