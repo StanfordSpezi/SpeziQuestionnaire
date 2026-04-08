@@ -150,6 +150,7 @@ extension Questionnaire.Task.Kind {
 
 
 extension Questionnaire.Task.Kind {
+    /// Checks whether the task kind matches the specified question kind definition.
     public func `is`<D: QuestionKindDefinition>(_ definition: D.Type) -> Bool {
         switch variant {
         case .custom(let questionKind, config: _):

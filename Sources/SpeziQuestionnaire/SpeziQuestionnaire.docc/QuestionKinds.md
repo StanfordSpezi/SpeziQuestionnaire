@@ -29,7 +29,7 @@ SpeziQuestionnaire supports the following built-in question kinds:
 | [Annotate Image](#Image-Annotations) | Prompts the user to mark regions on an image. | ``QuestionnaireResponses/ImageAnnotation`` |
 
 > Tip:
-Additional question kinds can be defined via the ``QuestionKindDefinition`` protocol; see also [here](#Defining-Custom-Question-Kinds).
+Additional question kinds can be defined via the ``QuestionKindDefinition`` protocol; see also [here](#Custom-Question-Kinds).
 
 
 #### Image Annotations

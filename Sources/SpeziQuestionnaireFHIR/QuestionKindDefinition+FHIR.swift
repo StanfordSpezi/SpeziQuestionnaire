@@ -22,7 +22,7 @@ public protocol QuestionKindDefinitionWithFHIRDecodingSupport: QuestionKindDefin
     ///
     /// - returns: `nil` if `item` doesn't match this question kind; otherwise a parsed `Config`
     /// - throws: If `item` matches this question kind but there was some error when processing it.
-    static func parse(_ item: ModelsR4.QuestionnaireItem) throws -> Config?
+    static func parse(_ item: ModelsR4.QuestionnaireItem) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> Config?
 }
 
 

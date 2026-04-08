@@ -40,7 +40,7 @@ struct FHIRConversionCustomTasksTests {
                 .ok
             }
             
-            static func parse(_ item: QuestionnaireItem) throws -> Config? {
+            static func parse(_ item: QuestionnaireItem) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> Config? {
                 guard let itemControlExt = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl").first,
                       let itemControlCoding = itemControlExt.value?.codeableConceptValue?.coding?.first,
                       itemControlCoding.system == "http://spezi.stanford.edu/fhir/CodeSystem/custom-task/item-control",

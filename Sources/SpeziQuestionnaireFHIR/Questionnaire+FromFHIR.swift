@@ -9,11 +9,15 @@
 // swiftlint:disable file_types_order file_length
 
 private import Algorithms
-private import Foundation
+public import Foundation
 public import ModelsR4
+private import SpeziFoundation
 public import SpeziQuestionnaire
 private import struct SwiftUI.Color
 private import UniformTypeIdentifiers
+
+
+private typealias FHIRConversionError = SpeziQuestionnaire.Questionnaire.FHIRConversionError
 
 
 extension SpeziQuestionnaire.Questionnaire {
@@ -29,6 +33,30 @@ extension SpeziQuestionnaire.Questionnaire {
         }
     }
     
+    /// An error that occured when creating a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`
+    public enum FHIRConversionError: LocalizedError {
+        /// The input FHIR questionnaire didn't contain any questions.
+        case emptyQuestionnaire
+        /// The input FHIR questionnaire contained a nonstandard question kind for which there was no matching `QuestionKindDefinition`.
+        case unhandledNonstandardQuestionKind(taskLinkId: String)
+        /// Some unspecified problem was encountered.
+        case other(String)
+        
+        public var errorDescription: String? {
+            switch self {
+            case .emptyQuestionnaire:
+                "Empty Questionnaire"
+            case .unhandledNonstandardQuestionKind(let taskLinkId):
+                """
+                Unable to parse questionnaire item for task '\(taskLinkId)'.
+                No matching task definition.
+                """
+            case .other(let message):
+                message
+            }
+        }
+    }
+    
     /// Creates a Spezi `Questionnaire` from a FHIR R4 `Questionnaire`.
     ///
     /// - parameter other: A FHIR R4 Questionnaire
@@ -36,9 +64,9 @@ extension SpeziQuestionnaire.Questionnaire {
     public init(
         _ other: ModelsR4.Questionnaire,
         using options: FHIRConversionOptions = .init()
-    ) throws {
+    ) throws(FHIRConversionError) {
         guard let id = other.url?.value?.url.absoluteString ?? other.id?.value?.string else {
-            throw FHIRConversionError("Missing both 'url' and 'id' fields. At least one must be present.")
+            throw .other("Missing both 'url' and 'id' fields. At least one must be present.")
         }
         let metadata = Metadata(
             id: id,
@@ -66,17 +94,17 @@ private struct ConversionContext {
 extension ModelsR4.Questionnaire {
     fileprivate func toSections(
         using options: SpeziQuestionnaire.Questionnaire.FHIRConversionOptions
-    ) throws -> [SpeziQuestionnaire.Questionnaire.Section] {
+    ) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> [SpeziQuestionnaire.Questionnaire.Section] {
         guard let items = item, !items.isEmpty else {
-            throw FHIRConversionError("Input questionnaire is empty")
+            throw .emptyQuestionnaire
         }
-        let topLevelItems = try { () throws -> [ModelsR4.QuestionnaireItem] in
+        let topLevelItems = try { () throws(FHIRConversionError) -> [ModelsR4.QuestionnaireItem] in
             var topLevelItems: [ModelsR4.QuestionnaireItem] = []
             var itemsIterator = items.makeIterator()
             var nextGroupIdx = 0
             l1: while let item = itemsIterator.next() {
                 guard let itemType = item.type.value else {
-                    throw FHIRConversionError("QuestionnaireItem is missing 'type'")
+                    throw .other("QuestionnaireItem is missing 'type'")
                 }
                 if itemType == .group {
                     topLevelItems.append(item)
@@ -91,7 +119,7 @@ extension ModelsR4.Questionnaire {
                     while let item = itemsIterator.next() {
                         // gobble up all following non-group items, until we reach the next group
                         guard let itemType = item.type.value else {
-                            throw FHIRConversionError("QuestionnaireItem is missing 'type'")
+                            throw .other("QuestionnaireItem is missing 'type'")
                         }
                         if itemType == .group {
                             topLevelItems.append(item)
@@ -105,9 +133,9 @@ extension ModelsR4.Questionnaire {
             }
             return topLevelItems
         }()
-        return try topLevelItems.map { item in
+        return try topLevelItems.map { item throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) in
             guard let itemType = item.type.value else {
-                throw FHIRConversionError("QuestionnaireItem is missing 'type'")
+                throw .other("QuestionnaireItem is missing 'type'")
             }
             guard itemType == .group else {
                 fatalError("Preprocessing failed")
@@ -125,14 +153,16 @@ extension ModelsR4.Questionnaire {
 
 extension ModelsR4.QuestionnaireItem {
     /// - invariant: the item must be a top-level `group` item.
-    fileprivate func toSection(using context: ConversionContext) throws -> SpeziQuestionnaire.Questionnaire.Section {
+    fileprivate func toSection(
+        using context: ConversionContext
+    ) throws(FHIRConversionError) -> SpeziQuestionnaire.Questionnaire.Section {
         guard type.value == .group else {
-            throw FHIRConversionError("Not a group item!")
+            throw .other("Not a group item!")
         }
         let linkId = try getLinkId()
         guard let nestedItems = item, !nestedItems.isEmpty else {
             // do we want to allow this? be a little more lenient here?
-            throw FHIRConversionError("Empty top-level group!")
+            throw .other("Empty top-level group!")
         }
         let groupCondition = try SpeziQuestionnaire.Questionnaire.Condition(self, using: context)
         let itemContext = ConversionContext(
@@ -142,7 +172,7 @@ extension ModelsR4.QuestionnaireItem {
         )
         return .init(
             id: linkId,
-            tasks: try nestedItems.flatMap { item in
+            tasks: try nestedItems.flatMap2 { item throws(FHIRConversionError) in
                 try item.toTasks(using: itemContext)
             }
         )
@@ -151,9 +181,11 @@ extension ModelsR4.QuestionnaireItem {
     /// Converts a FHIR QuestionnaireItem into a Task (within a Section) within a Spezi Questionnaire.
     ///
     /// - invariant: If this `QuestionnaireItem` is a `group`, is must not be a top-level item (in that case, ``toSection(using:)`` must be used instead).
-    fileprivate func toTasks(using context: ConversionContext) throws -> [SpeziQuestionnaire.Questionnaire.Task] {
+    fileprivate func toTasks(
+        using context: ConversionContext
+    ) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> [SpeziQuestionnaire.Questionnaire.Task] {
         guard let itemType = type.value else {
-            throw FHIRConversionError("QuestionnaireItem is missing 'type'")
+            throw .other("QuestionnaireItem is missing 'type'")
         }
         switch itemType {
         case .group:
@@ -167,7 +199,7 @@ extension ModelsR4.QuestionnaireItem {
                 questionnaire: context.questionnaire,
                 parentItemCondition: context.parentItemCondition && groupCondition,
             )
-            return try nestedItems.flatMap { item in
+            return try nestedItems.flatMap2 { item throws(FHIRConversionError) in
                 try item.toTasks(using: itemContext)
             }
         // swiftlint:disable:next line_length
@@ -185,7 +217,7 @@ extension ModelsR4.QuestionnaireItem {
                     questionnaire: context.questionnaire,
                     parentItemCondition: context.parentItemCondition && task.enabledCondition
                 )
-                let nestedTasks = try nestedItems.flatMap { item in
+                let nestedTasks = try nestedItems.flatMap2 { item throws(FHIRConversionError) in
                     try item.toTasks(using: itemContext)
                 }
                 return [task] + nestedTasks
@@ -197,16 +229,16 @@ extension ModelsR4.QuestionnaireItem {
     
     fileprivate func toTaskKind( // swiftlint:disable:this cyclomatic_complexity function_body_length
         using context: ConversionContext
-    ) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
+    ) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> SpeziQuestionnaire.Questionnaire.Task.Kind {
         guard let itemType = type.value else {
-            throw FHIRConversionError("QuestionnaireItem is missing 'type'")
+            throw .other("QuestionnaireItem is missing 'type'")
         }
         switch itemType {
         case .group:
-            throw FHIRConversionError("Attempted to request '\(SpeziQuestionnaire.Questionnaire.Task.Kind.self)' for questionnaire item of type '\(itemType)'")
+            throw .other("Attempted to request '\(SpeziQuestionnaire.Questionnaire.Task.Kind.self)' for questionnaire item of type '\(itemType)'")
         case .display:
             guard let text = text?.value?.string else {
-                throw FHIRConversionError("QuestionnaireItem of type display is missing 'text'")
+                throw .other("QuestionnaireItem of type display is missing 'text'")
             }
             switch itemControl {
             case .none:
@@ -215,8 +247,7 @@ extension ModelsR4.QuestionnaireItem {
                 return try toCustomTaskKind(using: context)
             }
         case .question:
-            // is this what we'd need to parse/support for custom question kinds??
-            throw FHIRConversionError("Not-yet-supported question type 'question'")
+            throw .other("Invalid question type 'question'")
         case .boolean:
             switch itemControl {
             case .none:
@@ -310,14 +341,14 @@ extension ModelsR4.QuestionnaireItem {
                 }
                 // should we look at more than just the first here?
                 guard let answerOptions = valueSet?.compose?.include.first?.concept else {
-                    throw FHIRConversionError("Unable to find answer options")
+                    throw .other("Unable to find answer options")
                 }
                 
                 for option in answerOptions {
                     guard let display = option.display?.value?.string,
                           let code = option.code.value?.string,
                           let system = valueSet?.compose?.include.first?.system?.value?.url else {
-                        throw FHIRConversionError("Invalid Concept in answer option")
+                        throw .other("Invalid Concept in answer option")
                     }
                     options.append(.init(
                         id: code,
@@ -330,7 +361,7 @@ extension ModelsR4.QuestionnaireItem {
                 // If the `QuestionnaireItem` has `answerOptions` defined instead, extract these options
                 // and convert them to `Questionnaire.Task.Kind.ChoiceConfig.Option`s
                 guard let answerOptions = answerOption else {
-                    throw FHIRConversionError("Missing answerOption")
+                    throw .other("Missing answerOption")
                 }
                 for option in answerOptions {
                     switch option.value {
@@ -338,7 +369,7 @@ extension ModelsR4.QuestionnaireItem {
                         guard let display = coding.display?.value?.string,
                               let code = coding.code?.value?.string,
                               let system = coding.system?.value?.url else {
-                            throw FHIRConversionError("Invalid coding value for answer option")
+                            throw .other("Invalid coding value for answer option")
                         }
                         options.append(.init(
                             id: code,
@@ -347,7 +378,7 @@ extension ModelsR4.QuestionnaireItem {
                             fhirCoding: .init(system: system, code: code)
                         ))
                     case .date, .integer, .reference, .string, .time:
-                        throw FHIRConversionError("Unsupported chocie option value: \(option.value). Currently, only coding values are supported.")
+                        throw .other("Unsupported chocie option value: \(option.value). Currently, only coding values are supported.")
                     }
                 }
             }
@@ -378,14 +409,14 @@ extension ModelsR4.QuestionnaireItem {
                 ))
             }
         case .reference:
-            throw FHIRConversionError("Unsupported question type '\(itemType)'")
+            throw .other("Unsupported question type '\(itemType)'")
         }
     }
     
     
     private func toCustomTaskKind(
         using context: ConversionContext
-    ) throws -> SpeziQuestionnaire.Questionnaire.Task.Kind {
+    ) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> SpeziQuestionnaire.Questionnaire.Task.Kind {
         for definition in context.options.knownQuestionKinds {
             guard let definition = definition as? any QuestionKindDefinitionWithFHIRDecodingSupport.Type else {
                 continue
@@ -394,12 +425,7 @@ extension ModelsR4.QuestionnaireItem {
                 return .init(variant: .custom(questionKind: definition, config: config))
             }
         }
-        throw FHIRConversionError(
-            """
-            Unable to parse questionnaire item for task '\(try self.getLinkId())'.
-            No matching task definition.
-            """
-        )
+        throw .unhandledNonstandardQuestionKind(taskLinkId: try getLinkId())
     }
 }
 
@@ -436,9 +462,9 @@ extension ModelsR4.Extension.ValueX {
 
 
 extension ModelsR4.QuestionnaireItem {
-    fileprivate func getLinkId() throws -> String {
+    fileprivate func getLinkId() throws(FHIRConversionError) -> String {
         guard let linkId = self.linkId.value?.string else {
-            throw FHIRConversionError("QuestionnaireItem is missing 'linkId'")
+            throw .other("QuestionnaireItem is missing 'linkId'")
         }
         return linkId
     }
@@ -446,13 +472,18 @@ extension ModelsR4.QuestionnaireItem {
 
 
 extension SpeziQuestionnaire.Questionnaire.Condition {
-    fileprivate init(_ item: ModelsR4.QuestionnaireItem, using context: ConversionContext) throws {
+    fileprivate init(
+        _ item: ModelsR4.QuestionnaireItem,
+        using context: ConversionContext
+    ) throws(FHIRConversionError) {
         guard let enableWhen = item.enableWhen, !enableWhen.isEmpty else {
             self = .none
             return
         }
         let behaviour = item.enableBehavior?.value ?? .all
-        let elements = try enableWhen.mapIntoSet { try Self($0, using: context) }
+        let elements = try enableWhen.mapIntoSet { enableWhen throws(FHIRConversionError) in
+            try Self(enableWhen, using: context)
+        }
         switch behaviour {
         case .all:
             self = .all(elements)
@@ -461,22 +492,22 @@ extension SpeziQuestionnaire.Questionnaire.Condition {
         }
     }
     
-    fileprivate init( // swiftlint:disable:this cyclomatic_complexity
+    fileprivate init( // swiftlint:disable:this function_body_length cyclomatic_complexity
         _ enableWhen: ModelsR4.QuestionnaireItemEnableWhen,
         using context: ConversionContext
-    ) throws {
+    ) throws(FHIRConversionError) {
         guard let questionLinkId = enableWhen.question.value?.string else {
-            throw FHIRConversionError("EnableWhen is missing question linkId")
+            throw .other("EnableWhen is missing question linkId")
         }
         guard let enableWhenOperator = enableWhen.operator.value else {
-            throw FHIRConversionError("EnableWhen is missing operator")
+            throw .other("EnableWhen is missing operator")
         }
         switch enableWhenOperator {
         case .exists:
             switch enableWhen.answer {
             case .boolean(let value):
                 guard let value = value.value?.bool else {
-                    throw FHIRConversionError("EnableWhen is boolean value")
+                    throw .other("EnableWhen is boolean value")
                 }
                 if value {
                     self = .hasResponse(taskId: questionLinkId)
@@ -484,32 +515,51 @@ extension SpeziQuestionnaire.Questionnaire.Condition {
                     self = .not(.hasResponse(taskId: questionLinkId))
                 }
             default:
-                throw FHIRConversionError("EnableWhen with exists operation must have boolean value")
+                throw .other("EnableWhen with exists operation must have boolean value")
             }
-        case .equal:
-            self = .responseValueComparison(taskId: questionLinkId, operator: .equal, value: try enableWhen.answer.toConditionValue())
-        case .notEqual:
-            self = .not(.responseValueComparison(taskId: questionLinkId, operator: .equal, value: try enableWhen.answer.toConditionValue()))
+        case .equal, .notEqual:
+            let eqComp: Self = .responseValueComparison(
+                taskId: questionLinkId,
+                operator: .equal,
+                value: try enableWhen.answer.toConditionValue()
+            )
+            self = enableWhenOperator == .equal ? eqComp : !eqComp
         case .greaterThan:
-            self = .responseValueComparison(taskId: questionLinkId, operator: .greaterThan, value: try enableWhen.answer.toConditionValue())
+            self = .responseValueComparison(
+                taskId: questionLinkId,
+                operator: .greaterThan,
+                value: try enableWhen.answer.toConditionValue()
+            )
         case .lessThan:
-            self = .responseValueComparison(taskId: questionLinkId, operator: .lessThan, value: try enableWhen.answer.toConditionValue())
+            self = .responseValueComparison(
+                taskId: questionLinkId,
+                operator: .lessThan,
+                value: try enableWhen.answer.toConditionValue()
+            )
         case .greaterThanOrEqual:
-            self = .responseValueComparison(taskId: questionLinkId, operator: .greaterThanOrEqual, value: try enableWhen.answer.toConditionValue())
+            self = .responseValueComparison(
+                taskId: questionLinkId,
+                operator: .greaterThanOrEqual,
+                value: try enableWhen.answer.toConditionValue()
+            )
         case .lessThanOrEqual:
-            self = .responseValueComparison(taskId: questionLinkId, operator: .lessThanOrEqual, value: try enableWhen.answer.toConditionValue())
+            self = .responseValueComparison(
+                taskId: questionLinkId,
+                operator: .lessThanOrEqual,
+                value: try enableWhen.answer.toConditionValue()
+            )
         }
     }
 }
 
 
 extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
-    fileprivate func toConditionValue() throws -> SpeziQuestionnaire.Questionnaire.Condition.Value {
-        func unwrap<T>(_ value: T?) throws -> T {
+    fileprivate func toConditionValue() throws(FHIRConversionError) -> SpeziQuestionnaire.Questionnaire.Condition.Value {
+        func unwrap<T>(_ value: T?) throws(FHIRConversionError) -> T {
             if let value {
                 return value
             } else {
-                throw FHIRConversionError("\(Self.self) is missing value")
+                throw .other("\(Self.self) is missing value")
             }
         }
         switch self {
@@ -548,11 +598,25 @@ extension ModelsR4.QuestionnaireItemEnableWhen.AnswerX {
             return .integer(Int(try unwrap(value.value?.integer)))
         case .quantity:
             // ISSUE: we might need to convert units here? (if the condition uses a different unit than the question
-            throw FHIRConversionError("Quantity values are not yet supported in comparisons")
+            throw .other("Quantity values are not yet supported in comparisons")
         case .reference(let value):
-            throw FHIRConversionError("Unsupported comparison value '\(value)'")
+            throw .other("Unsupported comparison value '\(value)'")
         case .string(let value):
             return .string(try unwrap(value.value?.string))
         }
+    }
+}
+
+
+// MARK: Utils
+
+extension Sequence {
+    /// Same as Swift's `flatMap`, but it supports typed throws
+    fileprivate func flatMap2<U, E>(_ transform: (Element) throws(E) -> some Sequence<U>) throws(E) -> [U] {
+        var result: [U] = []
+        for element in self {
+            result.append(contentsOf: try transform(element))
+        }
+        return result
     }
 }

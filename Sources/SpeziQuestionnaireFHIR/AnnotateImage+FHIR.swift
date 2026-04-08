@@ -14,7 +14,9 @@ private import struct SwiftUI.Color
 
 
 extension AnnotateImageQuestionKind: QuestionKindDefinitionWithFHIRDecodingSupport {
-    public static func parse(_ item: QuestionnaireItem) throws -> AnnotateImageConfig? { // swiftlint:disable:this function_body_length
+    public static func parse( // swiftlint:disable:this function_body_length
+        _ item: QuestionnaireItem
+    ) throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) -> AnnotateImageConfig? {
         let itemControlExts = item.extensions(for: "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl")
         guard itemControlExts.count == 1,
               let itemControlExt = itemControlExts.first,
@@ -25,29 +27,30 @@ extension AnnotateImageQuestionKind: QuestionKindDefinitionWithFHIRDecodingSuppo
         }
         let inputImageExts = item.extensions(for: "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control/annotate-image/input-image")
         guard let inputImageExt = inputImageExts.first, inputImageExts.count == 1 else {
-            throw FHIRConversionError("Must specify exactly one inputImage config")
+            throw .other("Must specify exactly one inputImage config")
         }
         let inputImage: AnnotateImageConfig.InputImage
         if let inputImageName = inputImageExt.value?.stringValue {
             inputImage = .namedInMainBundle(filename: inputImageName)
         } else {
-            throw FHIRConversionError("Invalid inputImage config")
+            throw .other("Invalid inputImage config")
         }
         let regionExts = item.extensions(for: "http://spezi.stanford.edu/fhir/CodeSystem/questionnaire-item-control/annotate-image/region")
         return AnnotateImageConfig(
             inputImage: inputImage,
-            regions: try regionExts.map { regionExt in // swiftlint:disable:this closure_body_length
+            regions: try regionExts.map { regionExt throws(SpeziQuestionnaire.Questionnaire.FHIRConversionError) in
+                // swiftlint:disable:previous closure_body_length
                 let labelExts = regionExt.extensions(for: "label")
                 let colorExts = regionExt.extensions(for: "color")
                 guard labelExts.count == 1 else {
-                    throw FHIRConversionError("Must specify exactly one (1) label per region in annotate-image question!")
+                    throw .other("Must specify exactly one (1) label per region in annotate-image question!")
                 }
                 guard colorExts.count == 1 else {
-                    throw FHIRConversionError("Must specify exactly one (1) color per region in annotate-image question!")
+                    throw .other("Must specify exactly one (1) color per region in annotate-image question!")
                 }
                 guard let label = labelExts.first?.value?.stringValue,
                       let color = colorExts.first?.value?.stringValue else {
-                    throw FHIRConversionError("Region label and color must be string values.")
+                    throw .other("Region label and color must be string values.")
                 }
                 let colorMapping: [String: Color] = [
                     "red": .red,
@@ -70,7 +73,7 @@ extension AnnotateImageQuestionKind: QuestionKindDefinitionWithFHIRDecodingSuppo
                     "secondary": .secondary
                 ]
                 guard let color = colorMapping[color] else {
-                    throw FHIRConversionError("Invalid color '\(color)'")
+                    throw .other("Invalid color '\(color)'")
                 }
                 return .init(name: label, color: color)
             }
@@ -79,7 +82,17 @@ extension AnnotateImageQuestionKind: QuestionKindDefinitionWithFHIRDecodingSuppo
 }
 
 extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
-    public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
+    private struct FHIRConversionError: LocalizedError {
+        let errorDescription: String?
+        
+        init(_ message: String) {
+            errorDescription = message
+        }
+    }
+    
+    public func toFHIR(
+        for task: SpeziQuestionnaire.Questionnaire.Task
+    ) throws -> [QuestionnaireResponseItemAnswer] {
         let baseImage: UIImage
         switch task.kind.variant {
         case .custom(questionKind: _, let config):

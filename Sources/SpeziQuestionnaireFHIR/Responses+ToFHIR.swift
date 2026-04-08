@@ -12,6 +12,16 @@ public import ModelsR4
 public import SpeziQuestionnaire
 
 
+/// An error that occurred when converting a Spezi `QuestionnaireResponses` object into a FHIR R4 `QuestionnaireResponse`
+private struct FHIRConversionError: LocalizedError {
+    let errorDescription: String?
+    
+    init(_ message: String) {
+        errorDescription = message
+    }
+}
+
+
 extension SpeziQuestionnaire.QuestionnaireResponses {
     /// A custom response value that can be expressed as one or more FHIR R4 `QuestionnaireResponseItemAnswer`
     public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol { // swiftlint:disable:this type_name
@@ -93,7 +103,10 @@ extension QuestionnaireResponses.Response {
         switch task.kind.variant {
         case let .custom(questionKind, config: _):
             if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIREncodingSupport.Type {
-                responseItem.answer = try questionKind.toFHIR(self, for: task)
+                do {
+                    responseItem.answer = try questionKind.toFHIR(self, for: task)
+                } catch {
+                }
                 return responseItem
             }
         default:
@@ -114,7 +127,7 @@ extension QuestionnaireResponses.Response {
                 .init(value: .boolean(response.asPrimitive()))
             ]
         case .date(let response):
-            let value = try { () -> QuestionnaireResponseItemAnswer.ValueX in
+            let value = try { () throws -> QuestionnaireResponseItemAnswer.ValueX in
                 guard case .dateTime(let config) = task.kind.variant else {
                     throw FHIRConversionError("Invalid Input")
                 }
