@@ -40,6 +40,8 @@ struct ContentView: View {
     @Environment(ResponsesStore.self) var responsesStore
     
     @State private var loadedQuestionnaire: WrappedQuestionnaire?
+    
+    @State private var showPredefinedQuestionnairePicker = false
     @State private var showFileImporter = false
     @State private var viewState: ViewState = .idle
     
@@ -74,6 +76,11 @@ struct ContentView: View {
             }
         }
         .viewStateAlert(state: $viewState)
+        .sheet(isPresented: $showPredefinedQuestionnairePicker) {
+            PredefinedQuestionnairePicker(viewState: $viewState) {
+                loadedQuestionnaire = $0
+            }
+        }
         .sheet(item: $activeQuestionnaireNewImpl) { questionnaire in
             QuestionnaireSheet(questionnaire) { result in
                 switch result {
@@ -88,7 +95,9 @@ struct ContentView: View {
                 default:
                     break
                 }
+                activeQuestionnaireNewImpl = nil
             }
+            .presentationSizing(.page)
         }
         .sheet(item: $activeQuestionnaireOldImpl) { r4Questionnaire in
             QuestionnaireView(
@@ -118,37 +127,12 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
         }
         .accessibilityLabel("Completed, \(responsesStore.responses.count)")
-        predefinedMenu
+        Button("Pick Predefined Questionnaire") {
+            showPredefinedQuestionnairePicker = true
+        }
         fileImporterButton
     }
     
-    private var predefinedMenu: some View {
-        Menu("Pick Predefined Questionnaire") {
-            Section {
-                menuButton(title: "Question Kinds Showcase", questionnaire: .testQuestionnaire)
-                menuButton(title: "Follow-Up Tasks", questionnaire: .followUpTasksQuestionnaire)
-            }
-            Section("Examples") {
-                menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
-                menuButton(title: "Multiple EnableWhen", questionnaire: .multipleEnableWhen)
-                menuButton(title: "Text Validation Example", questionnaire: .textValidationExample)
-                menuButton(title: "Contained ValueSet Example", questionnaire: .containedValueSetExample)
-                menuButton(title: "Number Example", questionnaire: .numberExample)
-                menuButton(title: "Date/Time Example", questionnaire: .dateTimeExample)
-                menuButton(title: "Form Example", questionnaire: .formExample)
-                menuButton(title: "Image Capture Example", questionnaire: .imageCaptureExample)
-                menuButton(title: "Slider Example", questionnaire: .sliderExample)
-            }
-            Section("Research") {
-                menuButton(title: "PHQ-9 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.phq9)
-                menuButton(title: "PHQ-9 (FHIR)", questionnaire: ModelsR4.Questionnaire.phq9)
-                menuButton(title: "GAD-7 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.gad7)
-                menuButton(title: "GAD-7 (FHIR)", questionnaire: ModelsR4.Questionnaire.gad7)
-                menuButton(title: "IPSS", questionnaire: .ipss)
-                menuButton(title: "GCS", questionnaire: .gcs)
-            }
-        }
-    }
     
     private var fileImporterButton: some View {
         Button("Load Questionnaire from File") {
@@ -186,18 +170,6 @@ struct ContentView: View {
                     }
                 }
             }
-        }
-    }
-    
-    private func menuButton(title: String, questionnaire: SpeziQuestionnaire.Questionnaire) -> some View {
-        Button(title) {
-            loadedQuestionnaire = .init(spezi: questionnaire)
-        }
-    }
-    
-    private func menuButton(title: String, questionnaire: ModelsR4.Questionnaire) -> some View {
-        AsyncButton(title, state: $viewState) {
-            loadedQuestionnaire = try .init(r4: questionnaire)
         }
     }
     
@@ -245,6 +217,66 @@ struct ContentView: View {
         let data = try encoder.encode(response)
         let string = String(decoding: data, as: UTF8.self)
         print(string)
+    }
+}
+
+
+extension ContentView {
+    private struct PredefinedQuestionnairePicker: View {
+        @Environment(\.dismiss) private var dismiss
+        
+        @Binding var viewState: ViewState
+        let onSelection: @MainActor (ContentView.WrappedQuestionnaire) -> Void
+        
+        var body: some View {
+            NavigationStack {
+                Form {
+                    Section {
+                        menuButton(title: "Question Kinds Showcase", questionnaire: .testQuestionnaire)
+                        menuButton(title: "Follow-Up Tasks", questionnaire: .followUpTasksQuestionnaire)
+                    }
+                    Section("Examples") {
+                        menuButton(title: "Skip Logic Example", questionnaire: .skipLogicExample)
+                        menuButton(title: "Multiple EnableWhen", questionnaire: .multipleEnableWhen)
+                        menuButton(title: "Text Validation Example", questionnaire: .textValidationExample)
+                        menuButton(title: "Contained ValueSet Example", questionnaire: .containedValueSetExample)
+                        menuButton(title: "Number Example", questionnaire: .numberExample)
+                        menuButton(title: "Date/Time Example", questionnaire: .dateTimeExample)
+                        menuButton(title: "Form Example", questionnaire: .formExample)
+                        menuButton(title: "Image Capture Example", questionnaire: .imageCaptureExample)
+                        menuButton(title: "Slider Example", questionnaire: .sliderExample)
+                    }
+                    Section("Research") {
+                        menuButton(title: "PHQ-9 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.phq9)
+                        menuButton(title: "PHQ-9 (FHIR)", questionnaire: ModelsR4.Questionnaire.phq9)
+                        menuButton(title: "GAD-7 (Native)", questionnaire: SpeziQuestionnaire.Questionnaire.gad7)
+                        menuButton(title: "GAD-7 (FHIR)", questionnaire: ModelsR4.Questionnaire.gad7)
+                        menuButton(title: "IPSS", questionnaire: .ipss)
+                        menuButton(title: "GCS", questionnaire: .gcs)
+                    }
+                }
+                .navigationTitle("Pick Questionnaire")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        DismissButton()
+                    }
+                }
+            }
+        }
+        
+        private func menuButton(title: String, questionnaire: SpeziQuestionnaire.Questionnaire) -> some View {
+            Button(title) {
+                dismiss()
+                onSelection(.init(spezi: questionnaire))
+            }
+        }
+        
+        private func menuButton(title: String, questionnaire: ModelsR4.Questionnaire) -> some View {
+            AsyncButton(title, state: $viewState) {
+                dismiss()
+                onSelection(try .init(r4: questionnaire))
+            }
+        }
     }
 }
 

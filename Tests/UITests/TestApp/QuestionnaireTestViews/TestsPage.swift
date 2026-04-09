@@ -67,6 +67,7 @@ struct TestsPage: View {
                 }
                 activeQuestionnaire = nil
             }
+            .presentationSizing(.page)
         }
     }
     

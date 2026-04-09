@@ -78,14 +78,14 @@ struct QuestionnaireSectionView<Header: View>: View {
                 // and bc it is always enabled we have to do this via the identifier...
                 .accessibilityIdentifier("ContinueButton_canContinue=\(canContinue)")
             }
+            .toolbar {
+                toolbarContent(using: scrollViewProxy)
+            }
         }
         .navigationTitle(titleConfig)
         .navigationBarTitleDisplayMode(.inline) // in case the title is long
         // disallow navigating around while an action is being performed
         .navigationBarBackButtonHidden(viewState == .processing)
-        .toolbar {
-            toolbarContent
-        }
         .accessibilityIdentifier("SpeziQuestionnaireSection")
     }
     
@@ -95,38 +95,6 @@ struct QuestionnaireSectionView<Header: View>: View {
             ViewTitleConfig(title: questionnaire.metadata.title, subtitle: section.title)
         case .answerNestedQuestions:
             nil
-        }
-    }
-    
-    @ToolbarContentBuilder private var toolbarContent: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) {
-            if responses.isComplete(in: section) && responses.nextSection(after: section, in: context.allSections) == nil {
-                // if we're about to complete the questionnaire, we turn this into a Done button
-                toolbarDoneButton
-            } else {
-                CancelButton(context: context) {
-                    Task {
-                        await resultHandler(.cancelled)
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder private var toolbarDoneButton: some View {
-        if #available(iOS 26, *) {
-            AsyncButton(role: .confirm, state: $viewState) {
-                await resultHandler(.completed(responses))
-            } label: {
-                Text("Submit", bundle: .module)
-            }
-        } else {
-            AsyncButton(state: $viewState) {
-                await resultHandler(.completed(responses))
-            } label: {
-                Label(LocalizedStringResource("Submit", bundle: .module), systemImage: "checkmark")
-            }
-            .labelStyle(.iconOnly)
         }
     }
     
@@ -184,6 +152,39 @@ struct QuestionnaireSectionView<Header: View>: View {
             resultHandler: resultHandler,
             header: header()
         )
+    }
+    
+    
+    @ToolbarContentBuilder
+    private func toolbarContent(using scrollViewProxy: ScrollViewProxy) -> some ToolbarContent {
+        let doneButton = Group {
+            if #available(iOS 26, *) {
+                AsyncButton(role: .confirm, state: $viewState) {
+                    await _advance(using: scrollViewProxy)
+                } label: {
+                    Text("Submit", bundle: .module)
+                }
+            } else {
+                AsyncButton(state: $viewState) {
+                    advance(using: scrollViewProxy)
+                } label: {
+                    Label(LocalizedStringResource("Submit", bundle: .module), systemImage: "checkmark")
+                }
+                .labelStyle(.iconOnly)
+            }
+        }
+        ToolbarItem(placement: .primaryAction) {
+            if responses.isComplete(in: section) && responses.nextSection(after: section, in: context.allSections) == nil {
+                // if we're about to complete the questionnaire, we turn this into a Done button
+                doneButton
+            } else {
+                CancelButton(context: context) {
+                    Task {
+                        await resultHandler(.cancelled)
+                    }
+                }
+            }
+        }
     }
     
     

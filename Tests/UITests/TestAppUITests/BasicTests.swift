@@ -20,6 +20,7 @@ final class BasicTests: TestAppUITests, @unchecked Sendable {
         XCTAssert(app.staticTexts["Completed, 0"].waitForExistence(timeout: 2))
         
         app.buttons["Pick Predefined Questionnaire"].tap()
+        app.swipeUp()
         app.buttons["GCS"].tap()
         
         sleep(for: .seconds(2))
@@ -52,6 +53,7 @@ final class BasicTests: TestAppUITests, @unchecked Sendable {
         XCTAssert(app.staticTexts["Completed, 0"].waitForExistence(timeout: 2))
         
         app.buttons["Pick Predefined Questionnaire"].tap()
+        app.swipeUp()
         app.buttons["GCS"].tap()
         
         sleep(for: .seconds(2))
