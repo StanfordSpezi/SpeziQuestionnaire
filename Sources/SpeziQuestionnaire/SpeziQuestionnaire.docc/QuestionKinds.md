@@ -48,7 +48,7 @@ Each custom question kind is defined as a Swift struct conforming to the ``Quest
 This struct has the following responsibilities:
 - Provide the UI that will be displayed whereever a question of this kind appears in a ``Questionnaire``;
 - Validate user-entered responses;
-- (Optional) enable support for FHIR-related operations such as.
+- (Optional) enable support for FHIR-related operations such as creating a Spezi ``Questionnaire`` from a [FHIR R4 Questionnaire](https://hl7.org/fhir/R4/questionnaire.html), or converting collected ``QuestionnaireResponses`` into a [FHIR R4 QuestionnaireResponse](https://hl7.org/fhir/R4/questionnaireresponse.html).
   See [`QuestionKindDefinitionWithFHIRSupport`](https://swiftpackageindex.com/stanfordspezi/speziquestionnaire/documentation/speziquestionnairefhir/questionkinddefinitionwithfhirsupport) for more info. 
 
 
