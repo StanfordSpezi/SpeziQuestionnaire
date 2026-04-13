@@ -6,11 +6,11 @@
 // SPDX-License-Identifier: MIT
 //
 
-import Foundation
+public import Foundation
 
 
 extension QuestionnaireResponses {
-    enum ResponseValidationResult: Sendable {
+    public enum ResponseValidationResult: Sendable {
         /// The response provided for the task is ok.
         case ok
         /// The response provided for the task is invalid.
@@ -52,7 +52,7 @@ extension QuestionnaireResponses {
             // the instant it's opened, turn bright red bc every question would complain about an invalid response
             return .ok
         }
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional:
             // instructional tasks never can have a response, so they're always ok
             return .ok
@@ -81,11 +81,27 @@ extension QuestionnaireResponses {
             guard let response = responses[task.id].value.stringValue else {
                 return .ok
             }
-            if let minLength = config.minLength, response.count < minLength {
-                return .invalid(message: "Too short: must be at least \(minLength) characters", bundle: .module)
+            func isLengthValid(_ allowed: some RangeExpression<Int>) -> Bool {
+                allowed.contains(response.count)
             }
-            if let maxLength = config.maxLength, response.count > maxLength {
-                return .invalid(message: "Too long: can be at most \(maxLength) characters", bundle: .module)
+            switch (config.minLength, config.maxLength) {
+            case (.none, .none):
+                break
+            case (.some(let minLength), .none):
+                if !isLengthValid(minLength...) {
+                    return .invalid(message: "Too short: must be at least \(minLength) characters", bundle: .module)
+                }
+            case (.none, .some(let maxLength)):
+                if !isLengthValid(...maxLength) {
+                    return .invalid(message: "Too long: can be at most \(maxLength) characters", bundle: .module)
+                }
+            case let (.some(minLength), .some(maxLength)):
+                guard maxLength >= minLength else {
+                    break
+                }
+                if !isLengthValid(minLength...maxLength) {
+                    return .invalid(message: "Length must be between \(minLength) and \(maxLength)", bundle: .module)
+                }
             }
             let responseNSString = response as NSString
             let wholeStringRange = NSRange(location: 0, length: responseNSString.length)
@@ -161,8 +177,23 @@ extension QuestionnaireResponses {
                     : .invalid(message: "Limited to \(maxDecimalPlaces) decimal places", bundle: .module)
             }
             return .ok
-        case .fileAttachment, .annotateImage:
+        case .fileAttachment:
             return .ok
+        case let .custom(questionKind, config):
+            return questionKind.validate(response: responses[task.id], for: config)
         }
+    }
+}
+
+
+extension QuestionKindDefinition {
+    fileprivate static func validate(
+        response: QuestionnaireResponses.Response,
+        for config: any QuestionKindConfig
+    ) -> QuestionnaireResponses.ResponseValidationResult {
+        guard let config = config as? Config else {
+            return .invalid(message: "Internal Error", bundle: .module)
+        }
+        return self.validate(response: response, for: config)
     }
 }

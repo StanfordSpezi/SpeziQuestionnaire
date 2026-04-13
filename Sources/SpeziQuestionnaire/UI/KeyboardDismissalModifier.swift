@@ -17,17 +17,19 @@ private struct KeyboardDismissalModifier: ViewModifier {
         content
             .focused($isFocused)
             .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    Spacer()
-                }
-                ToolbarItem(placement: .keyboard) {
-                    Button {
-                        isFocused = false
-                    } label: {
-                        Image(systemName: "checkmark")
-                            .accessibilityLabel(Text("Dismiss Keyboard", bundle: .module))
+                if isFocused {
+                    ToolbarItem(placement: .keyboard) {
+                        Spacer()
                     }
-                    .buttonStyleGlassProminent()
+                    ToolbarItem(placement: .keyboard) {
+                        Button {
+                            isFocused = false
+                        } label: {
+                            Image(systemName: "checkmark")
+                                .accessibilityLabel(Text("Dismiss Keyboard", bundle: .module))
+                        }
+                        .buttonStyleGlassProminent()
+                    }
                 }
             }
     }
@@ -35,6 +37,7 @@ private struct KeyboardDismissalModifier: ViewModifier {
 
 
 extension View {
+    /// Places a checkmark button above the system keyboard, that ends editing in the view, causing the keyboard to dismiss.
     func enableDismissalViaKeyboardAccessory() -> some View {
         self.modifier(KeyboardDismissalModifier())
     }

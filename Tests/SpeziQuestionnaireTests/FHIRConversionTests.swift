@@ -33,7 +33,7 @@ struct FHIRConversionTests {
         let questionnaire = SpeziQuestionnaire.Questionnaire.phq9
         let responses = QuestionnaireResponses(questionnaire: questionnaire)
         for task in questionnaire.sections.flatMap(\.tasks) {
-            switch task.kind {
+            switch task.kind.variant {
             case .instructional:
                 break // ignore
             case .choice(let config):
@@ -59,6 +59,29 @@ struct FHIRConversionTests {
             response.questionnaire = nil
         }
         #expect(fhirResponse == expected)
+    }
+    
+    
+    @Test
+    func responseConversion() throws {
+        let questionnaire = SpeziQuestionnaire.Questionnaire(
+            metadata: .init(id: "", url: nil, title: "", explainer: ""),
+            sections: [
+                .init(id: "s0", tasks: [
+                    .init(id: "t0", title: "", kind: .numeric(.init(inputMode: .numberPad(.integer))))
+                ])
+            ]
+        )
+        let responses = QuestionnaireResponses(questionnaire: questionnaire)
+        responses.responses["t0"].value.numberValue = 123
+        let fhir = try ModelsR4.QuestionnaireResponse(responses)
+        let items = try #require(fhir.item)
+        #expect(items.count == 1)
+        let item = try #require(items.first)
+        let answers = try #require(item.answer)
+        #expect(answers.count == 1)
+        let answer = try #require(answers.first)
+        #expect(answer.value == .decimal(123.asFHIRDecimalPrimitive()))
     }
     
     
@@ -135,7 +158,7 @@ struct FHIRConversionTests {
         let q2Task = try #require(section.tasks.first { $0.id == "q2" })
         
         // The converted option id should be the bare code "LA6568-5"
-        guard case .choice(let choiceConfig) = q1Task.kind else {
+        guard case .choice(let choiceConfig) = q1Task.kind.variant else {
             Issue.record("Expected q1 to be a choice task")
             return
         }

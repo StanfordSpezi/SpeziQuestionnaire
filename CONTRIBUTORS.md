@@ -11,5 +11,5 @@ SPDX-License-Identifier: MIT
 Spezi Questionnaire Contributors
 ====================
 
+* [Lukas Kollmer](https://github.com/lukaskollmer)
 * [Paul Schmiedmayer](https://github.com/PSchmiedmayer)
-* [Vishnu Ravi](https://github.com/vishnuravi)

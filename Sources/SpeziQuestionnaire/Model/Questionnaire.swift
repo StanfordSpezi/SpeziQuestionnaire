@@ -19,7 +19,7 @@ private import SpeziFoundation
 ///
 /// ### Interoperability
 ///
-/// The `Questionnaire` type is compatible with  [FHIR R4 questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
+/// The `Questionnaire` type is compatible with [FHIR R4 questionnaires](https://hl7.org/fhir/R4/questionnaire.html)
 ///
 ///
 /// ## Topics
@@ -78,14 +78,16 @@ extension Questionnaire.Task {
     func withConditionsSimplified() -> Self {
         var copy = self
         copy.enabledCondition.simplify()
-        switch copy.kind {
-        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment, .annotateImage:
+        switch copy.kind.variant {
+        case .boolean, .dateTime, .freeText, .numeric, .instructional, .fileAttachment:
             break
         case .choice(var config):
             config.followUpTasks = config.followUpTasks.map {
                 $0.withConditionsSimplified()
             }
             copy.kind = .choice(config)
+        case let .custom(questionKind, config):
+            copy.kind = .init(variant: .custom(questionKind: questionKind, config: config.withConditionsSimplified()))
         }
         return copy
     }

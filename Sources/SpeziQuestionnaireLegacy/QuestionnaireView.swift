@@ -15,6 +15,8 @@ public import SwiftUI
 
 /// Present a FHIR `Questionnaire` to the user.
 ///
+/// - Important: The `QuestionnaireView` will be replaced with the new `QuestionnaireSheet` in a future release.
+///
 /// Note that the ``QuestionnaireView`` does not dismiss itself; the presenting view is responsible for this.
 ///
 /// - Important: This type has been deprecated in favor of `QuestionnaireSheet`.

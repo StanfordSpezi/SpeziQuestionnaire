@@ -10,6 +10,8 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
+let enableSwiftLintPlugin = false
+
 
 let package = Package(
     name: "SpeziQuestionnaire",
@@ -26,14 +28,15 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/StanfordSpezi/SpeziViews.git", from: "1.12.14"),
         .package(url: "https://github.com/apple/FHIRModels.git", from: "0.7.0"),
+        .package(url: "https://github.com/StanfordSpezi/SpeziFoundation.git", from: "2.7.5"),
         .package(url: "https://github.com/StanfordBDHG/FHIRModelsExtensions.git", from: "0.1.0"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKitOnFHIR.git", from: "3.0.0-beta.1"),
         .package(url: "https://github.com/StanfordBDHG/ResearchKit.git", from: "3.1.4"),
         .package(url: "https://github.com/apple/swift-algorithms.git", from: "1.2.1"),
         .package(url: "https://github.com/apple/swift-numerics.git", from: "1.1.1"),
         .package(url: "https://github.com/gonzalezreal/swift-markdown-ui.git", from: "2.4.1"),
-        .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.4")
-    ] + swiftLintPackage(),
+        .package(url: "https://github.com/StanfordBDHG/XCTestExtensions.git", from: "1.2.6")
+    ] + swiftLintPackage,
     targets: [
         .target(
             name: "SpeziQuestionnaire",
@@ -48,7 +51,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")
             ],
-            plugins: [] + swiftLintPlugin()
+            plugins: [] + swiftLintPlugin
         ),
         .target(
             name: "SpeziQuestionnaireCatalog",
@@ -57,7 +60,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")
             ],
-            plugins: [] + swiftLintPlugin()
+            plugins: [] + swiftLintPlugin
         ),
         .target(
             name: "SpeziQuestionnaireFHIR",
@@ -65,13 +68,14 @@ let package = Package(
                 "SpeziQuestionnaire",
                 .product(name: "ModelsR4", package: "FHIRModels"),
                 .product(name: "FHIRModelsExtensions", package: "FHIRModelsExtensions"),
-                .product(name: "Algorithms", package: "swift-algorithms")
+                .product(name: "Algorithms", package: "swift-algorithms"),
+                .product(name: "SpeziFoundation", package: "SpeziFoundation")
             ],
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")
             ],
-            plugins: [] + swiftLintPlugin()
+            plugins: [] + swiftLintPlugin
         ),
         .target(
             name: "SpeziQuestionnaireLegacy",
@@ -84,7 +88,8 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")
-            ]
+            ],
+            plugins: [] + swiftLintPlugin
         ),
         .target(
             name: "XCTSpeziQuestionnaire",
@@ -94,7 +99,8 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault")
-            ]
+            ],
+            plugins: [] + swiftLintPlugin
         ),
         .testTarget(
             name: "SpeziQuestionnaireTests",
@@ -103,27 +109,29 @@ let package = Package(
                 "SpeziQuestionnaireCatalog",
                 "SpeziQuestionnaireFHIR",
                 .product(name: "ModelsR4", package: "FHIRModels"),
+                .product(name: "FHIRModelsExtensions", package: "FHIRModelsExtensions"),
                 .product(name: "FHIRQuestionnaires", package: "FHIRModelsExtensions")
             ],
             resources: [.process("Resources")],
-            plugins: [] + swiftLintPlugin()
+            plugins: [] + swiftLintPlugin
         )
     ]
 )
 
 
-func swiftLintPlugin() -> [Target.PluginUsage] {
-    // Fully quit Xcode and open again with `open --env SPEZI_DEVELOPMENT_SWIFTLINT /Applications/Xcode.app`
-    if ProcessInfo.processInfo.environment["SPEZI_DEVELOPMENT_SWIFTLINT"] != nil {
-        [.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLint")]
+// MARK: SwiftLint support
+
+var swiftLintPlugin: [Target.PluginUsage] {
+    if enableSwiftLintPlugin {
+        [.plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLintPlugins")]
     } else {
         []
     }
 }
 
-func swiftLintPackage() -> [PackageDescription.Package.Dependency] {
-    if ProcessInfo.processInfo.environment["SPEZI_DEVELOPMENT_SWIFTLINT"] != nil {
-        [.package(url: "https://github.com/realm/SwiftLint.git", from: "0.55.1")]
+var swiftLintPackage: [PackageDescription.Package.Dependency] {
+    if enableSwiftLintPlugin {
+        [.package(url: "https://github.com/SimplyDanny/SwiftLintPlugins.git", from: "0.63.2")]
     } else {
         []
     }

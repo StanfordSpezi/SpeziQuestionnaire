@@ -68,7 +68,9 @@ struct GAS7QuestionnaireView: View {
 ### Questionnaire Definitions
 - ``Questionnaire``
 - ``QuestionnaireResponses``
+- <doc:QuestionKinds>
 
 ### UI
 - ``QuestionnaireSheet``
+- ``QuestionnaireView``
             

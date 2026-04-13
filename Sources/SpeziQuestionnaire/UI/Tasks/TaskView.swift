@@ -60,7 +60,7 @@ struct TaskView<Header: View>: View {
     }
     
     @ViewBuilder private var mainContent: some View {
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional(let text):
             Instructions(text: text)
         case .choice(let config):
@@ -75,8 +75,8 @@ struct TaskView<Header: View>: View {
             yesNoRows
         case .fileAttachment(let config):
             FileAttachmentQuestionView(config: config, attachments: $response.value.attachmentsValue.withDefault([]))
-        case .annotateImage(let config):
-            AnnotateImageView(task: task, config: config, response: $response.value.annotatedImageValue.withDefault(.init()))
+        case let .custom(questionKind, config):
+            questionKind.makeView(for: task, using: config, response: $response).intoAnyView()
         }
     }
     
@@ -91,5 +91,29 @@ struct TaskView<Header: View>: View {
         } set: { isSelected in
             response.value.boolValue = isSelected ? false : nil
         })
+    }
+}
+
+
+extension QuestionKindDefinition {
+    @MainActor
+    @ViewBuilder
+    fileprivate static func makeView(
+        for task: Questionnaire.Task,
+        using config: any QuestionKindConfig,
+        response: Binding<QuestionnaireResponses.Response>
+    ) -> some SwiftUI.View {
+        if let config = config as? Config {
+            self.makeView(for: task, using: config, response: response)
+        } else {
+            EmptyView()
+        }
+    }
+}
+
+
+extension View {
+    func intoAnyView() -> AnyView {
+        AnyView(self)
     }
 }

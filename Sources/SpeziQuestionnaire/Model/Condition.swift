@@ -7,6 +7,7 @@
 //
 
 public import Foundation
+private import SpeziFoundation
 
 
 extension Questionnaire {
@@ -28,6 +29,9 @@ extension Questionnaire {
     /// - ``not(_:)``
     /// - ``any(_:)``
     /// - ``all(_:)``
+    /// - ``none``
+    /// - ``true``
+    /// - ``false``
     /// - ``init(booleanLiteral:)``
     /// - ``hasResponse(taskId:)``
     /// - ``isMissingResponse(taskId:)``
@@ -36,19 +40,19 @@ extension Questionnaire {
     /// ### Supporting Types
     /// - ``ComparisonOperator``
     /// - ``Value``
-    public indirect enum Condition: Hashable, ExpressibleByBooleanLiteral, Sendable {
+    public indirect enum Condition: ExpressibleByBooleanLiteral, Sendable {
         /// A condition that is satisfied if `nested` is not satisfied.
         case not(_ nested: Condition)
         
         /// A condition that is satisfied if any of its contained conditions are satisfied..
         ///
         /// If there are no nested conditions, `any` evaluates to `false`.
-        case any([Condition])
+        case any(Set<Condition>)
         
         /// A condition that is satisfied if all of its contained conditions are satisfied.
         ///
         /// If there are no nested conditions, `all` evaluates to `true`.
-        case all([Condition])
+        case all(Set<Condition>)
         
         /// A condition that is satisfied if a response exists for the task at `taskPath`.
         ///
@@ -110,6 +114,16 @@ extension Questionnaire {
             true
         }
         
+        /// A `Condition` that is always true.
+        public static var `true`: Self {
+            true
+        }
+        
+        /// A `Condition` that is always false.
+        public static var `false`: Self {
+            false
+        }
+        
         /// Creates a ``Condition`` that always evaluates to the specified boolean value.
         public init(booleanLiteral value: Bool) {
             self = value ? .all([]) : .any([])
@@ -128,6 +142,58 @@ extension Questionnaire {
         /// Negates a condition
         public static prefix func ! (rhs: Self) -> Self {
             .not(rhs)
+        }
+    }
+}
+
+
+extension Questionnaire.Condition: Hashable {
+    /// Determines whether two conditions are semantically equivalent.
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.simplified().isEqual(to: rhs.simplified())
+    }
+    
+    private func isEqual(to other: Self) -> Bool {
+        switch (self, other) {
+        case let (.not(lhs), .not(rhs)):
+            lhs.isEqual(to: rhs)
+        case let (.any(lhs), .any(rhs)):
+            Set(lhs) == Set(rhs)
+        case let (.all(lhs), .all(rhs)):
+            Set(lhs) == Set(rhs)
+        case let (.hasResponse(lhs), .hasResponse(rhs)):
+            lhs == rhs
+        case let (.isMissingResponse(lhs), .isMissingResponse(rhs)):
+            lhs == rhs
+        case let (.responseValueComparison(lhsTask, lhsOp, lhsVal), .responseValueComparison(rhsTask, rhsOp, rhsVal)):
+            lhsTask == rhsTask && lhsOp == rhsOp && lhsVal == rhsVal
+        default:
+            false
+        }
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        switch simplified() {
+        case .not(let inner):
+            hasher.combine(0)
+            hasher.combine(inner)
+        case .any(let inner):
+            hasher.combine(1)
+            hasher.combine(inner)
+        case .all(let inner):
+            hasher.combine(2)
+            hasher.combine(inner)
+        case .hasResponse(let taskId):
+            hasher.combine(3)
+            hasher.combine(taskId)
+        case .isMissingResponse(let taskId):
+            hasher.combine(4)
+            hasher.combine(taskId)
+        case let .responseValueComparison(taskId, `operator`, value):
+            hasher.combine(5)
+            hasher.combine(taskId)
+            hasher.combine(`operator`)
+            hasher.combine(value)
         }
     }
 }
@@ -152,24 +218,32 @@ extension Questionnaire.Condition {
                 return .not(inner)
             }
         case .any(let inner):
-            let inner = inner.mapIntoSet { $0.simplified() }
+            let inner: Set<Self> = inner.compactMapIntoSet {
+                switch $0.simplified() {
+                case false: nil
+                case let cond: cond
+                }
+            }
             if inner.isEmpty {
                 return false
             } else if inner.contains(true) {
                 return true
             } else {
-                return .any(Array(inner))
+                return .any(inner)
             }
         case .all(let inner):
-            let inner = inner.mapIntoSet { $0.simplified() }
+            let inner: Set<Self> = inner.compactMapIntoSet {
+                switch $0.simplified() {
+                case true: nil
+                case let cond: cond
+                }
+            }
             if inner.isEmpty {
                 return true
             } else if inner.contains(false) {
                 return false
-            } else if inner == [true] {
-                return true
             } else {
-                return .all(Array(inner))
+                return .all(inner)
             }
         case .hasResponse, .isMissingResponse, .responseValueComparison:
             return self

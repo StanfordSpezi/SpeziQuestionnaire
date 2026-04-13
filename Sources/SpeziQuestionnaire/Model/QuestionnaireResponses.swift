@@ -11,6 +11,27 @@ public import Observation
 
 
 /// Stores and manages responses to a questionnaire.
+///
+/// ## Topics
+///
+/// ### Instance Properties
+/// - ``id``
+/// - ``questionnaire``
+/// - ``responses``
+///
+/// ### Path Utilities
+/// - ``ResponsesPath``
+/// - ``ResponsePath``
+/// - ``ResponsePathComponent``
+///
+/// ### Custom Response Support
+/// - ``CustomResponseValueProtocol``
+///
+/// ### Response Data Types
+/// - ``Response``
+/// - ``ChoiceResponse``
+/// - ``ImageAnnotation``
+/// - ``CollectedAttachment``
 @Observable
 public final class QuestionnaireResponses: Identifiable {
     /// The responses object's variant.
@@ -91,6 +112,7 @@ public final class QuestionnaireResponses: Identifiable {
         }
     }
     
+    /// The responses collected from the questionnaire.
     public internal(set) var responses: Responses {
         get {
             switch _variant {
@@ -133,11 +155,11 @@ public final class QuestionnaireResponses: Identifiable {
 
 extension QuestionnaireResponses {
     func hasResponse(for task: Questionnaire.Task) -> Bool {
-        switch task.kind {
+        switch task.kind.variant {
         case .instructional:
             // instructional tasks never collect a response; they are always considered as being complete.
             true
-        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment, .annotateImage:
+        case .boolean, .choice, .freeText, .dateTime, .numeric, .fileAttachment, .custom:
             responses[task.id].value != .none
         }
     }
@@ -215,7 +237,7 @@ extension QuestionnaireResponses {
                 // Found nested responses for a task that doesn't have nested questions
                 responses[task.id].nestedResponses.removeAll()
             }
-            switch task.kind {
+            switch task.kind.variant {
             case .choice(let config):
                 for option in config.options {
                     self
@@ -224,7 +246,7 @@ extension QuestionnaireResponses {
                 }
             case .instructional:
                 responses[task.id] = .init(value: .none)
-            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, .annotateImage:
+            case .boolean, .freeText, .dateTime, .numeric, .fileAttachment, .custom:
                 break
             }
         }

@@ -55,6 +55,7 @@ struct ChoiceRow<AccessoryIfSelected: View>: View {
         }
     }
     
+    /// Creates a `ChoiceRow`, which is a reusable view that represents a row in a single/multiple selection list.
     init(
         id: String,
         title: String,

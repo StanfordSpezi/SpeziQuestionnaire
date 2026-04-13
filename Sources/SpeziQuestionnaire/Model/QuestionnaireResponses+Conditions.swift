@@ -147,7 +147,7 @@ extension QuestionnaireResponses {
             }
             let task = resolved.task
             let responses = resolved.responses.responses
-            switch task.kind {
+            switch task.kind.variant {
             case .instructional:
                 return false
             case .boolean:
@@ -281,9 +281,37 @@ extension QuestionnaireResponses {
                     // invalid match
                     return false
                 }
-            case .fileAttachment, .annotateImage:
+            case .fileAttachment:
                 return false
+            case let .custom(questionKind, config):
+                let response = responses[taskId].value
+                return questionKind.evaluateResponseValueComparison(
+                    for: config,
+                    response: response,
+                    operator: `operator`,
+                    value: value
+                )
             }
         }
+    }
+}
+
+
+extension QuestionKindDefinition {
+    fileprivate static func evaluateResponseValueComparison(
+        for config: any QuestionKindConfig,
+        response: QuestionnaireResponses.Response.Value,
+        operator: Questionnaire.Condition.ComparisonOperator,
+        value: Questionnaire.Condition.Value
+    ) -> Bool {
+        guard let config = config as? Config else {
+            return false
+        }
+        return self.evaluateResponseValueComparison(
+            for: config,
+            response: response,
+            operator: `operator`,
+            value: value
+        )
     }
 }

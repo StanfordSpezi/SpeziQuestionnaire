@@ -10,7 +10,7 @@ import XCTest
 import XCTSpeziQuestionnaire
 
 
-final class ConditionTests: TestAppUITests {
+final class ConditionTests: TestAppUITests, @unchecked Sendable {
     @MainActor
     func testSimpleCondition() {
         launchAppAndGoToOtherTest(named: "Simple Condition")

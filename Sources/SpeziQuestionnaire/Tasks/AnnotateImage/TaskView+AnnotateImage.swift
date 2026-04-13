@@ -19,7 +19,7 @@ struct AnnotateImageView: View {
     
     private let image: UIImage?
     private let task: Questionnaire.Task
-    private let config: Questionnaire.Task.Kind.AnnotateImageConfig
+    private let config: AnnotateImageConfig
     @Binding private var response: QuestionnaireResponses.ImageAnnotation
     
     @State private var showSheet = false
@@ -65,7 +65,7 @@ struct AnnotateImageView: View {
     
     init(
         task: Questionnaire.Task,
-        config: Questionnaire.Task.Kind.AnnotateImageConfig,
+        config: AnnotateImageConfig,
         response: Binding<QuestionnaireResponses.ImageAnnotation>
     ) {
         self.task = task
@@ -84,7 +84,7 @@ struct AnnotateImageView: View {
 
 
 extension AnnotateImageView {
-    fileprivate static func ink(for region: Questionnaire.Task.Kind.AnnotateImageConfig.Region) -> PKInk {
+    fileprivate static func ink(for region: AnnotateImageConfig.Region) -> PKInk {
         PKInk(.pen, color: UIColor(region.color))
     }
 }
@@ -126,13 +126,13 @@ private struct Sheet: View {
     @Environment(\.dismiss) private var dismiss
     
     let task: Questionnaire.Task
-    let config: Questionnaire.Task.Kind.AnnotateImageConfig
+    let config: AnnotateImageConfig
     let image: UIImage
     @Binding var response: QuestionnaireResponses.ImageAnnotation
     
     @State private var isDrawing = false
     @State private var isShowingToolPicker = false
-    @State private var selectedRegion: Questionnaire.Task.Kind.AnnotateImageConfig.Region?
+    @State private var selectedRegion: AnnotateImageConfig.Region?
     @State private var isShowingResetAlert = false
     
     var body: some View {
@@ -223,7 +223,7 @@ private struct Sheet: View {
 
 extension Sheet {
     private struct RegionRow: View {
-        typealias Region = Questionnaire.Task.Kind.AnnotateImageConfig.Region
+        typealias Region = AnnotateImageConfig.Region
         
         @Environment(\.colorScheme) private var colorScheme
         

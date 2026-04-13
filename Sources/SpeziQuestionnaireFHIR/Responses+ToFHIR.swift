@@ -9,20 +9,21 @@
 private import CryptoKit
 private import Foundation
 public import ModelsR4
-private import PencilKit
 public import SpeziQuestionnaire
 
 
-private struct FHIRConversionError: Error {
-    let message: String
+/// An error that occurred when converting a Spezi `QuestionnaireResponses` object into a FHIR R4 `QuestionnaireResponse`
+private struct FHIRConversionError: LocalizedError {
+    let errorDescription: String?
     
     init(_ message: String) {
-        self.message = message
+        errorDescription = message
     }
 }
 
 
 extension SpeziQuestionnaire.QuestionnaireResponses {
+    /// A custom response value that can be expressed as one or more FHIR R4 `QuestionnaireResponseItemAnswer`
     public protocol CustomResponseValueProtocolWithFHIRSupport: CustomResponseValueProtocol { // swiftlint:disable:this type_name
         /// Generates a FHIR R4 [`QuestionnaireResponseItemAnswer`](https://build.fhir.org/questionnaireresponse-definitions.html#QuestionnaireResponse.item.answer) for this custom value.
         ///
@@ -99,6 +100,18 @@ extension QuestionnaireResponses.Response {
         let responseItem = QuestionnaireResponseItem(
             linkId: context.task.id.asFHIRStringPrimitive()
         )
+        switch task.kind.variant {
+        case let .custom(questionKind, config: _):
+            if let questionKind = questionKind as? any QuestionKindDefinitionWithFHIREncodingSupport.Type {
+                do {
+                    responseItem.answer = try questionKind.toFHIR(self, for: task)
+                } catch {
+                }
+                return responseItem
+            }
+        default:
+            break
+        }
         switch self.value {
         case .none:
             guard nestedResponses.isEmpty else {
@@ -114,8 +127,8 @@ extension QuestionnaireResponses.Response {
                 .init(value: .boolean(response.asPrimitive()))
             ]
         case .date(let response):
-            let value = try { () -> QuestionnaireResponseItemAnswer.ValueX in
-                guard case .dateTime(let config) = task.kind else {
+            let value = try { () throws -> QuestionnaireResponseItemAnswer.ValueX in
+                guard case .dateTime(let config) = task.kind.variant else {
                     throw FHIRConversionError("Invalid Input")
                 }
                 switch config.style {
@@ -148,7 +161,7 @@ extension QuestionnaireResponses.Response {
             }()
             responseItem.answer = [.init(value: value)]
         case .number(let response):
-            guard case .numeric(let config) = task.kind else {
+            guard case .numeric(let config) = task.kind.variant else {
                 throw FHIRConversionError("Invalid Input")
             }
             let value: QuestionnaireResponseItemAnswer.ValueX
@@ -163,7 +176,7 @@ extension QuestionnaireResponses.Response {
             }
             responseItem.answer = [.init(value: value)]
         case .choice(let response):
-            guard case .choice(let config) = task.kind else {
+            guard case .choice(let config) = task.kind.variant else {
                 throw FHIRConversionError("Invalid Input")
             }
             responseItem.answer = try response.selectedOptions.map { optionId in
@@ -196,20 +209,29 @@ extension QuestionnaireResponses.Response {
                 responseItem.answer = nil
             }
         }
-        for (nestingId, responses) in nestedResponses {
-            switch nestingId {
-            case .choiceOption(let optionId):
-                guard let option = task.kind.choiceOptions.first(where: { $0.id == optionId }) else {
-                    throw FHIRConversionError("Unable to find choice option '\(optionId)'")
+        guard !nestedResponses.isEmpty else {
+            return responseItem
+        }
+        switch task.kind.variant {
+        case .choice(let taskConfig):
+            for (nestingId, responses) in nestedResponses {
+                switch nestingId {
+                case .choiceOption(let optionId):
+                    guard let option = taskConfig.options.first(where: { $0.id == optionId }) else {
+                        throw FHIRConversionError("Unable to find choice option '\(optionId)'")
+                    }
+                    guard self.value.choiceValue.selectedOptions.contains(option.id) else {
+                        throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
+                    }
+                    guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.toFHIRCoding()) }) else {
+                        throw FHIRConversionError("Unable to find answer for choice option")
+                    }
+                    answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
                 }
-                guard self.value.choiceValue.selectedOptions.contains(option.id) else {
-                    throw FHIRConversionError("Found a nested answer for a choice option that isn't selected ('\(option.id)')")
-                }
-                guard let answer = (responseItem.answer ?? []).first(where: { $0.value == .coding(option.toFHIRCoding()) }) else {
-                    throw FHIRConversionError("Unable to find answer for choice option")
-                }
-                answer.item = try responses.toFHIR(using: .init(allTasks: task.kind.followUpTasks))
             }
+        default:
+            // Question: how to best handle this?
+            throw FHIRConversionError("Invalid Input")
         }
         return responseItem
     }
@@ -242,36 +264,6 @@ extension QuestionnaireResponseItem {
         } else {
             throw FHIRConversionError("Unable to get linkId")
         }
-    }
-}
-
-
-extension QuestionnaireResponses.ImageAnnotation: SpeziQuestionnaire.QuestionnaireResponses.CustomResponseValueProtocolWithFHIRSupport {
-    public func toFHIR(for task: SpeziQuestionnaire.Questionnaire.Task) throws -> [QuestionnaireResponseItemAnswer] {
-        let baseImage: UIImage
-        switch task.kind {
-        case .annotateImage(let config):
-            guard let image = config.inputImage.image() else {
-                // Simply draw the annotation onto a clear backgrund in this case? (no.)
-                throw FHIRConversionError("Unable to obtain baseImage")
-            }
-            baseImage = image
-        default:
-            throw FHIRConversionError("Invalid task kind")
-        }
-        guard let annotatedImage = self.draw(onto: baseImage) else {
-            throw FHIRConversionError("Unable to draw annotated image")
-        }
-        let tmpUrl = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, conformingTo: .png)
-        guard let pngData = annotatedImage.pngData() else {
-            throw FHIRConversionError("Unable to process annotated image")
-        }
-        try pngData.write(to: tmpUrl)
-        defer {
-            try? FileManager.default.removeItem(at: tmpUrl)
-        }
-        let attachment = try QuestionnaireResponses.CollectedAttachment(url: tmpUrl)
-        return try [QuestionnaireResponseItemAnswer(attachment)]
     }
 }
 
