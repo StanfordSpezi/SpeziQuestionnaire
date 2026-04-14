@@ -206,7 +206,7 @@ extension ModelsR4.QuestionnaireItem {
         case .display, .boolean, .decimal, .integer, .date, .dateTime, .time, .string, .text, .url, .choice, .openChoice, .attachment, .reference, .quantity, .question:
             let task = SpeziQuestionnaire.Questionnaire.Task(
                 id: try self.getLinkId(),
-                title: self.text?.value?.string ?? "",
+                title: itemType == .display ? "" : self.text?.value?.string ?? "",
                 kind: try toTaskKind(using: context),
                 isOptional: !(self.required?.value?.bool ?? true), // if the `required` field is not set, we assume it to be true.
                 enabledCondition: try context.parentItemCondition && .init(self, using: context)

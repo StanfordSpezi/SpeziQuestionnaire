@@ -55,6 +55,14 @@ struct QuestionnaireSectionView<Header: View>: View {
                         }
                     }
                     .id(task.id)
+                    .environment(\.scrollToNextTask) {
+                        guard let nextTask = section.nextEnabledTask(after: task, using: responses) else {
+                            return
+                        }
+                        withAnimation {
+                            scrollViewProxy.scrollTo(nextTask.id, anchor: .top)
+                        }
+                    }
                 }
                 // disallow mutating responses while an action is being performed
                 .disabled(viewState == .processing)
@@ -173,16 +181,21 @@ struct QuestionnaireSectionView<Header: View>: View {
                 .labelStyle(.iconOnly)
             }
         }
+        let cancelButton = CancelButton(context: context) {
+            Task {
+                await resultHandler(.cancelled)
+            }
+        }
+        let isFirstPage = navigationPath.count == 1
+        ToolbarItem(placement: .cancellationAction) {
+            cancelButton
+        }
         ToolbarItem(placement: .primaryAction) {
             if responses.isComplete(in: section) && responses.nextSection(after: section, in: context.allSections) == nil {
                 // if we're about to complete the questionnaire, we turn this into a Done button
                 doneButton
-            } else {
-                CancelButton(context: context) {
-                    Task {
-                        await resultHandler(.cancelled)
-                    }
-                }
+//            } else {
+//                cancelButton
             }
         }
     }
@@ -237,6 +250,11 @@ struct QuestionnaireSectionView<Header: View>: View {
             }
         }
     }
+}
+
+
+extension EnvironmentValues {
+    @Entry var scrollToNextTask: () -> Void = {}
 }
 
 

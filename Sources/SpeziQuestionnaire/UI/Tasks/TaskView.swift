@@ -11,6 +11,7 @@ import SwiftUI
 
 struct TaskView<Header: View>: View {
     @Environment(QuestionnaireResponses.self) private var allResponses
+    @Environment(\.scrollToNextTask) private var scrollToNextTask
     
     let section: Questionnaire.Section
     let task: Questionnaire.Task
@@ -81,15 +82,22 @@ struct TaskView<Header: View>: View {
     }
     
     @ViewBuilder private var yesNoRows: some View {
+        // TODO unify this w/ tge regylar choiceRow thing!!! 
         SimpleChoiceRow(option: .init(id: "true", title: "Yes"), isSelected: Binding {
             response.value.boolValue == true
         } set: { isSelected in
             response.value.boolValue = isSelected ? true : nil
+            if isSelected {
+                scrollToNextTask()
+            }
         })
         SimpleChoiceRow(option: .init(id: "false", title: "No"), isSelected: Binding {
             response.value.boolValue == false
         } set: { isSelected in
             response.value.boolValue = isSelected ? false : nil
+            if isSelected {
+                scrollToNextTask()
+            }
         })
     }
 }
